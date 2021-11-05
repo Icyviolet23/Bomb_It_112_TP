@@ -36,10 +36,10 @@ def drawgrid(app, canvas):
             x0, y0, x1, y1 = getCellBounds(app, row, col)
             canvas.create_rectangle(x0 + app.shift, y0 + app.margin, x1 + app.shift, y1 + app.margin)
 
-def gameMode_keyPressed(app):
+def gameMode_keyPressed(app, event):
     pass
 
-def gameMode_mousePressed(app):
+def gameMode_mousePressed(app, event):
     pass
 
 def gameMode_redrawAll(app,canvas):
