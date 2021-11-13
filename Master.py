@@ -38,15 +38,15 @@ def gamegraphics(app):
     app.klee = app.loadImage('Images\KleeSprite.png')
     app.kleesprite = []
     #modified from https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html
-    for i in range(32):
-        sprite = app.klee.crop((30+26*i, 30, 230+26*i, 250))
-        app.kleesprite.append(sprite)
-    app.spriteCounter = 0
+    # for i in range(32):
+    #     sprite = app.klee.crop((30+26*i, 30, 230+26*i, 250))
+    #     app.kleesprite.append(sprite)
+    # app.spriteCounter = 0
 
 
 def drawKlee(app, canvas):
     sprite = app.kleesprite[app.spriteCounter]
-    print(app.kleesprite)
+    #print(app.kleesprite)
     canvas.create_image(app.width/2, app.height/2, image=ImageTk.PhotoImage(sprite))
 
 def drawgrid(app, canvas):
@@ -66,7 +66,7 @@ def gameMode_mousePressed(app, event):
 
 def gameMode_redrawAll(app,canvas):
     drawgrid(app, canvas)
-    drawKlee(app, canvas)
+    #drawKlee(app, canvas)
 
 #########################################################
 def runGame():
