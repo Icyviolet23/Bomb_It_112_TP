@@ -1,5 +1,6 @@
 import random
 import math
+import copy
 
 class Graph(object):
     def __init__(self, row, col):
@@ -36,6 +37,24 @@ class Node(object):
         #List containing all points that this node is connected to
         self.edges = []
 
+    def updateRow(self, num):
+        self.row = self.row * num
+    
+    def updateCol(self, num):
+        self.col = self.col * num
+
+    def updateEdge(self, num):
+        result = []
+        #returns new instance
+        for edge in self.edges:
+            new = copy.deepcopy(edge)
+            new.updateCol(num)
+            new.updateRow(num)
+            result.append(new)
+        self.edges = result
+            
+
+
 class Wall(object):
     def __init__(self, image, destructible):
         self.image = image
@@ -44,10 +63,10 @@ class Wall(object):
         self.destructible = destructible
 
 ##Recursive Backtracking Maze Generator
-
+#Generates half of the graph dimensions
 def recursiveBacktrackingMaze():
     #initialize graph
-    graph = Graph(15, 15)
+    graph = Graph(8, 8)
     startRow = 0
     startCol = 0
     createMazeRecursively(graph, startRow, startCol)
@@ -149,9 +168,18 @@ def repr2dList(L):
 def print2dList(L):
     print(repr2dList(L))
 
+
+def convert2X(graph):
+    newDict = {}
+    for coordinate in graph.nodes:
+        newnode = ((coordinate)[0] * 2, (coordinate)[1] * 2)
+        newDict[(newnode)] = graph.nodes[coordinate].updateEdge(2)
+    #graph.nodes = newDict
+
 def sampleDrawing():
     graph = recursiveBacktrackingMaze()
-    sampleboard = [[-1] * 15 for _ in range(15)]
+    convert2X(graph)
+    sampleboard = [[-1] * 16 for _ in range(16)]
     for coordinate in graph.nodes:
         if len(graph.nodes[coordinate].edges) != 0:
             #print(f'coordinate = {coordinate}: Length: {len(graph.nodes[coordinate].edges)}, len(EdgeRow = {graph.nodes[coordinate].edges[0].row} : EdgeCol = {graph.nodes[coordinate].edges[0].col}' )
@@ -160,6 +188,12 @@ def sampleDrawing():
             #if row % 2 == 0:
             sampleboard[row][col] = 0
     print2dList(sampleboard)
+
 sampleDrawing()
+
+
+    
+
+
 
 
