@@ -48,15 +48,23 @@ def gamegraphics(app):
     # app.spriteCounter = 0
 
     # dictionary containing all the paths of the images of the walls
+    
+    intializeTreeImages(app)
+    initializeImage(app)
+
+def intializeTreeImages(app):
     # All tree images from 
     # https://stardewcommunitywiki.com/Category:Tree_images
-    app.tree1 = app.loadImage('Images\\tree1.png')
-    
+    app.tree1 = app.loadImage('Images\\trees\\tree1.png')
+    app.tree2 = app.loadImage('Images\\trees\\tree2.png')
+    app.tree3 = app.loadImage('Images\\trees\\tree3.png')
+    app.tree4 = app.loadImage('Images\\trees\\tree4.png')
     app.ImageDict = {
-        'tree1' : app.tree1
+        0 : app.tree1,
+        1 : app.tree2,
+        2 : app.tree3,
+        3 : app.tree4
     }
-
-    initializeImage(app)
 
 
 def initializeMaze(app):
@@ -104,10 +112,16 @@ def drawgrid(app, canvas):
             canvas.create_rectangle(x0 , y0 , x1 , y1)
 
 def timerFired(app):
-    app.spriteCounter = (1 + app.spriteCounter) % len(app.kleesprite)
-
-def gameMode_keyPressed(app, event):
+    #app.spriteCounter = (1 + app.spriteCounter) % len(app.kleesprite)
     pass
+def gameMode_keyPressed(app, event):
+    #press r to reset the maze
+    if event.key == 'r':
+        regenerateWalls(app)
+
+def regenerateWalls(app):
+    app.MazeWalls = []
+    initializeMaze(app)
 
 def gameMode_mousePressed(app, event):
     pass
