@@ -18,6 +18,7 @@ def appStarted(app):
     app.shift = app.panel + app.margin
     app.cellWidth = (app.width - app.panel - 2*app.margin)/app.columns
     app.cellHeight = (app.height - 2*app.margin)/app.rows
+    app.timeElasped = 0
     gamegraphics(app)
 
 def getCellBounds(app, row, col):
@@ -35,22 +36,43 @@ def getCellBounds(app, row, col):
 
 def gamegraphics(app):
     #########################################################
-    #Sample Klee model
-    #https://www.deviantart.com/chiibits/art/Klee-Walking-Sprite-872586364
-    #app.klee = app.loadImage('Images\KleeSprite.png')
-    app.kleesprite = []
+
     app.MazeWalls = []
     initializeMaze(app)
     #modified from https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html
-    # for i in range(32):
-    #     sprite = app.klee.crop((30+26*i, 30, 230+26*i, 250))
-    #     app.kleesprite.append(sprite)
-    # app.spriteCounter = 0
 
     # dictionary containing all the paths of the images of the walls
     
+    initalizeKleeForward(app)
     intializeTreeImages(app)
     initializeImage(app)
+    app.player1pos = [(0,0)]
+
+def initalizeKleeForward(app):
+    app.KleespriteCounter = 0
+    #Klee model (forward walking)
+    #https://www.deviantart.com/chiibits/art/Klee-Walking-Sprite-872586364
+    app.kleeSpriteSheet = app.loadImage('Images\Klee\kleeForwardAnimation.png')
+    #modified from https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html
+    imageWidth, imageHeight = app.kleeSpriteSheet.size
+    print(imageWidth, imageHeight)
+    app.KleescaleWidthFactor = app.cellWidth / imageWidth
+    app.KleescaleHeightFactor = app.cellHeight / imageHeight
+    app.kleesprite = []
+    for i in range(10):
+        if i <= 4:
+            sprite = app.kleeSpriteSheet.crop((imageWidth/5*i, 0, imageWidth/5*i + imageWidth/5, imageHeight/2))
+            sprite = app.scaleImage(sprite, app.KleescaleHeightFactor*1.7)
+            app.kleesprite.append(sprite)
+        else:
+            i = i % 5
+            sprite = app.kleeSpriteSheet.crop((imageWidth/5*i, imageHeight/2, imageWidth/5*i + imageWidth/5, imageHeight))
+            sprite = app.scaleImage(sprite, app.KleescaleHeightFactor*1.7)
+            app.kleesprite.append(sprite)
+
+    
+
+
 
 def intializeTreeImages(app):
     # All tree images from 
@@ -86,6 +108,34 @@ def initializeImage(app):
         #app.treescale = app.scaleImage(app.tree1, scaleHeightFactor)
         app.ImageDictScaled[image] = app.scaleImage(app.ImageDict[image], scaleHeightFactor)
 
+
+def gameMode_timerFired(app):
+    #https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#spritesheetsWithCropping
+
+
+    app.timeElasped += app.timerDelay
+    if app.timeElasped % 1000:
+        app.KleespriteCounter += 1
+        if app.KleespriteCounter >= len(app.kleesprite):
+            app.KleespriteCounter = 0
+    #app.KleespriteCounter = (1 + app.KleespriteCounter) % len(app.kleesprite)
+
+
+def gameMode_keyPressed(app, event):
+    #press r to reset the maze
+    if event.key == 'r':
+        regenerateWalls(app)
+
+def regenerateWalls(app):
+    app.MazeWalls = []
+    initializeMaze(app)
+
+def gameMode_mousePressed(app, event):
+    pass
+
+
+#######################################################################################################################################
+#Drawing Functions
 def drawWallImage(app, canvas):
     for wall in app.MazeWalls:
         image = wall.image
@@ -101,36 +151,22 @@ def drawMaze(app, canvas):
 
 
 def drawKlee(app, canvas):
-    sprite = app.kleesprite[app.spriteCounter]
-    #print(app.kleesprite)
-    canvas.create_image(app.width/2, app.height/2, image=ImageTk.PhotoImage(sprite))
+    x0, y0, x1, y1 = getCellBounds(app, app.player1pos[0][0], app.player1pos[0][1])
+    spriteimage = app.kleesprite[app.KleespriteCounter]
+    canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image=ImageTk.PhotoImage(spriteimage))
 
 def drawgrid(app, canvas):
     for row in range(app.rows):
         for col in range(app.columns):
             x0, y0, x1, y1 = getCellBounds(app, row, col)
             canvas.create_rectangle(x0 , y0 , x1 , y1)
-
-def timerFired(app):
-    #app.spriteCounter = (1 + app.spriteCounter) % len(app.kleesprite)
-    pass
-def gameMode_keyPressed(app, event):
-    #press r to reset the maze
-    if event.key == 'r':
-        regenerateWalls(app)
-
-def regenerateWalls(app):
-    app.MazeWalls = []
-    initializeMaze(app)
-
-def gameMode_mousePressed(app, event):
-    pass
+#######################################################################################################################################
 
 def gameMode_redrawAll(app,canvas):
     drawgrid(app, canvas)
-    #drawKlee(app, canvas)
     #drawMaze(app, canvas)
     drawWallImage(app, canvas)
+    drawKlee(app, canvas)
 
 #########################################################
 def runGame():
