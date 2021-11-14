@@ -5,12 +5,14 @@ from cmu_112_graphics import *
 import player
 import random
 import math
+import wall
+import Maze
 
 def appStarted(app):
     app.mode = 'gameMode'
     app.panel = 480
-    app.columns = 15
-    app.rows = 15
+    app.columns = 16
+    app.rows = 16
     app.margin = 10
     #adjustment for the panel
     app.shift = app.panel + app.margin
@@ -42,6 +44,17 @@ def gamegraphics(app):
     #     sprite = app.klee.crop((30+26*i, 30, 230+26*i, 250))
     #     app.kleesprite.append(sprite)
     # app.spriteCounter = 0
+
+
+def initializeMaze(app):
+    graph = Maze.recursiveBacktrackingMaze()
+    Maze.convertX(graph,2)
+    for coordinate in graph.nodes:
+        if len(graph.nodes[coordinate].edges) != 0:
+
+def drawMaze(app, canvas):
+    graph = Maze.recursiveBacktrackingMaze()
+    Maze.convertX(graph,2)
 
 
 def drawKlee(app, canvas):
