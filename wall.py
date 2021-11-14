@@ -43,16 +43,22 @@ class Node(object):
     def updateCol(self, num):
         self.col = self.col * num
 
-    def updateEdge(self, num):
-        result = []
-        #returns new instance
-        for edge in self.edges:
+    #returns a copy of the node instance with scaled coordinates
+    #also updates the edges list in that node instance
+    def updatedCopy(self, num):
+        result = copy.deepcopy(self)
+        result.updateCol(num)
+        result.updateRow(num)
+        updatedEdgeList = []
+        #.edges contains list of instances of nodes which are connected
+        for edge in result.edges:
             new = copy.deepcopy(edge)
             new.updateCol(num)
             new.updateRow(num)
-            result.append(new)
-        self.edges = result
-            
+            updatedEdgeList.append(new)
+        result.edges = updatedEdgeList
+        return result
+    
 
 
 class Wall(object):
@@ -169,16 +175,34 @@ def print2dList(L):
     print(repr2dList(L))
 
 
-def convert2X(graph):
+def convert2X(graph, num):
     newDict = {}
     for coordinate in graph.nodes:
-        newnode = ((coordinate)[0] * 2, (coordinate)[1] * 2)
-        newDict[(newnode)] = graph.nodes[coordinate].updateEdge(2)
-    #graph.nodes = newDict
+        newCoordinates = ((coordinate)[0] * num, (coordinate)[1] * num)
+        UpdatedNode = graph.nodes[coordinate].updatedCopy(num)
+        ##issue for code is here cause the method returns none
+        newDict[(newCoordinates)] = UpdatedNode
+    graph.nodes = newDict
+
+    #debugging
+    '''
+    for key in newDict:
+        if key != (newDict[key].row, newDict[key].col):
+            print('SAD')
+        #print(f'{key}: Row: {newDict[key].row} Col: {newDict[key].col} Edge = {len(newDict[key].edges)}')
+        for edge in newDict[key].edges:
+            if edge.row % 2 == 1 or edge.col % 2 == 1:
+                print('SAD')
+            #print(f'Key: {key} Edge Row: {edge.row}, Edge Col: {edge.col}')
+    #for coordinate in graph.nodes:
+        #print(f'{coordinate}: Row: {graph.nodes[coordinate].rows}, Col: {graph.nodes[coordinate].cols}')
+    '''
+
 
 def sampleDrawing():
     graph = recursiveBacktrackingMaze()
-    convert2X(graph)
+    convert2X(graph,2)
+    '''
     sampleboard = [[-1] * 16 for _ in range(16)]
     for coordinate in graph.nodes:
         if len(graph.nodes[coordinate].edges) != 0:
@@ -188,6 +212,7 @@ def sampleDrawing():
             #if row % 2 == 0:
             sampleboard[row][col] = 0
     print2dList(sampleboard)
+    '''
 
 sampleDrawing()
 
