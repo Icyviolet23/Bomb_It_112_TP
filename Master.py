@@ -50,36 +50,42 @@ def gamegraphics(app):
     # dictionary containing all the paths of the images of the walls
     # All tree images from 
     # https://stardewcommunitywiki.com/Category:Tree_images
-    app.tree1 = app.loadImage('Images\trees\tree2.png')
+    app.tree1 = app.loadImage('Images\\tree1.png')
     
     app.ImageDict = {
         'tree1' : app.tree1
     }
+
     initializeImage(app)
 
 
 def initializeMaze(app):
     graph = Maze.recursiveBacktrackingMaze(8, 8)
+    forbiddenCoordinates = set([(0,0), (0, app.rows-1), (app.columns-1, 0), (app.rows-1, app.columns-1)])
     Maze.convertX(graph,2)
     for coordinate in graph.nodes:
         if len(graph.nodes[coordinate].edges) == 0:
-            newWall = wall.Wall(coordinate[0], coordinate[1], True)
-            app.MazeWalls.append(newWall)
+            if coordinate not in forbiddenCoordinates:
+                newWall = wall.Wall(coordinate[0], coordinate[1], True)
+                app.MazeWalls.append(newWall)
 
 def initializeImage(app):
     app.ImageDictScaled = {}
     for image in app.ImageDict:
-        imageWidth, imageHeight = app.ImageDict[image].size
+        imageWidth, imageHeight = app.tree1.size
         scaleWidthFactor = app.cellWidth / imageWidth
         scaleHeightFactor = app.cellHeight / imageHeight
+        #app.treescale = app.scaleImage(app.tree1, scaleHeightFactor)
         app.ImageDictScaled[image] = app.scaleImage(app.ImageDict[image], scaleHeightFactor)
 
 def drawWallImage(app, canvas):
     for wall in app.MazeWalls:
         image = wall.image
+        #print(image)
         x0, y0, x1, y1 = getCellBounds(app, wall.row, wall.col)
         canvas.create_image((x1 + x0)/2 , (y1 + y0)/2, image=ImageTk.PhotoImage(app.ImageDictScaled[image]))
 
+#using this for debugging
 def drawMaze(app, canvas):
     for wall in app.MazeWalls:
         x0, y0, x1, y1 = getCellBounds(app, wall.row, wall.col)
@@ -109,7 +115,7 @@ def gameMode_mousePressed(app, event):
 def gameMode_redrawAll(app,canvas):
     drawgrid(app, canvas)
     #drawKlee(app, canvas)
-    drawMaze(app, canvas)
+    #drawMaze(app, canvas)
     drawWallImage(app, canvas)
 
 #########################################################
