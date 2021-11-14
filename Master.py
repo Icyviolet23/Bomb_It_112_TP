@@ -37,7 +37,7 @@ def gamegraphics(app):
     #########################################################
     #Sample Klee model
     #https://www.deviantart.com/chiibits/art/Klee-Walking-Sprite-872586364
-    app.klee = app.loadImage('Images\KleeSprite.png')
+    #app.klee = app.loadImage('Images\KleeSprite.png')
     app.kleesprite = []
     app.MazeWalls = []
     initializeMaze(app)
