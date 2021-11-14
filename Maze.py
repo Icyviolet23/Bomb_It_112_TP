@@ -229,7 +229,7 @@ def sampleDrawing():
     print2dList(sampleboard)
     
 
-sampleDrawing()
+#sampleDrawing()
 
 
     
