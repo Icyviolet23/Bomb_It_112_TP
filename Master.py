@@ -7,12 +7,13 @@ import random
 import math
 import wall
 import Maze
+import weapon
 
 def appStarted(app):
     app.mode = 'gameMode'
     app.panel = app.width/5
-    app.columns = 16
-    app.rows = 16
+    app.columns = 12
+    app.rows = 12
     app.margin = 10
     #adjustment for the panel
     app.shift = app.panel + app.margin
@@ -37,18 +38,18 @@ def getCellBounds(app, row, col):
 def gamegraphics(app):
     #########################################################
 
-    app.MazeWalls = []
-    initializeMaze(app)
+    app.MazeWalls = {}
     #modified from https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html
 
     # dictionary containing all the paths of the images of the walls
     initializePlayer(app)
+    initializeMaze(app)
     initalizeKleeForward(app)
     intializeTreeImages(app)
     initializeImage(app)
 
 def initializePlayer(app):
-    player1 = player.Player(0,0,10, 'bomb')
+    player1 = player.Player(0,0,10, weapon.Bomb(5))
     #app.players is the dictionary containing instance of all the players
     app.players = {
         1 : player1
@@ -96,15 +97,22 @@ def intializeTreeImages(app):
     }
 
 
+def checkplayerposition(app, coordinate):
+    for player in app.players:
+        if coordinate == (app.players[player].row,app.players[player].col):
+            return False
+    return True
+
 def initializeMaze(app):
     graph = Maze.recursiveBacktrackingMaze(app.rows//2, app.columns//2)
     forbiddenCoordinates = set([(0,0), (0, app.rows-1), (app.columns-1, 0), (app.rows-1, app.columns-1)])
     Maze.convertX(graph,2)
     for coordinate in graph.nodes:
         if len(graph.nodes[coordinate].edges) == 0:
-            if coordinate not in forbiddenCoordinates:
+            if coordinate not in forbiddenCoordinates and checkplayerposition(app, coordinate):
                 newWall = wall.Wall(coordinate[0], coordinate[1], True)
-                app.MazeWalls.append(newWall)
+                app.MazeWalls[coordinate] = newWall
+
 
 def initializeImage(app):
     app.ImageDictScaled = {}
@@ -126,7 +134,7 @@ def checkBounds(app, row, col):
 #check if there is any collion with a wall
 def checkCollison(app, row, col):
     for wall in app.MazeWalls:
-        if (row, col) == (wall.row, wall.col):
+        if (row, col) == wall:
             return False
     return True
 
@@ -172,7 +180,7 @@ def gameMode_keyPressed(app, event):
         movePlayer(app, 1, 0, 1)
 
 def regenerateWalls(app):
-    app.MazeWalls = []
+    app.MazeWalls = {}
     initializeMaze(app)
 
 def gameMode_mousePressed(app, event):
@@ -183,15 +191,15 @@ def gameMode_mousePressed(app, event):
 #Drawing Functions
 def drawWallImage(app, canvas):
     for wall in app.MazeWalls:
-        image = wall.image
+        image = app.MazeWalls[wall].image
         #print(image)
-        x0, y0, x1, y1 = getCellBounds(app, wall.row, wall.col)
+        x0, y0, x1, y1 = getCellBounds(app, app.MazeWalls[wall].row, app.MazeWalls[wall].col)
         canvas.create_image((x1 + x0)/2 , (y1 + y0)/2, image=ImageTk.PhotoImage(app.ImageDictScaled[image]))
 
 #using this for debugging
 def drawMaze(app, canvas):
     for wall in app.MazeWalls:
-        x0, y0, x1, y1 = getCellBounds(app, wall.row, wall.col)
+        x0, y0, x1, y1 = getCellBounds(app, app.MazeWalls[wall].row, app.MazeWalls[wall].col)
         canvas.create_rectangle(x0, y0, x1, y1, fill = 'black')
 
 #playernum here is an int

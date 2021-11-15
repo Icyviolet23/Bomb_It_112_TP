@@ -1,5 +1,6 @@
 import random
 import math
+import weapon
 
 #class storing all the attributes of the player
 class Player(object):
