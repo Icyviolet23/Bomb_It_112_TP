@@ -10,7 +10,7 @@ import Maze
 
 def appStarted(app):
     app.mode = 'gameMode'
-    app.panel = 480
+    app.panel = app.width/5
     app.columns = 16
     app.rows = 16
     app.margin = 10
@@ -42,11 +42,18 @@ def gamegraphics(app):
     #modified from https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html
 
     # dictionary containing all the paths of the images of the walls
-    
+    initializePlayer(app)
     initalizeKleeForward(app)
     intializeTreeImages(app)
     initializeImage(app)
-    app.player1pos = [(0,0)]
+
+def initializePlayer(app):
+    player1 = player.Player(0,0,10, 'bomb')
+    #app.players is the dictionary containing instance of all the players
+    app.players = {
+        1 : player1
+    }
+    
 
 def initalizeKleeForward(app):
     app.KleespriteCounter = 0
@@ -55,19 +62,19 @@ def initalizeKleeForward(app):
     app.kleeSpriteSheet = app.loadImage('Images\Klee\kleeForwardAnimation.png')
     #modified from https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html
     imageWidth, imageHeight = app.kleeSpriteSheet.size
-    print(imageWidth, imageHeight)
+    #print(imageWidth, imageHeight)
     app.KleescaleWidthFactor = app.cellWidth / imageWidth
     app.KleescaleHeightFactor = app.cellHeight / imageHeight
     app.kleesprite = []
     for i in range(10):
         if i <= 4:
             sprite = app.kleeSpriteSheet.crop((imageWidth/5*i, 0, imageWidth/5*i + imageWidth/5, imageHeight/2))
-            sprite = app.scaleImage(sprite, app.KleescaleHeightFactor*1.7)
+            sprite = app.scaleImage(sprite, app.KleescaleHeightFactor*1.9)
             app.kleesprite.append(sprite)
         else:
             i = i % 5
             sprite = app.kleeSpriteSheet.crop((imageWidth/5*i, imageHeight/2, imageWidth/5*i + imageWidth/5, imageHeight))
-            sprite = app.scaleImage(sprite, app.KleescaleHeightFactor*1.7)
+            sprite = app.scaleImage(sprite, app.KleescaleHeightFactor*1.9)
             app.kleesprite.append(sprite)
 
     
@@ -90,7 +97,7 @@ def intializeTreeImages(app):
 
 
 def initializeMaze(app):
-    graph = Maze.recursiveBacktrackingMaze(8, 8)
+    graph = Maze.recursiveBacktrackingMaze(app.rows//2, app.columns//2)
     forbiddenCoordinates = set([(0,0), (0, app.rows-1), (app.columns-1, 0), (app.rows-1, app.columns-1)])
     Maze.convertX(graph,2)
     for coordinate in graph.nodes:
@@ -103,10 +110,35 @@ def initializeImage(app):
     app.ImageDictScaled = {}
     for image in app.ImageDict:
         imageWidth, imageHeight = app.tree1.size
-        scaleWidthFactor = app.cellWidth / imageWidth
+        #scaleWidthFactor = app.cellWidth / imageWidth
         scaleHeightFactor = app.cellHeight / imageHeight
         #app.treescale = app.scaleImage(app.tree1, scaleHeightFactor)
         app.ImageDictScaled[image] = app.scaleImage(app.ImageDict[image], scaleHeightFactor)
+#end of initialization functions
+#################################################################
+#check if any move is out of bounds
+def checkBounds(app, row, col):
+    rows, cols = app.rows, app.columns
+    if row < 0 or col < 0 or row >= rows or col >= cols:
+        return False
+    return True
+
+#check if there is any collion with a wall
+def checkCollison(app, row, col):
+    for wall in app.MazeWalls:
+        if (row, col) == (wall.row, wall.col):
+            return False
+    return True
+
+
+def movePlayer(app, drow, dcol, playernum):
+    newRow, newCol = app.players[playernum].row + drow, app.players[playernum].col + dcol
+    if checkCollison(app, newRow, newCol) and checkBounds(app, newRow, newCol):
+        app.players[playernum].row = newRow
+        app.players[playernum].col = newCol
+    else:
+        pass
+
 
 
 def gameMode_timerFired(app):
@@ -119,12 +151,25 @@ def gameMode_timerFired(app):
         if app.KleespriteCounter >= len(app.kleesprite):
             app.KleespriteCounter = 0
     #app.KleespriteCounter = (1 + app.KleespriteCounter) % len(app.kleesprite)
+    #movePlayer(app, drow, dcol, playernum)
 
 
 def gameMode_keyPressed(app, event):
     #press r to reset the maze
     if event.key == 'r':
         regenerateWalls(app)
+
+    if event.key == 'Right':
+        movePlayer(app, 0, 1, 1)
+
+    if event.key == 'Left':
+        movePlayer(app, 0, -1, 1)
+
+    if event.key == 'Up':
+        movePlayer(app, -1, 0, 1)
+
+    if event.key == 'Down':
+        movePlayer(app, 1, 0, 1)
 
 def regenerateWalls(app):
     app.MazeWalls = []
@@ -149,9 +194,9 @@ def drawMaze(app, canvas):
         x0, y0, x1, y1 = getCellBounds(app, wall.row, wall.col)
         canvas.create_rectangle(x0, y0, x1, y1, fill = 'black')
 
-
-def drawKlee(app, canvas):
-    x0, y0, x1, y1 = getCellBounds(app, app.player1pos[0][0], app.player1pos[0][1])
+#playernum here is an int
+def drawKlee(app, canvas, playernum):
+    x0, y0, x1, y1 = getCellBounds(app, app.players[playernum].row, app.players[playernum].col)
     spriteimage = app.kleesprite[app.KleespriteCounter]
     canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image=ImageTk.PhotoImage(spriteimage))
 
@@ -166,11 +211,11 @@ def gameMode_redrawAll(app,canvas):
     drawgrid(app, canvas)
     #drawMaze(app, canvas)
     drawWallImage(app, canvas)
-    drawKlee(app, canvas)
+    drawKlee(app, canvas, 1)
 
 #########################################################
 def runGame():
-    runApp(width= 1500, height= 1000)
+    runApp(width= 1500, height= 800)
 
 
 runGame()
