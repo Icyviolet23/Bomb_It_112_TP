@@ -8,6 +8,7 @@ import math
 import wall
 import Maze
 import weapon
+import time
 
 def appStarted(app):
     app.mode = 'gameMode'
@@ -19,7 +20,7 @@ def appStarted(app):
     app.shift = app.panel + app.margin
     app.cellWidth = (app.width - app.panel - 2*app.margin)/app.columns
     app.cellHeight = (app.height - 2*app.margin)/app.rows
-    app.timeElasped = 0
+    app.startTime = time.time()
     gamegraphics(app)
 
 def getCellBounds(app, row, col):
@@ -50,11 +51,12 @@ def gamegraphics(app):
     initializeWeaponPosition(app)
 
 def initializePlayer(app):
-    #bomb format is timer, playernum
-    player1 = player.Player(0,0,10, weapon.Bomb(5, 1))
-    player2 = player.Player(0,0,10, weapon.Bomb(5, 2))
-    player3 = player.Player(0,0,10, weapon.Bomb(5, 3))
-    player4 = player.Player(0,0,10, weapon.Bomb(5, 4))
+    #player format is 
+    #row, col, lives, weaponID
+    player1 = player.Player(0,0,10, 1)
+    player2 = player.Player(0,0,10, 1)
+    player3 = player.Player(0,0,10, 1)
+    player4 = player.Player(0,0,10, 1)
     #app.players is the dictionary containing instance of all the players
     app.players = {
         1 : player1,
@@ -188,17 +190,37 @@ def movePlayer(app, drow, dcol, playernum):
 
 def createBomb(app, playernum):
     currentRow, currentCol = app.players[playernum].row, app.players[playernum].col
-    app.weaponPos[(currentRow, currentCol)] = app.players[playernum].weapon
+    if app.players[playernum].bombCount > 0:
+        app.weaponPos[(currentRow, currentCol)] = weapon.Bomb(app.players[playernum].bombTimer, playernum)
+        app.players[playernum].bombCount -= 1
+
+def explodeBomb(app):
+    if app.weaponPos != {}:
+        for coordinate in app.weaponPos:
+            if isinstance(app.weaponPos[coordinate], weapon.Bomb):
+                if app.weaponPos[coordinate].timer > 0:
+                    app.weaponPos[coordinate].timer -= 1
+                if app.weaponPos[coordinate].timer == 0:
+                    playernum = app.weaponPos[coordinate].playernum
+                    app.players[playernum].bombCount += 1
+                    app.weaponPos[coordinate] = None
+                    
+                    
+
 
 
 def gameMode_timerFired(app):
     
-    app.timeElasped += app.timerDelay
+    currentTime = time.time()
+    timepassed = currentTime - app.startTime
     #https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#spritesheetsWithCropping
-    if app.timeElasped % 1000:
+    if timepassed % 1000:
         app.KleespriteCounter += 1
         if app.KleespriteCounter >= len(app.kleesprite):
             app.KleespriteCounter = 0
+
+    if timepassed % 5000:
+        explodeBomb(app)
 
 
 def gameMode_keyPressed(app, event):
@@ -245,9 +267,10 @@ def drawMaze(app, canvas):
 #draws bomb
 def drawWeapon(app, canvas):
     for coordinate in app.weaponPos:
-        weaponID = app.weaponPos[coordinate].weaponID
-        x0, y0, x1, y1 = getCellBounds(app, coordinate[0], coordinate[1])
-        canvas.create_image((x0 + x1)/2, (y0 + y1)/2, image = ImageTk.PhotoImage(app.WeaponImageDictScaled[weaponID]))
+        if app.weaponPos[coordinate] != None:
+            weaponID = app.weaponPos[coordinate].weaponID
+            x0, y0, x1, y1 = getCellBounds(app, coordinate[0], coordinate[1])
+            canvas.create_image((x0 + x1)/2, (y0 + y1)/2, image = ImageTk.PhotoImage(app.WeaponImageDictScaled[weaponID]))
 
 #playernum here is an int
 def drawKlee(app, canvas, playernum):
