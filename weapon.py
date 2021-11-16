@@ -3,7 +3,7 @@ class Bomb(object):
         self.timer = timer
         self.rangeX = 2
         self.rangeY = 2
-        self.weaponID = 1
+        self.weaponID = 0
 
     def countDown(self):
         if self.timer > 0:

@@ -97,6 +97,12 @@ def intializeTreeImages(app):
     }
 
 
+def initializeWeapons(app):
+    #Bomb from https://www.google.com/url?sa=i&url=http%3A%2F%2Fclipart-library.com%2Fbomb-cliparts.html&psig=AOvVaw0MGEiKDcFcUDWUnBx5BprH&ust=1637106597396000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCOiBhtLHm_QCFQAAAAAdAAAAABAO
+    app.bomb = app.loadImage('Images\\weapons\\bombnobg.png"')
+    app.weaponDict = {
+        0 : app.bomb
+    }
 def checkplayerposition(app, coordinate):
     for player in app.players:
         if coordinate == (app.players[player].row,app.players[player].col):
