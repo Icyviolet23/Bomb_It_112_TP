@@ -49,6 +49,7 @@ def gamegraphics(app):
     intializeWallImages(app)
     initializeWeaponsImages(app)
     initializeWeaponPosition(app)
+    app.explosion = []
 
 def initializePlayer(app):
     #player format is 
@@ -200,13 +201,44 @@ def explodeBomb(app):
             if isinstance(app.weaponPos[coordinate], weapon.Bomb):
                 if app.weaponPos[coordinate].timer > 0:
                     app.weaponPos[coordinate].timer -= 1
+                #if bomb has exploded
                 if app.weaponPos[coordinate].timer == 0:
                     playernum = app.weaponPos[coordinate].playernum
                     app.players[playernum].bombCount += 1
+                    explosionRadius(app, coordinate)
+                    explosionEffect(app, coordinate)
                     app.weaponPos[coordinate] = None
-                    
-                    
 
+
+
+#stores the explosion radius into a list
+def explosionRadius(app, coordinate):
+    explosion = weapon.Explosion(coordinate[0], coordinate[1])
+    bombRadius = [(0,1), (1,0), (-1,0), (0, -1)]
+    for drow, dcol in bombRadius:
+        newRow, newCol = coordinate[0] + drow, coordinate[1] + dcol
+        if checkBounds(app, newRow, newCol):
+            explosion.radius.append((newRow, newCol))
+            
+    app.explosion.append(explosion)               
+#performs the effect of the explosion:
+def explosionEffect(app, coordinate):
+    for explosion in app.explosion:
+        for coordinate in explosion.radius:
+            if coordinate in app.MazeWalls:
+                app.MazeWalls.pop(coordinate)
+
+
+
+#controls the explosion duration
+def explosionDuration(app):
+    if len(app.explosion) != 0:
+        for explosion in app.explosion:
+            if explosion.timer > 0:
+                explosion.timer -= 1
+            if explosion.timer == 0:
+                app.explosion.remove(explosion)
+        
 
 
 def gameMode_timerFired(app):
@@ -221,6 +253,7 @@ def gameMode_timerFired(app):
 
     if timepassed % 5000:
         explodeBomb(app)
+        explosionDuration(app)
 
 
 def gameMode_keyPressed(app, event):

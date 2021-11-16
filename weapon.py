@@ -9,3 +9,12 @@ class Bomb(object):
     def countDown(self):
         if self.timer > 0:
             self.timer -= 1
+
+
+class Explosion(object):
+    def __init__(self, centerRow, centerCol):
+        self.centerRow = centerRow
+        self.centerCol = centerCol
+        #list of coordinates containing the radius
+        self.radius = []
+        self.timer = 2
