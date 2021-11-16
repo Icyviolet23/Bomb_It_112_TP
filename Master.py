@@ -49,15 +49,16 @@ def gamegraphics(app):
     intializeWallImages(app)
     initializeWeaponsImages(app)
     initializeWeaponPosition(app)
-    app.explosion = []
+    initializeExplosionSprite(app)
+    
 
 def initializePlayer(app):
     #player format is 
     #row, col, lives, weaponID
     player1 = player.Player(0,0,10, 1)
-    player2 = player.Player(0,0,10, 1)
-    player3 = player.Player(0,0,10, 1)
-    player4 = player.Player(0,0,10, 1)
+    player2 = player.Player(0,app.columns - 1, 10, 1)
+    player3 = player.Player(app.rows - 1, 0, 10,1)
+    player4 = player.Player(app.rows - 1, app.columns -1, 10, 1)
     #app.players is the dictionary containing instance of all the players
     app.players = {
         1 : player1,
@@ -90,8 +91,21 @@ def initalizeKleeForward(app):
             sprite = app.scaleImage(sprite, app.KleescaleHeightFactor*1.9)
             app.kleesprite.append(sprite)
 
-    
-
+def initializeExplosionSprite(app):
+    app.explosion = []
+    app.explosionspriteCounter = 0
+    #https://www.pngitem.com/middle/hToJxb_preview-pixel-art-explosion-sprite-sheet-hd-png/
+    app.explosionSpriteSheet = app.loadImage('Images\weapons\explosionSprite.png')
+    imageWidth, imageHeight = app.explosionSpriteSheet.size
+    app.explosionHeightfactor = app.cellHeight / imageHeight
+    app.explosionsprite = []
+    rows = 6
+    cols = 10
+    for row in range(6):
+        for col in range(10):
+            sprite = app.explosionSpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*row, imageWidth/cols*(col+1) , imageHeight/rows*(row+1)))
+            scaledsprite = app.scaleImage(sprite, app.explosionHeightfactor*1.9)
+            app.explosionsprite.append(scaledsprite)
 
 
 def intializeWallImages(app):
@@ -129,6 +143,7 @@ def ScaleWeaponImage(app):
 #function to hold all power ups and bombs currently on the floor
 def initializeWeaponPosition(app):
     #dictionary containing coordinates of bombs as keys and instance of bomb as value
+    #set value to None if there is no longer any weapon there
     app.weaponPos = {}
 
 def checkplayerposition(app, coordinate):
@@ -219,8 +234,11 @@ def explosionRadius(app, coordinate):
         newRow, newCol = coordinate[0] + drow, coordinate[1] + dcol
         if checkBounds(app, newRow, newCol):
             explosion.radius.append((newRow, newCol))
-            
-    app.explosion.append(explosion)               
+    #contains list of instances for explosion class        
+    app.explosion.append(explosion)  
+
+
+
 #performs the effect of the explosion:
 def explosionEffect(app, coordinate):
     for explosion in app.explosion:
@@ -241,19 +259,32 @@ def explosionDuration(app):
         
 
 
+def kleeSpriteTimer(app):
+    app.KleespriteCounter += 1
+    if app.KleespriteCounter >= len(app.kleesprite):
+        app.KleespriteCounter = 0
+
+def explosionSpriteTimer(app):
+    app.explosionspriteCounter += 1
+    if app.explosionspriteCounter >= len(app.explosionsprite):
+        app.explosionspriteCounter = 0
+
+
 def gameMode_timerFired(app):
     
     currentTime = time.time()
     timepassed = currentTime - app.startTime
     #https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#spritesheetsWithCropping
     if timepassed % 1000:
-        app.KleespriteCounter += 1
-        if app.KleespriteCounter >= len(app.kleesprite):
-            app.KleespriteCounter = 0
+        kleeSpriteTimer(app)
+        
 
-    if timepassed % 5000:
+    #bug here cause we are calling the timing wrongly for explosion
+    #image displays but it is very small
+    if timepassed % 20000:
         explodeBomb(app)
         explosionDuration(app)
+        explosionSpriteTimer(app)
 
 
 def gameMode_keyPressed(app, event):
@@ -311,6 +342,14 @@ def drawKlee(app, canvas, playernum):
     spriteimage = app.kleesprite[app.KleespriteCounter]
     canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image=ImageTk.PhotoImage(spriteimage))
 
+def drawExplosion(app, canvas):
+    for explosion in app.explosion:
+        for coordinate in explosion.radius:
+            x0, y0, x1, y1 = getCellBounds(app, coordinate[0], coordinate[1])
+            spriteimage = app.explosionsprite[app.explosionspriteCounter]
+            canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image=ImageTk.PhotoImage(spriteimage))
+        
+
 def drawgrid(app, canvas):
     for row in range(app.rows):
         for col in range(app.columns):
@@ -324,6 +363,7 @@ def gameMode_redrawAll(app,canvas):
     drawWallImage(app, canvas)
     drawKlee(app, canvas, 1)
     drawWeapon(app, canvas)
+    drawExplosion(app, canvas)
     
 
 #########################################################
