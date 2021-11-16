@@ -1,7 +1,7 @@
 import random
 class Wall(object):
     def __init__(self, row, col, destructible):
-        self.image = random.randint(0,3)
+        self.imageIndex = random.randint(0,3)
         self.row = row
         self.col = col
         #this will be a boolean value

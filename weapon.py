@@ -1,6 +1,7 @@
 class Bomb(object):
-    def __init__(self, timer):
+    def __init__(self, timer, playernum):
         self.timer = timer
+        self.playernum = playernum
         self.rangeX = 2
         self.rangeY = 2
         self.weaponID = 0

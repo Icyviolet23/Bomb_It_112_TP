@@ -12,8 +12,8 @@ import weapon
 def appStarted(app):
     app.mode = 'gameMode'
     app.panel = app.width/5
-    app.columns = 12
-    app.rows = 12
+    app.columns = 16
+    app.rows = 16
     app.margin = 10
     #adjustment for the panel
     app.shift = app.panel + app.margin
@@ -38,21 +38,30 @@ def getCellBounds(app, row, col):
 def gamegraphics(app):
     #########################################################
 
-    app.MazeWalls = {}
+   
     #modified from https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html
 
     # dictionary containing all the paths of the images of the walls
     initializePlayer(app)
     initializeMaze(app)
     initalizeKleeForward(app)
-    intializeTreeImages(app)
-    initializeImage(app)
+    intializeWallImages(app)
+    initializeWeaponsImages(app)
+    initializeWeaponPosition(app)
 
 def initializePlayer(app):
-    player1 = player.Player(0,0,10, weapon.Bomb(5))
+    #bomb format is timer, playernum
+    player1 = player.Player(0,0,10, weapon.Bomb(5, 1))
+    player2 = player.Player(0,0,10, weapon.Bomb(5, 2))
+    player3 = player.Player(0,0,10, weapon.Bomb(5, 3))
+    player4 = player.Player(0,0,10, weapon.Bomb(5, 4))
     #app.players is the dictionary containing instance of all the players
     app.players = {
-        1 : player1
+        1 : player1,
+        2 : player2,
+        3 : player3,
+        4 : player4
+
     }
     
 
@@ -82,27 +91,43 @@ def initalizeKleeForward(app):
 
 
 
-def intializeTreeImages(app):
+def intializeWallImages(app):
     # All tree images from 
     # https://stardewcommunitywiki.com/Category:Tree_images
     app.tree1 = app.loadImage('Images\\trees\\tree1.png')
     app.tree2 = app.loadImage('Images\\trees\\tree2.png')
     app.tree3 = app.loadImage('Images\\trees\\tree3.png')
     app.tree4 = app.loadImage('Images\\trees\\tree4.png')
-    app.ImageDict = {
+    app.WallDict = {
         0 : app.tree1,
         1 : app.tree2,
         2 : app.tree3,
         3 : app.tree4
     }
 
+    ScaleWallImage(app)
 
-def initializeWeapons(app):
+def initializeWeaponsImages(app):
     #Bomb from https://www.google.com/url?sa=i&url=http%3A%2F%2Fclipart-library.com%2Fbomb-cliparts.html&psig=AOvVaw0MGEiKDcFcUDWUnBx5BprH&ust=1637106597396000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCOiBhtLHm_QCFQAAAAAdAAAAABAO
-    app.bomb = app.loadImage('Images\\weapons\\bombnobg.png"')
+    app.bomb = app.loadImage('Images\\weapons\\bombnobg.png')
     app.weaponDict = {
         0 : app.bomb
     }
+
+    ScaleWeaponImage(app)
+
+def ScaleWeaponImage(app):
+    app.WeaponImageDictScaled = {}
+    for imageIndex in app.weaponDict:
+        imageWidth, imageHeight = app.weaponDict[imageIndex].size
+        scaleHeightFactor = app.cellHeight / imageHeight
+        app.WeaponImageDictScaled[imageIndex] = app.scaleImage(app.weaponDict[imageIndex], scaleHeightFactor)
+
+#function to hold all power ups and bombs currently on the floor
+def initializeWeaponPosition(app):
+    #dictionary containing coordinates of bombs as keys and instance of bomb as value
+    app.weaponPos = {}
+
 def checkplayerposition(app, coordinate):
     for player in app.players:
         if coordinate == (app.players[player].row,app.players[player].col):
@@ -110,24 +135,32 @@ def checkplayerposition(app, coordinate):
     return True
 
 def initializeMaze(app):
+    app.MazeWalls = {}
     graph = Maze.recursiveBacktrackingMaze(app.rows//2, app.columns//2)
     forbiddenCoordinates = set([(0,0), (0, app.rows-1), (app.columns-1, 0), (app.rows-1, app.columns-1)])
     Maze.convertX(graph,2)
     for coordinate in graph.nodes:
         if len(graph.nodes[coordinate].edges) == 0:
             if coordinate not in forbiddenCoordinates and checkplayerposition(app, coordinate):
+                #boolean for whether wall is destructible or not
                 newWall = wall.Wall(coordinate[0], coordinate[1], True)
                 app.MazeWalls[coordinate] = newWall
+    #print(app.MazeWalls.keys())
 
 
-def initializeImage(app):
-    app.ImageDictScaled = {}
-    for image in app.ImageDict:
-        imageWidth, imageHeight = app.tree1.size
+def ScaleWallImage(app):
+    app.WallImageDictScaled = {}
+    for imageIndex in app.WallDict:
+        imageWidth, imageHeight = app.WallDict[imageIndex].size
         #scaleWidthFactor = app.cellWidth / imageWidth
         scaleHeightFactor = app.cellHeight / imageHeight
+        #print(f'{imageIndex} + {scaleHeightFactor}')
         #app.treescale = app.scaleImage(app.tree1, scaleHeightFactor)
-        app.ImageDictScaled[image] = app.scaleImage(app.ImageDict[image], scaleHeightFactor)
+        app.WallImageDictScaled[imageIndex] = app.scaleImage(app.WallDict[imageIndex], scaleHeightFactor)
+    # for imageIndex in app.WallImageDictScaled:
+    #     width , height = app.WallImageDictScaled[imageIndex].size
+    #     print(width, height)
+
 #end of initialization functions
 #################################################################
 #check if any move is out of bounds
@@ -151,21 +184,21 @@ def movePlayer(app, drow, dcol, playernum):
         app.players[playernum].row = newRow
         app.players[playernum].col = newCol
     else:
-        pass
+        return
 
+def createBomb(app, playernum):
+    currentRow, currentCol = app.players[playernum].row, app.players[playernum].col
+    app.weaponPos[(currentRow, currentCol)] = app.players[playernum].weapon
 
 
 def gameMode_timerFired(app):
-    #https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#spritesheetsWithCropping
-
-
+    
     app.timeElasped += app.timerDelay
+    #https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#spritesheetsWithCropping
     if app.timeElasped % 1000:
         app.KleespriteCounter += 1
         if app.KleespriteCounter >= len(app.kleesprite):
             app.KleespriteCounter = 0
-    #app.KleespriteCounter = (1 + app.KleespriteCounter) % len(app.kleesprite)
-    #movePlayer(app, drow, dcol, playernum)
 
 
 def gameMode_keyPressed(app, event):
@@ -173,17 +206,20 @@ def gameMode_keyPressed(app, event):
     if event.key == 'r':
         regenerateWalls(app)
 
-    if event.key == 'Right':
+    if event.key == 'd':
         movePlayer(app, 0, 1, 1)
 
-    if event.key == 'Left':
+    if event.key == 'a':
         movePlayer(app, 0, -1, 1)
 
-    if event.key == 'Up':
+    if event.key == 'w':
         movePlayer(app, -1, 0, 1)
 
-    if event.key == 'Down':
+    if event.key == 's':
         movePlayer(app, 1, 0, 1)
+
+    if event.key == 'b':
+        createBomb(app, 1)
 
 def regenerateWalls(app):
     app.MazeWalls = {}
@@ -197,16 +233,21 @@ def gameMode_mousePressed(app, event):
 #Drawing Functions
 def drawWallImage(app, canvas):
     for wall in app.MazeWalls:
-        image = app.MazeWalls[wall].image
-        #print(image)
+        image = app.MazeWalls[wall].imageIndex
         x0, y0, x1, y1 = getCellBounds(app, app.MazeWalls[wall].row, app.MazeWalls[wall].col)
-        canvas.create_image((x1 + x0)/2 , (y1 + y0)/2, image=ImageTk.PhotoImage(app.ImageDictScaled[image]))
+        canvas.create_image((x1 + x0)/2 , (y1 + y0)/2, image = ImageTk.PhotoImage(app.WallImageDictScaled[image]))
 
 #using this for debugging
 def drawMaze(app, canvas):
     for wall in app.MazeWalls:
         x0, y0, x1, y1 = getCellBounds(app, app.MazeWalls[wall].row, app.MazeWalls[wall].col)
         canvas.create_rectangle(x0, y0, x1, y1, fill = 'black')
+#draws bomb
+def drawWeapon(app, canvas):
+    for coordinate in app.weaponPos:
+        weaponID = app.weaponPos[coordinate].weaponID
+        x0, y0, x1, y1 = getCellBounds(app, coordinate[0], coordinate[1])
+        canvas.create_image((x0 + x1)/2, (y0 + y1)/2, image = ImageTk.PhotoImage(app.WeaponImageDictScaled[weaponID]))
 
 #playernum here is an int
 def drawKlee(app, canvas, playernum):
@@ -226,6 +267,8 @@ def gameMode_redrawAll(app,canvas):
     #drawMaze(app, canvas)
     drawWallImage(app, canvas)
     drawKlee(app, canvas, 1)
+    drawWeapon(app, canvas)
+    
 
 #########################################################
 def runGame():
