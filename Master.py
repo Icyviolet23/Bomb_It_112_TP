@@ -243,7 +243,7 @@ def explosionRadius(app, coordinate):
 def explosionEffect(app, coordinate):
     for explosion in app.explosion:
         for coordinate in explosion.radius:
-            if coordinate in app.MazeWalls:
+            if coordinate in app.MazeWalls and app.MazeWalls[coordinate].destructible == True:
                 app.MazeWalls.pop(coordinate)
 
 
