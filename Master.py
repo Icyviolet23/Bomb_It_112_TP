@@ -279,12 +279,15 @@ def gameMode_timerFired(app):
         kleeSpriteTimer(app)
         
 
+    
+    explosionSpriteTimer(app)
+
     #bug here cause we are calling the timing wrongly for explosion
     #image displays but it is very small
     if timepassed % 20000:
         explodeBomb(app)
         explosionDuration(app)
-        explosionSpriteTimer(app)
+        
 
 
 def gameMode_keyPressed(app, event):
