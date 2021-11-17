@@ -14,15 +14,32 @@ def checkOutofBounds(graph, row, col):
         return False
     return True
 
-def dfs(graph, player1, AI):
+
+#right now we are finding any path not the shortest path
+def dfs(graph, wallDict, player1, AI):
+    #destination
     player1Row, player1Col = player1.row, player1.col
-    
+    #AI position
     startRow, startCol = AI.row, AI.col
-    result = findShortestPathdfs(graph, startRow, startCol, player1Row, player1Col)
+    
+    result = findShortestPathdfs(graph, wallDict, startRow, startCol, player1Row, player1Col, [])
     if result != None:
         return result
+    #will return none if there is an obstruction
     return None
 
-def findShortestPathdfs(graph, startRow, startCol, player1Row, player1Col):
-    possibleMoves = [(0,1), (1,0), (-1,0), (0, -1)]
-    pass
+def findShortestPathdfs(graph, wallDict, startRow, startCol, player1Row, player1Col, path):
+    if (startRow,startCol) == (player1Row, player1Col):
+        return path
+    else:
+        possibleMoves = [(0,1), (1,0), (-1,0), (0, -1)]
+        for move in possibleMoves:
+            dRow, dCol = move[0], move[1]
+            newRow, newCol = startRow + dRow, startCol + dCol
+            #checks if out of bounds and if there is a wall there
+            if (checkOutofBounds(graph, newRow, newCol)) and ((newRow, newCol) not in wallDict):
+                path.append((newRow,newCol))
+                solution = findShortestPathdfs(graph, wallDict, newRow, newCol, player1Row, player1Col, path)
+                if solution != None:
+                    return solution
+                path.pop()

@@ -9,6 +9,7 @@ import wall
 import Maze
 import weapon
 import time
+import AI
 
 def appStarted(app):
     app.mode = 'gameMode'
@@ -156,13 +157,17 @@ def initializeMaze(app):
     app.MazeWalls = {}
     graph = Maze.recursiveBacktrackingMaze(app.rows//2, app.columns//2)
     forbiddenCoordinates = set([(0,0), (0, app.rows-1), (app.columns-1, 0), (app.rows-1, app.columns-1)])
+    #doubles the dimensions and connects all the odd nodes
     Maze.convertX(graph,2)
     for coordinate in graph.nodes:
+        #nodes with no edges are converted to walls
         if len(graph.nodes[coordinate].edges) == 0:
             if coordinate not in forbiddenCoordinates and checkplayerposition(app, coordinate):
                 #boolean for whether wall is destructible or not
                 newWall = wall.Wall(coordinate[0], coordinate[1], True)
                 app.MazeWalls[coordinate] = newWall
+
+    app.graph = graph
     #print(app.MazeWalls.keys())
 
 
@@ -201,6 +206,8 @@ def movePlayer(app, drow, dcol, playernum):
     if checkCollison(app, newRow, newCol) and checkBounds(app, newRow, newCol):
         app.players[playernum].row = newRow
         app.players[playernum].col = newCol
+        findshortestpath(app, 2)
+        
     else:
         return
 
@@ -317,6 +324,12 @@ def regenerateWalls(app):
 def gameMode_mousePressed(app, event):
     pass
 
+#######################################################################################################################################
+#AI CODE will be written here
+
+def findshortestpath(app, AiNum):
+    path  = AI.dfs(app.graph, app.MazeWalls, app.players[1], app.players[AiNum])
+    print(path)
 
 #######################################################################################################################################
 #Drawing Functions
