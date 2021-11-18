@@ -23,6 +23,7 @@ def appStarted(app):
     app.cellHeight = (app.height - 2*app.margin)/app.rows
     app.startTime = time.time()
     gamegraphics(app)
+    initializeAI(app)
 
 def getCellBounds(app, row, col):
     x0 = col * app.cellWidth + app.shift
@@ -99,11 +100,12 @@ def initializeExplosionSprite(app):
     app.explosionSpriteSheet = app.loadImage('Images\weapons\explosionSprite.png')
     imageWidth, imageHeight = app.explosionSpriteSheet.size
     app.explosionHeightfactor = app.cellHeight / imageHeight
+    #list to store all the sprite images
     app.explosionsprite = []
     rows = 6
     cols = 10
-    for row in range(6):
-        for col in range(10):
+    for row in range(rows):
+        for col in range(cols):
             sprite = app.explosionSpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*row, imageWidth/cols*(col+1) , imageHeight/rows*(row+1)))
             scaledsprite = app.scaleImage(sprite, app.explosionHeightfactor*1.9)
             app.explosionsprite.append(scaledsprite)
@@ -205,9 +207,9 @@ def movePlayer(app, drow, dcol, playernum):
     newRow, newCol = app.players[playernum].row + drow, app.players[playernum].col + dcol
     if checkCollison(app, newRow, newCol) and checkBounds(app, newRow, newCol):
         app.players[playernum].row = newRow
-        app.players[playernum].col = newCol
+        app.players[playernum].col = newCol\
+        #testing for player 2
         findshortestpath(app, 2)
-        
     else:
         return
 
@@ -327,9 +329,21 @@ def gameMode_mousePressed(app, event):
 #######################################################################################################################################
 #AI CODE will be written here
 
+def initializeAI(app):
+    initializeplayerpath(app)
+
+def initializeplayerpath(app):
+    app.playerpath = {
+        1 : None,
+        2 : None,
+        3 : None,
+        4 : None
+    }
+
 def findshortestpath(app, AiNum):
     path  = AI.dfs(app.graph, app.MazeWalls, app.players[1], app.players[AiNum])
-    print(path)
+    if path != None:
+        app.playerpath[AiNum] = path
 
 #######################################################################################################################################
 #Drawing Functions
@@ -365,6 +379,12 @@ def drawExplosion(app, canvas):
             spriteimage = app.explosionsprite[app.explosionspriteCounter]
             canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image=ImageTk.PhotoImage(spriteimage))
         
+#debugging for dfs
+def drawshortestPath(app, canvas, playernum):
+    if app.playerpath[playernum] != None:
+        for row, col in app.playerpath[playernum]:
+            x0, y0, x1, y1 = getCellBounds(app, row, col)
+            canvas.create_rectangle(x0, y0, x1, y1, fill = 'red')
 
 def drawgrid(app, canvas):
     for row in range(app.rows):
@@ -377,9 +397,11 @@ def gameMode_redrawAll(app,canvas):
     drawgrid(app, canvas)
     #drawMaze(app, canvas)
     drawWallImage(app, canvas)
+    #drawshortestPath(app, canvas, 2)
     drawKlee(app, canvas, 1)
     drawWeapon(app, canvas)
     drawExplosion(app, canvas)
+    
     
 
 #########################################################

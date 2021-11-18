@@ -143,6 +143,8 @@ def convertX(graph, num):
             if (row,col) not in newDict:
                 newDict[(row,col)] = Node(row, col)
     fillinEdges(newDict)
+    graph.rows = 2*graph.rows
+    graph.cols = 2*graph.cols
     graph.nodes = newDict
 
     #debugging
