@@ -209,7 +209,7 @@ def movePlayer(app, drow, dcol, playernum):
         app.players[playernum].row = newRow
         app.players[playernum].col = newCol\
         #testing for player 2
-        findshortestpath(app, 2)
+        finddfspath(app, 2)
     else:
         return
 
@@ -340,7 +340,7 @@ def initializeplayerpath(app):
         4 : None
     }
 
-def findshortestpath(app, AiNum):
+def finddfspath(app, AiNum):
     path  = AI.dfs(app.graph, app.MazeWalls, app.players[1], app.players[AiNum])
     if path != None:
         app.playerpath[AiNum] = path
@@ -380,7 +380,7 @@ def drawExplosion(app, canvas):
             canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image=ImageTk.PhotoImage(spriteimage))
         
 #debugging for dfs
-def drawshortestPath(app, canvas, playernum):
+def drawdfsPath(app, canvas, playernum):
     if app.playerpath[playernum] != None:
         for row, col in app.playerpath[playernum]:
             x0, y0, x1, y1 = getCellBounds(app, row, col)
@@ -397,7 +397,7 @@ def gameMode_redrawAll(app,canvas):
     drawgrid(app, canvas)
     #drawMaze(app, canvas)
     drawWallImage(app, canvas)
-    #drawshortestPath(app, canvas, 2)
+    #drawdfsPath(app, canvas, 2)
     drawKlee(app, canvas, 1)
     drawWeapon(app, canvas)
     drawExplosion(app, canvas)

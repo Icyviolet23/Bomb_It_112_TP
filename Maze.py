@@ -142,10 +142,24 @@ def convertX(graph, num):
         for col in range(cols):
             if (row,col) not in newDict:
                 newDict[(row,col)] = Node(row, col)
+
+
     fillinEdges(newDict)
+
+    #updating dimensions of the graph
     graph.rows = 2*graph.rows
     graph.cols = 2*graph.cols
     graph.nodes = newDict
+    #reset the visited status for all the nodes in the graph
+    resetVisitedStatusNode(graph)
+
+def resetVisitedStatusNode(graph):
+    for coordinate in graph.nodes:
+        graph.nodes[coordinate].visited = False
+        #print(f'{coordinate}, {graph.nodes[coordinate].visited}')
+
+
+
 
     #debugging
     '''
