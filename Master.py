@@ -207,10 +207,10 @@ def movePlayer(app, drow, dcol, playernum):
     newRow, newCol = app.players[playernum].row + drow, app.players[playernum].col + dcol
     if checkCollison(app, newRow, newCol) and checkBounds(app, newRow, newCol):
         app.players[playernum].row = newRow
-        app.players[playernum].col = newCol\
+        app.players[playernum].col = newCol
         #testing for player 2
-        finddfspath(app, 2)
-        #findbfspath(app, 2)
+        #finddfspath(app, 2)
+        findbfspath(app, 2)
     else:
         return
 

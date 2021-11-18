@@ -66,6 +66,7 @@ def findPathdfs(graph, wallDict, startRow, startCol, player1Row, player1Col, pat
 
 
 def bfs(graph, wallDict, player1, AI):
+    #print(f'{graph.rows}, {graph.cols}')
     player1Row, player1Col = player1.row, player1.col
     startRow, startCol = AI.row, AI.col
     possibleMoves = [(0,1), (1,0), (-1,0), (0, -1)]
@@ -76,10 +77,10 @@ def bfs(graph, wallDict, player1, AI):
     #visitedNodes = set([])
     unvisitedneighbours = [(startRow, startCol)]
     while unvisitedneighbours != []:
-        frontNodeCoordinate = unvisitedneighbours[0]
+        frontNodeCoordinate = unvisitedneighbours.pop(0)
         if frontNodeCoordinate == (player1Row, player1Col):
             #reset the visited status at the end
-            Maze.resetVisitedStatusNode(graph)
+            print(f'{nodeMap}')
             return nodeMap
         #skip if already visited
         elif graph.nodes[frontNodeCoordinate].visited == True:
@@ -90,24 +91,30 @@ def bfs(graph, wallDict, player1, AI):
             for move in possibleMoves:
                 dRow, dCol = move[0], move[1]
                 newRow, newCol = startRow + dRow, startCol + dCol
-                if ((checkOutofBounds(graph, newRow, newCol) and 
-                    (newRow, newCol) not in wallDict)
-                    and (graph.nodes[(newRow, newCol)].visited) != True):
-
+                if ((checkOutofBounds(graph, newRow, newCol)) and 
+                    ((newRow, newCol) not in wallDict)
+                    and (graph.nodes[(newRow, newCol)].visited != True)):
                     nodeMap[(newRow, newCol)] = frontNodeCoordinate
                     unvisitedneighbours.append((newRow, newCol))
+            #unvisitedneighbours.remove(0)
 
 
 def getshortestpathbfs(graph, wallDict, player1, AI):
+    Maze.resetVisitedStatusNode(graph)
     nodeMap = bfs(graph, wallDict, player1, AI)
-    shortestPath = []
-    player1Row, player1Col = player1.row, player1.col
-    coordinate = (player1Row, player1Col)
-    while nodeMap[coordinate] != None:
-        shortestPath.insert(0, coordinate)
-        coordinate = nodeMap[coordinate]
-    return shortestPath
-
+    #There is a solution
+    if nodeMap != None:
+        shortestPath = []
+        player1Row, player1Col = player1.row, player1.col
+        coordinate = (player1Row, player1Col)
+        print(nodeMap)
+        while nodeMap[coordinate] != None:
+            shortestPath.insert(0, coordinate)
+            coordinate = nodeMap[coordinate]
+        return shortestPath
+    #return None if no path
+    else:
+        return None
 
     
     
