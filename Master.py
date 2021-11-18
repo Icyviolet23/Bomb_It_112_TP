@@ -210,6 +210,7 @@ def movePlayer(app, drow, dcol, playernum):
         app.players[playernum].col = newCol\
         #testing for player 2
         finddfspath(app, 2)
+        #findbfspath(app, 2)
     else:
         return
 
@@ -344,6 +345,13 @@ def finddfspath(app, AiNum):
     path  = AI.dfs(app.graph, app.MazeWalls, app.players[1], app.players[AiNum])
     if path != None:
         app.playerpath[AiNum] = path
+
+
+def findbfspath(app, AiNum):
+    player1 = app.players[1]
+    ai = app.players[AiNum]
+    path = AI.getshortestpathbfs(app.graph, app.MazeWalls, player1, ai)
+    print(path)
 
 #######################################################################################################################################
 #Drawing Functions

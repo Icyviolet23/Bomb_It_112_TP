@@ -65,20 +65,49 @@ def findPathdfs(graph, wallDict, startRow, startCol, player1Row, player1Col, pat
 # This is typically not done with recursion
 
 
-def bfs(graph, startRow, startCol, player1Row, player1Col):
-    visitedNodes = set([])
+def bfs(graph, wallDict, player1, AI):
+    player1Row, player1Col = player1.row, player1.col
+    startRow, startCol = AI.row, AI.col
+    possibleMoves = [(0,1), (1,0), (-1,0), (0, -1)]
+    nodeMap = {}
+    for row in range(graph.rows):
+        for col in range(graph.cols):
+            nodeMap[(row,col)] = None
+    #visitedNodes = set([])
     unvisitedneighbours = [(startRow, startCol)]
     while unvisitedneighbours != []:
         frontNodeCoordinate = unvisitedneighbours[0]
+        if frontNodeCoordinate == (player1Row, player1Col):
+            #reset the visited status at the end
+            Maze.resetVisitedStatusNode(graph)
+            return nodeMap
         #skip if already visited
-        if graph.nodes[frontNodeCoordinate].visited == True:
+        elif graph.nodes[frontNodeCoordinate].visited == True:
             continue
         else:
             #if not visited set the front node visited value to True
             graph.nodes[frontNodeCoordinate].visited = True
+            for move in possibleMoves:
+                dRow, dCol = move[0], move[1]
+                newRow, newCol = startRow + dRow, startCol + dCol
+                if ((checkOutofBounds(graph, newRow, newCol) and 
+                    (newRow, newCol) not in wallDict)
+                    and (graph.nodes[(newRow, newCol)].visited) != True):
+
+                    nodeMap[(newRow, newCol)] = frontNodeCoordinate
+                    unvisitedneighbours.append((newRow, newCol))
 
 
+def getshortestpathbfs(graph, wallDict, player1, AI):
+    nodeMap = bfs(graph, wallDict, player1, AI)
+    shortestPath = []
+    player1Row, player1Col = player1.row, player1.col
+    coordinate = (player1Row, player1Col)
+    while nodeMap[coordinate] != None:
+        shortestPath.insert(0, coordinate)
+        coordinate = nodeMap[coordinate]
+    return shortestPath
 
 
-    #reset the visited status at the end
-    Maze.resetVisitedStatusNode(graph)
+    
+    
