@@ -71,6 +71,7 @@ def initializePlayer(app):
     }
 
     initializePlayerModel1(app)
+    initializePlayerModel2(app)
     
 ####################################################################################
 #player images
@@ -98,7 +99,7 @@ def initalizeKleeForward(app):
 
 
 
-#Player Model 1 credits
+# Player Model 1 credits
 # body/male/human/white.png	Stephen Challener (Redshrike), Johannes SjÃ¶lund (wulax)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites			
 # facial/sunglasses.png	Michael Whitlock (bigbeargames), Thane Brimhall (pennomi)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-base-character-expressions				
 # feet/shoes/male/brown.png	Johannes SjÃ¶lund (wulax)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites				
@@ -135,7 +136,6 @@ def initializePlayerModel1(app):
         app.playerModel1forwardsprite.append(forwardscaledsprite)
     app.playerModel1Directions['forward'] = app.playerModel1forwardsprite
 
-
     #initializing backward sprite
     #app.playerModel1BackwardCounter = 0
     app.playerModel1backwardsprite = []
@@ -165,6 +165,77 @@ def initializePlayerModel1(app):
         rightscaledsprite = app.scaleImage(rightsprite, app.playerModelHeightfactor*scalefactor)
         app.playerModel1rightsprite.append(rightscaledsprite)
     app.playerModel1Directions['right'] = app.playerModel1rightsprite
+
+#initalizing player2Model
+#images from
+# body/male/human/white.png		Stephen Challener (Redshrike), Johannes SjÃ¶lund (wulax)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites			
+# feet/armor/male/9.png		Michael Whitlock (bigbeargames), Matthew Krohn (makrohn), Johannes SjÃ¶lund (wulax)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites				
+# legs/armour/male/9.png		Michael Whitlock (bigbeargames), Matthew Krohn (makrohn), Johannes SjÃ¶lund (wulax)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites				
+# torso/chainmail/male/gray.png		Johannes SjÃ¶lund (wulax)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites				
+# torso/armour/plate/male/16.png	recolor of torso/plate/chest_female.png	Michael Whitlock (bigbeargames), Matthew Krohn (makrohn), Johannes SjÃ¶lund (wulax)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites	https://opengameart.org/content/lpc-combat-armor-for-women			
+# shoulders/legion/male/bronze.png		Nila122, David Conway Jr. (JaidynReiman), Matthew Krohn (makrohn), Johannes SjÃ¶lund (wulax)	CC-BY-SA 3.0, GPL 2.0, GPL 3.0	https://opengameart.org/content/lpc-roman-armor				
+# cape/solid/male/maroon.png		David Conway Jr. (JaidynReiman)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-curly-hair-elven-ears-white-cape-with-blue-trim-and-more				
+# cape/solid_behind/maroon.png		David Conway Jr. (JaidynReiman)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-curly-hair-elven-ears-white-cape-with-blue-trim-and-more				
+# hat/armour/3.png		Michael Whitlock (bigbeargames), Johannes SjÃ¶lund (wulax)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites				
+# Note you can find an excel in the Images\Players folder for credits
+def initializePlayerModel2(app):
+    #dictionary that stores sprite sheets for different directions and actions
+    app.playerModel2Directions = {
+        'forward' : None,
+        'backward' : None,
+        'right' : None,
+        'left' : None
+    }
+    
+    app.playerModel2SpriteSheet = app.loadImage("Images\Players\player2.png")
+    imageWidth, imageHeight = app.playerModel2SpriteSheet.size
+    app.playerModelHeightfactor = app.cellHeight / imageHeight
+    #max columns
+    cols = 13
+    #max rows
+    rows = 21
+    scalefactor = 23
+    app.playerModel2Counter = 0
+
+    #initializing forward sprite
+    
+    app.playerModel2forwardsprite = []
+    forwardrow = 10
+    for col in range(9):
+        forwardsprite = app.playerModel2SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*forwardrow, imageWidth/cols*(col+1) , imageHeight/rows*(forwardrow+1)))
+        forwardscaledsprite = app.scaleImage(forwardsprite, app.playerModelHeightfactor*scalefactor)
+        app.playerModel2forwardsprite.append(forwardscaledsprite)
+    app.playerModel2Directions['forward'] = app.playerModel2forwardsprite
+
+    #initializing backward sprite
+    #app.playerModel2BackwardCounter = 0
+    app.playerModel2backwardsprite = []
+    backwardrow = 8
+    for col in range(9):
+        backwardsprite = app.playerModel2SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*backwardrow, imageWidth/cols*(col+1) , imageHeight/rows*(backwardrow+1)))
+        backwardscaledsprite = app.scaleImage(backwardsprite, app.playerModelHeightfactor*scalefactor)
+        app.playerModel2backwardsprite.append(backwardscaledsprite)
+    app.playerModel2Directions['backward'] = app.playerModel2backwardsprite
+
+    #intializing left sprite
+    #app.playerModel2LeftCounter = 0
+    app.playerModel2leftsprite = []
+    leftrow = 9
+    for col in range(9):
+        leftsprite = app.playerModel2SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*leftrow, imageWidth/cols*(col+1) , imageHeight/rows*(leftrow+1)))
+        leftscaledsprite = app.scaleImage(leftsprite, app.playerModelHeightfactor*scalefactor)
+        app.playerModel2leftsprite.append(leftscaledsprite)
+    app.playerModel2Directions['left'] = app.playerModel2leftsprite
+
+    #intializing right sprite
+    #app.playerModel2RightCounter = 0
+    app.playerModel2rightsprite = []
+    rightrow = 11
+    for col in range(9):
+        rightsprite = app.playerModel2SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*rightrow, imageWidth/cols*(col+1) , imageHeight/rows*(rightrow+1)))
+        rightscaledsprite = app.scaleImage(rightsprite, app.playerModelHeightfactor*scalefactor)
+        app.playerModel2rightsprite.append(rightscaledsprite)
+    app.playerModel2Directions['right'] = app.playerModel2rightsprite
 
 
 
@@ -380,6 +451,12 @@ def playerModel1Counter(app):
     if app.playerModel1Counter >= len(app.playerModel1forwardsprite):
         app.playerModel1Counter = 0
 
+def playerModel2Counter(app):
+    #since all directional images have the same no of frames we can just compare to one of the sheets
+    app.playerModel2Counter += 1
+    if app.playerModel2Counter >= len(app.playerModel2forwardsprite):
+        app.playerModel2Counter = 0
+
 def gameMode_timerFired(app):
     
     currentTime = time.time()
@@ -388,6 +465,7 @@ def gameMode_timerFired(app):
     if timepassed % 1000:
         kleeSpriteTimer(app)
         playerModel1Counter(app)
+        playerModel2Counter(app)
         
 
     
