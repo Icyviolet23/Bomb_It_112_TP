@@ -10,6 +10,11 @@ import Maze
 import weapon
 import time
 import AI
+#https://www.cs.cmu.edu/~112/schedule.html
+def almostEqual(d1, d2, epsilon=10**-7):
+    # note: use math.isclose() outside 15-112 with Python version 3.5 or later
+    return (abs(d2 - d1) < epsilon)
+
 
 def appStarted(app):
     app.mode = 'gameMode'
@@ -470,26 +475,29 @@ def playerModel2Counter(app):
         app.playerModel2Counter = 0
 
 def gameMode_timerFired(app):
-    
     currentTime = time.time()
     timepassed = currentTime - app.startTime
+    #print(timepassed)
     #https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#spritesheetsWithCropping
-    if timepassed % 1000:
+    if timepassed % 2 == 0:
         kleeSpriteTimer(app)
         playerModel1Counter(app)
         playerModel2Counter(app)
-        AIfindpath(app, 2)
+        
 
     explosionSpriteTimer(app)
 
     #bug here cause we are calling the timing wrongly for explosion
     #image displays but it is very small
-    if timepassed % 20000:
+    if almostEqual(timepassed % 2, 0):
         explodeBomb(app)
         explosionDuration(app)
-        
-    if timepassed % 5000:
+    #this doesnt 
+    if almostEqual(timepassed % 3, 0):
         moveAI(app, 2)
+
+    if almostEqual(timepassed % 2, 0):
+        AIfindpath(app, 2)
 
 def gameMode_keyPressed(app, event):
     #press r to reset the maze
