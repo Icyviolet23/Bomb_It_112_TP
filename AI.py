@@ -1,5 +1,6 @@
 #This will be where I place the code for AI pathfinding
 import Maze
+from queue import Queue
 
 ##########################################################
 #dfs
@@ -68,6 +69,7 @@ def findPathdfs(graph, wallDict, startRow, startCol, player1Row, player1Col, pat
 def bfs(graph, wallDict, player1, AI):
     #print(f'{graph.rows}, {graph.cols}')
     player1Row, player1Col = player1.row, player1.col
+    #print(f'{player1Row}, {player1Col}')
     startRow, startCol = AI.row, AI.col
     possibleMoves = [(0,1), (1,0), (-1,0), (0, -1)]
     nodeMap = {}
@@ -75,28 +77,36 @@ def bfs(graph, wallDict, player1, AI):
         for col in range(graph.cols):
             nodeMap[(row,col)] = None
     #visitedNodes = set([])
-    unvisitedneighbours = [(startRow, startCol)]
-    while unvisitedneighbours != []:
-        frontNodeCoordinate = unvisitedneighbours.pop(0)
+    #infinite q
+    unvisitedneighbours = Queue(maxsize = 0)
+    unvisitedneighbours.put((startRow, startCol))
+    #unvisitedneighbours = [(startRow, startCol)]
+    while unvisitedneighbours.empty() != True:
+        frontNodeCoordinate = unvisitedneighbours.get()
+        #print(frontNodeCoordinate)
+        #print(unvisitedneighbours.qsize())
         if frontNodeCoordinate == (player1Row, player1Col):
             #reset the visited status at the end
-            print(f'{nodeMap}')
+            #print(f'{nodeMap}')
             return nodeMap
         #skip if already visited
         elif graph.nodes[frontNodeCoordinate].visited == True:
+            #print('triggered')
             continue
         else:
             #if not visited set the front node visited value to True
             graph.nodes[frontNodeCoordinate].visited = True
             for move in possibleMoves:
                 dRow, dCol = move[0], move[1]
-                newRow, newCol = startRow + dRow, startCol + dCol
+                newRow, newCol = frontNodeCoordinate[0] + dRow, frontNodeCoordinate[1] + dCol
                 if ((checkOutofBounds(graph, newRow, newCol)) and 
                     ((newRow, newCol) not in wallDict)
                     and (graph.nodes[(newRow, newCol)].visited != True)):
+                    #assigning path
                     nodeMap[(newRow, newCol)] = frontNodeCoordinate
-                    unvisitedneighbours.append((newRow, newCol))
-            #unvisitedneighbours.remove(0)
+                    unvisitedneighbours.put((newRow, newCol))
+
+            
 
 
 def getshortestpathbfs(graph, wallDict, player1, AI):
@@ -107,7 +117,7 @@ def getshortestpathbfs(graph, wallDict, player1, AI):
         shortestPath = []
         player1Row, player1Col = player1.row, player1.col
         coordinate = (player1Row, player1Col)
-        print(nodeMap)
+        #print(nodeMap)
         while nodeMap[coordinate] != None:
             shortestPath.insert(0, coordinate)
             coordinate = nodeMap[coordinate]

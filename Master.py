@@ -56,11 +56,11 @@ def gamegraphics(app):
 
 def initializePlayer(app):
     #player format is 
-    #row, col, lives, weaponID
-    player1 = player.Player(0,0,10, 1)
-    player2 = player.Player(0,app.columns - 1, 10, 1)
-    player3 = player.Player(app.rows - 1, 0, 10,1)
-    player4 = player.Player(app.rows - 1, app.columns -1, 10, 1)
+    #row, col, lives, weaponID, action
+    player1 = player.Player(0,0,10, 1, 'forward')
+    player2 = player.Player(0,app.columns - 1, 10, 1, 'forward')
+    player3 = player.Player(app.rows - 1, 0, 10,1, 'forward')
+    player4 = player.Player(app.rows - 1, app.columns -1, 10, 1, 'forward')
     #app.players is the dictionary containing instance of all the players
     app.players = {
         1 : player1,
@@ -69,8 +69,11 @@ def initializePlayer(app):
         4 : player4
 
     }
-    
 
+    initializePlayerModel1(app)
+    
+####################################################################################
+#player images
 def initalizeKleeForward(app):
     app.KleespriteCounter = 0
     #Klee model (forward walking)
@@ -93,6 +96,84 @@ def initalizeKleeForward(app):
             sprite = app.scaleImage(sprite, app.KleescaleHeightFactor*1.9)
             app.kleesprite.append(sprite)
 
+
+
+#Player Model 1 credits
+# body/male/human/white.png	Stephen Challener (Redshrike), Johannes SjÃ¶lund (wulax)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites			
+# facial/sunglasses.png	Michael Whitlock (bigbeargames), Thane Brimhall (pennomi)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-base-character-expressions				
+# feet/shoes/male/brown.png	Johannes SjÃ¶lund (wulax)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites				
+# legs/pantaloons/male/black.png	Nila122, Johannes Sj?lund (wulax), Stephen Challener (Redshrike)	CC-BY-SA 3.0, GPL 2.0, GPL 3.0	https://opengameart.org/content/lpc-pirates	https://opengameart.org/content/more-lpc-clothes-and-hair			
+# torso/clothes/longsleeve_laced/male/black.png	bluecarrot16, David Conway Jr. (JaidynReiman), Johannes SjÃ¶lund (wulax)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites	https://opengameart.org/content/lpc-pirates			
+# hair/bangslong/male/black.png	Manuel Riecke (MrBeast)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites				
+# Note you can find an excel in the Images\Players folder for credits
+def initializePlayerModel1(app):
+    #dictionary that stores sprite sheets for different directions and actions
+    app.playerModel1Directions = {
+        'forward' : None,
+        'backward' : None,
+        'right' : None,
+        'left' : None
+    }
+    
+    app.playerModel1SpriteSheet = app.loadImage("Images\Players\player1.png")
+    imageWidth, imageHeight = app.playerModel1SpriteSheet.size
+    app.playerModelHeightfactor = app.cellHeight / imageHeight
+    #max columns
+    cols = 13
+    #max rows
+    rows = 21
+    scalefactor = 23
+    app.playerModel1Counter = 0
+
+    #initializing forward sprite
+    
+    app.playerModel1forwardsprite = []
+    forwardrow = 10
+    for col in range(9):
+        forwardsprite = app.playerModel1SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*forwardrow, imageWidth/cols*(col+1) , imageHeight/rows*(forwardrow+1)))
+        forwardscaledsprite = app.scaleImage(forwardsprite, app.playerModelHeightfactor*scalefactor)
+        app.playerModel1forwardsprite.append(forwardscaledsprite)
+    app.playerModel1Directions['forward'] = app.playerModel1forwardsprite
+
+
+    #initializing backward sprite
+    #app.playerModel1BackwardCounter = 0
+    app.playerModel1backwardsprite = []
+    backwardrow = 8
+    for col in range(9):
+        backwardsprite = app.playerModel1SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*backwardrow, imageWidth/cols*(col+1) , imageHeight/rows*(backwardrow+1)))
+        backwardscaledsprite = app.scaleImage(backwardsprite, app.playerModelHeightfactor*scalefactor)
+        app.playerModel1backwardsprite.append(backwardscaledsprite)
+    app.playerModel1Directions['backward'] = app.playerModel1backwardsprite
+
+    #intializing left sprite
+    #app.playerModel1LeftCounter = 0
+    app.playerModel1leftsprite = []
+    leftrow = 9
+    for col in range(9):
+        leftsprite = app.playerModel1SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*leftrow, imageWidth/cols*(col+1) , imageHeight/rows*(leftrow+1)))
+        leftscaledsprite = app.scaleImage(leftsprite, app.playerModelHeightfactor*scalefactor)
+        app.playerModel1leftsprite.append(leftscaledsprite)
+    app.playerModel1Directions['left'] = app.playerModel1leftsprite
+
+    #intializing right sprite
+    #app.playerModel1RightCounter = 0
+    app.playerModel1rightsprite = []
+    rightrow = 11
+    for col in range(9):
+        rightsprite = app.playerModel1SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*rightrow, imageWidth/cols*(col+1) , imageHeight/rows*(rightrow+1)))
+        rightscaledsprite = app.scaleImage(rightsprite, app.playerModelHeightfactor*scalefactor)
+        app.playerModel1rightsprite.append(rightscaledsprite)
+    app.playerModel1Directions['right'] = app.playerModel1rightsprite
+
+
+
+
+
+
+
+#end of player images
+###################################################################################################
 def initializeExplosionSprite(app):
     app.explosion = []
     app.explosionspriteCounter = 0
@@ -204,6 +285,19 @@ def checkCollison(app, row, col):
 
 
 def movePlayer(app, drow, dcol, playernum):
+    #change action to forward
+    if (drow, dcol) == (1,0):
+        app.players[playernum].action = 'forward'
+
+    if (drow, dcol) == (-1,0):
+        app.players[playernum].action = 'backward'
+
+    if (drow, dcol) == (0,1):
+        app.players[playernum].action = 'right'
+
+    if (drow, dcol) == (0,-1):
+        app.players[playernum].action = 'left'
+
     newRow, newCol = app.players[playernum].row + drow, app.players[playernum].col + dcol
     if checkCollison(app, newRow, newCol) and checkBounds(app, newRow, newCol):
         app.players[playernum].row = newRow
@@ -211,6 +305,7 @@ def movePlayer(app, drow, dcol, playernum):
         #testing for player 2
         #finddfspath(app, 2)
         findbfspath(app, 2)
+
     else:
         return
 
@@ -279,6 +374,11 @@ def explosionSpriteTimer(app):
     if app.explosionspriteCounter >= len(app.explosionsprite):
         app.explosionspriteCounter = 0
 
+def playerModel1Counter(app):
+    #since all directional images have the same no of frames we can just compare to one of the sheets
+    app.playerModel1Counter += 1
+    if app.playerModel1Counter >= len(app.playerModel1forwardsprite):
+        app.playerModel1Counter = 0
 
 def gameMode_timerFired(app):
     
@@ -287,6 +387,7 @@ def gameMode_timerFired(app):
     #https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#spritesheetsWithCropping
     if timepassed % 1000:
         kleeSpriteTimer(app)
+        playerModel1Counter(app)
         
 
     
@@ -346,12 +447,13 @@ def finddfspath(app, AiNum):
     if path != None:
         app.playerpath[AiNum] = path
 
-
+#shortest path
 def findbfspath(app, AiNum):
     player1 = app.players[1]
     ai = app.players[AiNum]
     path = AI.getshortestpathbfs(app.graph, app.MazeWalls, player1, ai)
-    print(path)
+    if path != None:
+        app.playerpath[AiNum] = path
 
 #######################################################################################################################################
 #Drawing Functions
@@ -373,12 +475,25 @@ def drawWeapon(app, canvas):
             weaponID = app.weaponPos[coordinate].weaponID
             x0, y0, x1, y1 = getCellBounds(app, coordinate[0], coordinate[1])
             canvas.create_image((x0 + x1)/2, (y0 + y1)/2, image = ImageTk.PhotoImage(app.WeaponImageDictScaled[weaponID]))
-
+##################################################################################
+#drawing players
 #playernum here is an int
 def drawKlee(app, canvas, playernum):
     x0, y0, x1, y1 = getCellBounds(app, app.players[playernum].row, app.players[playernum].col)
     spriteimage = app.kleesprite[app.KleespriteCounter]
     canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image=ImageTk.PhotoImage(spriteimage))
+
+#action controls which sprite sheet is being used
+#action is a string: 'forward', 'backward', 'right', 'left'
+def drawplayerModel1(app, canvas, playernum):
+    #get where to draw the player
+    x0, y0, x1, y1 = getCellBounds(app, app.players[playernum].row, app.players[playernum].col)
+    spriteimage = app.playerModel1Directions[app.players[playernum].action][app.playerModel1Counter]
+    canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
+
+
+##################################################################################
+
 
 def drawExplosion(app, canvas):
     for explosion in app.explosion:
@@ -388,11 +503,18 @@ def drawExplosion(app, canvas):
             canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image=ImageTk.PhotoImage(spriteimage))
         
 #debugging for dfs
-def drawdfsPath(app, canvas, playernum):
-    if app.playerpath[playernum] != None:
-        for row, col in app.playerpath[playernum]:
+def drawdfsPath(app, canvas, ainum):
+    if app.playerpath[ainum] != None:
+        for row, col in app.playerpath[ainum]:
             x0, y0, x1, y1 = getCellBounds(app, row, col)
             canvas.create_rectangle(x0, y0, x1, y1, fill = 'red')
+
+#debugging for bfs
+def drawbfsPath(app, canvas, ainum):
+    if app.playerpath[ainum] != None:
+        for row, col in app.playerpath[ainum]:
+            x0, y0, x1, y1 = getCellBounds(app, row, col)
+            canvas.create_rectangle(x0, y0, x1, y1, fill = 'green')
 
 def drawgrid(app, canvas):
     for row in range(app.rows):
@@ -406,7 +528,9 @@ def gameMode_redrawAll(app,canvas):
     #drawMaze(app, canvas)
     drawWallImage(app, canvas)
     #drawdfsPath(app, canvas, 2)
-    drawKlee(app, canvas, 1)
+    #drawbfsPath(app, canvas, 2)
+    #drawKlee(app, canvas, 1)
+    drawplayerModel1(app, canvas, 1)
     drawWeapon(app, canvas)
     drawExplosion(app, canvas)
     
