@@ -375,7 +375,7 @@ def movePlayer(app, drow, dcol, playernum):
         app.players[playernum].col = newCol
         #testing for player 2
         #finddfspath(app, 2)
-        findbfspath(app, 2)
+        #findbfspath(app, 2)
 
     else:
         return
@@ -478,7 +478,7 @@ def gameMode_timerFired(app):
         kleeSpriteTimer(app)
         playerModel1Counter(app)
         playerModel2Counter(app)
-        moveAI(app, 2)
+        AIfindpath(app, 2)
 
     explosionSpriteTimer(app)
 
@@ -488,7 +488,8 @@ def gameMode_timerFired(app):
         explodeBomb(app)
         explosionDuration(app)
         
-
+    if timepassed % 5000:
+        moveAI(app, 2)
 
 def gameMode_keyPressed(app, event):
     #press r to reset the maze
@@ -571,6 +572,10 @@ def finitestateAI(app, AiNum):
     if path == None:
         createBomb(app, AiNum)
 
+def AIfindpath(app, AiNum):
+    findbfspath(app, AiNum)
+    app.players[AiNum].counter = 0
+
 #trigger this every 1 second
 def moveAI(app, AiNum):
     currentRow, currentCol = app.players[AiNum].row, app.players[AiNum].col
@@ -578,13 +583,14 @@ def moveAI(app, AiNum):
     if path == None:
         createBomb(app, AiNum)
     else:
-        movetoCoord = path[0]
-        app.playerpath[AiNum] = app.playerpath[AiNum][1:]
-        drow, dcol = movetoCoord[0] - currentRow, movetoCoord[1] - currentCol
+        if app.players[AiNum].counter >= len(path):
+            app.players[AiNum].counter = len(path) - 1
+        drow, dcol = path[app.players[AiNum].counter][0] - currentRow, path[app.players[AiNum].counter][1] - currentCol
         #changes ai animation action
         editAIAction(app, drow, dcol, AiNum)
+
         #actual moving
-        app.AiPosition[AiNum] = movetoCoord
+        app.players[AiNum].row, app.players[AiNum].col = currentRow + drow, currentCol + dcol
         #findbfspath(app, AiNum)
 
 #######################################################################################################################################
@@ -624,11 +630,9 @@ def drawplayerModel1(app, canvas, playernum):
     canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
 
 def drawAIModel(app, canvas, AInum):
-    if app.AiPosition[AInum] != None:
-    #get where to draw the player
-        x0, y0, x1, y1 = getCellBounds(app, app.AiPosition[AInum][0], app.AiPosition[AInum][1])
-        spriteimage = app.playerModel2Directions[app.players[AInum].action][app.playerModel2Counter]
-        canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
+    x0, y0, x1, y1 = getCellBounds(app, app.players[AInum].row , app.players[AInum].col)
+    spriteimage = app.playerModel2Directions[app.players[AInum].action][app.playerModel2Counter]
+    canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
 
 
 ##################################################################################

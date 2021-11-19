@@ -16,3 +16,5 @@ class Player(object):
         self.bombCount = 1
         self.bombTimer = 10
         self.action = action
+        #for AI use only
+        self.counter = 0
