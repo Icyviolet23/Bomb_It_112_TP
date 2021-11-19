@@ -383,11 +383,12 @@ def movePlayer(app, drow, dcol, playernum):
 def createBomb(app, playernum):
     currentRow, currentCol = app.players[playernum].row, app.players[playernum].col
     if app.players[playernum].bombCount > 0:
-        app.weaponPos[(currentRow, currentCol)] = weapon.Bomb(app.players[playernum].bombTimer, playernum)
+        app.weaponPos[(currentRow, currentCol)] = weapon.Bomb(app.players[playernum].bombTimer, playernum, 2)
         app.players[playernum].bombCount -= 1
 
 def explodeBomb(app):
     if app.weaponPos != {}:
+        #where the bombs are
         for coordinate in app.weaponPos:
             if isinstance(app.weaponPos[coordinate], weapon.Bomb):
                 if app.weaponPos[coordinate].timer > 0:
@@ -396,17 +397,18 @@ def explodeBomb(app):
                 if app.weaponPos[coordinate].timer == 0:
                     playernum = app.weaponPos[coordinate].playernum
                     app.players[playernum].bombCount += 1
-                    explosionRadius(app, coordinate)
+                    explosionRadius(app, coordinate, playernum, app.weaponPos[coordinate].bombradius)
                     explosionEffect(app, coordinate)
                     app.weaponPos[coordinate] = None
 
 
 
 #stores the explosion radius into a list
-def explosionRadius(app, coordinate):
-    explosion = weapon.Explosion(coordinate[0], coordinate[1])
-    bombRadius = [(0,1), (1,0), (-1,0), (0, -1)]
-    for drow, dcol in bombRadius:
+def explosionRadius(app, coordinate, playernum, bombradius):
+    #center row, center col, playernumer, explosion radius
+    explosion = weapon.Explosion(coordinate[0], coordinate[1], playernum, bombradius)
+    explosion.createBombchangeRowCol()
+    for drow, dcol in explosion.bombdcoordinate:
         newRow, newCol = coordinate[0] + drow, coordinate[1] + dcol
         if checkBounds(app, newRow, newCol):
             explosion.radius.append((newRow, newCol))
@@ -415,12 +417,22 @@ def explosionRadius(app, coordinate):
 
 
 
-#performs the effect of the explosion:
+#performs the effect of the explosion which destroys the walls
+#need to add in harming the player effect as well
 def explosionEffect(app, coordinate):
     for explosion in app.explosion:
+        #row,col in explosion.radius
         for coordinate in explosion.radius:
             if coordinate in app.MazeWalls and app.MazeWalls[coordinate].destructible == True:
                 app.MazeWalls.pop(coordinate)
+            for player in range(1,5):
+                #player cannot be harmed by their own explosions
+                if player == explosion.playernum:
+                    continue
+                else:
+                    if coordinate == (app.players[player].row, app.players[player].col):
+                        app.players[player].lives -= 1
+
 
 
 
@@ -466,9 +478,8 @@ def gameMode_timerFired(app):
         kleeSpriteTimer(app)
         playerModel1Counter(app)
         playerModel2Counter(app)
-        
+        moveAI(app, 2)
 
-    
     explosionSpriteTimer(app)
 
     #bug here cause we are calling the timing wrongly for explosion
@@ -509,11 +520,31 @@ def gameMode_mousePressed(app, event):
 #######################################################################################################################################
 #AI CODE will be written here
 
+def editAIAction(app, drow, dcol, Ainum):
+    if (drow, dcol) == (1,0):
+        app.players[Ainum].action = 'forward'
+
+    if (drow, dcol) == (-1,0):
+        app.players[Ainum].action = 'backward'
+
+    if (drow, dcol) == (0,1):
+        app.players[Ainum].action = 'right'
+
+    if (drow, dcol) == (0,-1):
+        app.players[Ainum].action = 'left'
+
 def initializeAI(app):
     initializeplayerpath(app)
 
 def initializeplayerpath(app):
     app.playerpath = {
+        1 : None,
+        2 : None,
+        3 : None,
+        4 : None
+    }
+
+    app.AiPosition = {
         1 : None,
         2 : None,
         3 : None,
@@ -532,6 +563,29 @@ def findbfspath(app, AiNum):
     path = AI.getshortestpathbfs(app.graph, app.MazeWalls, player1, ai)
     if path != None:
         app.playerpath[AiNum] = path
+
+#controls the actions of the AI
+def finitestateAI(app, AiNum):
+    path = app.playerpath[AiNum]
+    #if path is None we want to drop a bomb
+    if path == None:
+        createBomb(app, AiNum)
+
+#trigger this every 1 second
+def moveAI(app, AiNum):
+    currentRow, currentCol = app.players[AiNum].row, app.players[AiNum].col
+    path = app.playerpath[AiNum]
+    if path == None:
+        createBomb(app, AiNum)
+    else:
+        movetoCoord = path[0]
+        app.playerpath[AiNum] = app.playerpath[AiNum][1:]
+        drow, dcol = movetoCoord[0] - currentRow, movetoCoord[1] - currentCol
+        #changes ai animation action
+        editAIAction(app, drow, dcol, AiNum)
+        #actual moving
+        app.AiPosition[AiNum] = movetoCoord
+        #findbfspath(app, AiNum)
 
 #######################################################################################################################################
 #Drawing Functions
@@ -568,6 +622,13 @@ def drawplayerModel1(app, canvas, playernum):
     x0, y0, x1, y1 = getCellBounds(app, app.players[playernum].row, app.players[playernum].col)
     spriteimage = app.playerModel1Directions[app.players[playernum].action][app.playerModel1Counter]
     canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
+
+def drawAIModel(app, canvas, AInum):
+    if app.AiPosition[AInum] != None:
+    #get where to draw the player
+        x0, y0, x1, y1 = getCellBounds(app, app.AiPosition[AInum][0], app.AiPosition[AInum][1])
+        spriteimage = app.playerModel2Directions[app.players[AInum].action][app.playerModel2Counter]
+        canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
 
 
 ##################################################################################
@@ -606,11 +667,12 @@ def gameMode_redrawAll(app,canvas):
     #drawMaze(app, canvas)
     drawWallImage(app, canvas)
     #drawdfsPath(app, canvas, 2)
-    #drawbfsPath(app, canvas, 2)
+    drawbfsPath(app, canvas, 2)
     #drawKlee(app, canvas, 1)
     drawplayerModel1(app, canvas, 1)
     drawWeapon(app, canvas)
     drawExplosion(app, canvas)
+    drawAIModel(app, canvas, 2)
     
     
 
