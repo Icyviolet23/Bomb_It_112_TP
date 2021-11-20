@@ -121,6 +121,7 @@ def getshortestpathbfs(graph, wallDict, player1, AI):
         while nodeMap[coordinate] != None:
             shortestPath.insert(0, coordinate)
             coordinate = nodeMap[coordinate]
+        shortestPath.append((player1.row, player1.col))
         return shortestPath
     #return None if no path
     else:

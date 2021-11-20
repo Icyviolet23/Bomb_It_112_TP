@@ -26,9 +26,15 @@ def appStarted(app):
     app.shift = app.panel + app.margin
     app.cellWidth = (app.width - app.panel - 2*app.margin)/app.columns
     app.cellHeight = (app.height - 2*app.margin)/app.rows
-    app.startTime = time.time()
+    intializeTime(app)
     gamegraphics(app)
     initializeAI(app)
+
+
+
+def intializeTime(app):
+    app.startTime = time.time()
+    app.timeElasped = 0
 
 def getCellBounds(app, row, col):
     x0 = col * app.cellWidth + app.shift
@@ -264,7 +270,7 @@ def initializeExplosionSprite(app):
     for row in range(rows):
         for col in range(cols):
             sprite = app.explosionSpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*row, imageWidth/cols*(col+1) , imageHeight/rows*(row+1)))
-            scaledsprite = app.scaleImage(sprite, app.explosionHeightfactor*1.9)
+            scaledsprite = app.scaleImage(sprite, app.explosionHeightfactor*5)
             app.explosionsprite.append(scaledsprite)
 
 
@@ -452,80 +458,6 @@ def explosionDuration(app):
         
 
 
-def kleeSpriteTimer(app):
-    app.KleespriteCounter += 1
-    if app.KleespriteCounter >= len(app.kleesprite):
-        app.KleespriteCounter = 0
-
-def explosionSpriteTimer(app):
-    app.explosionspriteCounter += 1
-    if app.explosionspriteCounter >= len(app.explosionsprite):
-        app.explosionspriteCounter = 0
-
-def playerModel1Counter(app):
-    #since all directional images have the same no of frames we can just compare to one of the sheets
-    app.playerModel1Counter += 1
-    if app.playerModel1Counter >= len(app.playerModel1forwardsprite):
-        app.playerModel1Counter = 0
-
-def playerModel2Counter(app):
-    #since all directional images have the same no of frames we can just compare to one of the sheets
-    app.playerModel2Counter += 1
-    if app.playerModel2Counter >= len(app.playerModel2forwardsprite):
-        app.playerModel2Counter = 0
-
-def gameMode_timerFired(app):
-    currentTime = time.time()
-    timepassed = currentTime - app.startTime
-    #print(timepassed)
-    #https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#spritesheetsWithCropping
-    if timepassed % 2 == 0:
-        kleeSpriteTimer(app)
-        playerModel1Counter(app)
-        playerModel2Counter(app)
-        
-
-    explosionSpriteTimer(app)
-
-    #bug here cause we are calling the timing wrongly for explosion
-    #image displays but it is very small
-    if almostEqual(timepassed % 2, 0):
-        explodeBomb(app)
-        explosionDuration(app)
-    #this doesnt 
-    if almostEqual(timepassed % 3, 0):
-        moveAI(app, 2)
-
-    if almostEqual(timepassed % 2, 0):
-        AIfindpath(app, 2)
-
-def gameMode_keyPressed(app, event):
-    #press r to reset the maze
-    if event.key == 'r':
-        regenerateWalls(app)
-
-    if event.key == 'd':
-        movePlayer(app, 0, 1, 1)
-
-    if event.key == 'a':
-        movePlayer(app, 0, -1, 1)
-
-    if event.key == 'w':
-        movePlayer(app, -1, 0, 1)
-
-    if event.key == 's':
-        movePlayer(app, 1, 0, 1)
-
-    if event.key == 'b':
-        createBomb(app, 1)
-
-def regenerateWalls(app):
-    app.MazeWalls = {}
-    initializeMaze(app)
-
-def gameMode_mousePressed(app, event):
-    pass
-
 #######################################################################################################################################
 #AI CODE will be written here
 
@@ -601,6 +533,89 @@ def moveAI(app, AiNum):
         app.players[AiNum].row, app.players[AiNum].col = currentRow + drow, currentCol + dcol
         #findbfspath(app, AiNum)
 
+        player1Row, player1Col = app.players[1].row, app.players[1].col
+        for move in [(0,1), (1,0), (-1,0), (0, -1)]:
+            if (player1Row, player1Col) == (app.players[AiNum].row + move[0], app.players[AiNum].col + move[1]):
+                if app.players[AiNum].bombCount > 0:
+                    createBomb(app, AiNum)
+
+##################################################################################################
+#timer functions
+def kleeSpriteTimer(app):
+    app.KleespriteCounter += 1
+    if app.KleespriteCounter >= len(app.kleesprite):
+        app.KleespriteCounter = 0
+
+def explosionSpriteTimer(app):
+    app.explosionspriteCounter += 1
+    if app.explosionspriteCounter >= len(app.explosionsprite):
+        app.explosionspriteCounter = 0
+
+def playerModel1Counter(app):
+    #since all directional images have the same no of frames we can just compare to one of the sheets
+    app.playerModel1Counter += 1
+    if app.playerModel1Counter >= len(app.playerModel1forwardsprite):
+        app.playerModel1Counter = 0
+
+def playerModel2Counter(app):
+    #since all directional images have the same no of frames we can just compare to one of the sheets
+    app.playerModel2Counter += 1
+    if app.playerModel2Counter >= len(app.playerModel2forwardsprite):
+        app.playerModel2Counter = 0
+
+def gameMode_timerFired(app):
+    app.timeElasped += app.timerDelay
+    #print(app.timeElasped)
+    currentTime = time.time()
+    timepassed = currentTime - app.startTime
+    #print(timepassed)
+    #https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#spritesheetsWithCropping
+    if app.timeElasped % 1000 == 0:
+        #kleeSpriteTimer(app)
+        playerModel1Counter(app)
+        playerModel2Counter(app)
+        
+
+    #explosionSpriteTimer(app)
+    #bug here cause we are calling the timing wrongly for explosion
+    #image displays but it is very small
+    #if app.timeElasped % 2000 == 0:
+    explodeBomb(app)
+    explosionDuration(app)
+        
+    if app.timeElasped % 500 == 0:
+        AIfindpath(app, 2)
+    if app.timeElasped % 100 == 0:
+        moveAI(app, 2)
+        
+    
+
+def gameMode_keyPressed(app, event):
+    #press r to reset the maze
+    if event.key == 'r':
+        regenerateWalls(app)
+
+    if event.key == 'd':
+        movePlayer(app, 0, 1, 1)
+
+    if event.key == 'a':
+        movePlayer(app, 0, -1, 1)
+
+    if event.key == 'w':
+        movePlayer(app, -1, 0, 1)
+
+    if event.key == 's':
+        movePlayer(app, 1, 0, 1)
+
+    if event.key == 'b':
+        createBomb(app, 1)
+
+def regenerateWalls(app):
+    app.MazeWalls = {}
+    initializeMaze(app)
+
+def gameMode_mousePressed(app, event):
+    pass
 #######################################################################################################################################
 #Drawing Functions
 def drawWallImage(app, canvas):
@@ -650,7 +665,8 @@ def drawExplosion(app, canvas):
     for explosion in app.explosion:
         for coordinate in explosion.radius:
             x0, y0, x1, y1 = getCellBounds(app, coordinate[0], coordinate[1])
-            spriteimage = app.explosionsprite[app.explosionspriteCounter]
+            #hardcoding the explosion sprite for now due to lag
+            spriteimage = app.explosionsprite[29]
             canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image=ImageTk.PhotoImage(spriteimage))
         
 #debugging for dfs
@@ -679,7 +695,7 @@ def gameMode_redrawAll(app,canvas):
     #drawMaze(app, canvas)
     drawWallImage(app, canvas)
     #drawdfsPath(app, canvas, 2)
-    drawbfsPath(app, canvas, 2)
+    #drawbfsPath(app, canvas, 2)
     #drawKlee(app, canvas, 1)
     drawplayerModel1(app, canvas, 1)
     drawWeapon(app, canvas)
