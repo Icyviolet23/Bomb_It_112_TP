@@ -479,6 +479,7 @@ def initializeMaze(app):
                 app.MazeWalls[coordinate] = newWall
 
     app.graph = graph
+    app.MazeWallsOriLength = len(app.MazeWalls.keys())
     #print(app.MazeWalls.keys())
 
 
@@ -753,6 +754,8 @@ def gameMode_timerFired(app):
         AIfindpath(app, 2)
         AIfindpath(app, 3)
         AIfindpath(app, 4)
+
+    autoRegenWalls(app)
         
         
     
@@ -780,6 +783,10 @@ def gameMode_keyPressed(app, event):
 def regenerateWalls(app):
     app.MazeWalls = {}
     initializeMaze(app)
+
+def autoRegenWalls(app):
+    if len(app.MazeWalls.keys())/app.MazeWallsOriLength < 0.8:
+        regenerateWalls(app)
 
 def gameMode_mousePressed(app, event):
     pass
