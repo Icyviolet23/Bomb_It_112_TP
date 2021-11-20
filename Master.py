@@ -80,9 +80,8 @@ def initializePlayer(app):
         4 : player4
 
     }
-
-    initializePlayerModel1(app)
-    initializePlayerModel2(app)
+    initializeAllPlayerModels(app)
+    
     
 ####################################################################################
 #player images
@@ -108,6 +107,18 @@ def initalizeKleeForward(app):
             sprite = app.scaleImage(sprite, app.KleescaleHeightFactor*1.9)
             app.kleesprite.append(sprite)
 
+
+def initializeAllPlayerModels(app):
+    initializePlayerModel1(app)
+    initializePlayerModel2(app)
+    initializePlayerModel3(app)
+    initializePlayerModel4(app)
+    app.playerModels = {
+        1 : app.playerModel1Directions,
+        2 : app.playerModel2Directions,
+        3 : app.playerModel3Directions,
+        4 : app.playerModel4Directions
+    }
 
 
 # Player Model 1 credits
@@ -249,7 +260,142 @@ def initializePlayerModel2(app):
     app.playerModel2Directions['right'] = app.playerModel2rightsprite
 
 
+# body/male/human/white.png	Stephen Challener (Redshrike), Johannes SjÃ¶lund (wulax)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites			
+# beards/male/beard/black.png	David Conway Jr. (JaidynReiman), Carlo Enrico Victoria (Nemisys)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-brunet-mustache				
+# facial/patch.png	Michael Whitlock (bigbeargames), Thane Brimhall (pennomi)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-base-character-expressions				
+# feet/shoes/male/maroon.png	Johannes SjÃ¶lund (wulax)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites				
+# legs/pants/male/sky.png	bluecarrot16, David Conway Jr. (JaidynReiman), Joe White, Matthew Krohn (makrohn), Johannes Sj?lund (wulax)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites			
+# torso/clothes/vest_open/male/black.png	bluecarrot16, Thane Brimhall (pennomi), laetissima	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-2-characters	https://opengameart.org/content/lpc-gentleman	https://opengameart.org/content/lpc-pirates		
+# hair/mohawk/male/black.png	Manuel Riecke (MrBeast)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles				
+# hat/pirate/bandana_skull/male/blue.png	bluecarrot16, Fabzy	CC-BY-SA 3.0	https://opengameart.org/content/lpc-pirates				
+# Note you can find an excel in the Images\Players folder for credits
 
+def initializePlayerModel3(app):
+    #dictionary that stores sprite sheets for different directions and actions
+    app.playerModel3Directions = {
+        'forward' : None,
+        'backward' : None,
+        'right' : None,
+        'left' : None
+    }
+    
+    app.playerModel3SpriteSheet = app.loadImage("Images\Players\player3.png")
+    imageWidth, imageHeight = app.playerModel3SpriteSheet.size
+    app.playerModelHeightfactor = app.cellHeight / imageHeight
+    #max columns
+    cols = 13
+    #max rows
+    rows = 21
+    scalefactor = 23
+    app.playerModel3Counter = 0
+
+    #initializing forward sprite
+    
+    app.playerModel3forwardsprite = []
+    forwardrow = 10
+    for col in range(9):
+        forwardsprite = app.playerModel3SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*forwardrow, imageWidth/cols*(col+1) , imageHeight/rows*(forwardrow+1)))
+        forwardscaledsprite = app.scaleImage(forwardsprite, app.playerModelHeightfactor*scalefactor)
+        app.playerModel3forwardsprite.append(forwardscaledsprite)
+    app.playerModel3Directions['forward'] = app.playerModel3forwardsprite
+
+    #initializing backward sprite
+    #app.playerModel3BackwardCounter = 0
+    app.playerModel3backwardsprite = []
+    backwardrow = 8
+    for col in range(9):
+        backwardsprite = app.playerModel3SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*backwardrow, imageWidth/cols*(col+1) , imageHeight/rows*(backwardrow+1)))
+        backwardscaledsprite = app.scaleImage(backwardsprite, app.playerModelHeightfactor*scalefactor)
+        app.playerModel3backwardsprite.append(backwardscaledsprite)
+    app.playerModel3Directions['backward'] = app.playerModel3backwardsprite
+
+    #intializing left sprite
+    #app.playerModel3LeftCounter = 0
+    app.playerModel3leftsprite = []
+    leftrow = 9
+    for col in range(9):
+        leftsprite = app.playerModel3SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*leftrow, imageWidth/cols*(col+1) , imageHeight/rows*(leftrow+1)))
+        leftscaledsprite = app.scaleImage(leftsprite, app.playerModelHeightfactor*scalefactor)
+        app.playerModel3leftsprite.append(leftscaledsprite)
+    app.playerModel3Directions['left'] = app.playerModel3leftsprite
+
+    #intializing right sprite
+    #app.playerModel3RightCounter = 0
+    app.playerModel3rightsprite = []
+    rightrow = 11
+    for col in range(9):
+        rightsprite = app.playerModel3SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*rightrow, imageWidth/cols*(col+1) , imageHeight/rows*(rightrow+1)))
+        rightscaledsprite = app.scaleImage(rightsprite, app.playerModelHeightfactor*scalefactor)
+        app.playerModel3rightsprite.append(rightscaledsprite)
+    app.playerModel3Directions['right'] = app.playerModel3rightsprite
+
+
+# body/male/human/white.png		Stephen Challener (Redshrike), Johannes SjÃ¶lund (wulax)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites			
+# facial/mask_white.png		Nila122	CC-BY-SA 3.0, GPL 2.0, GPL 3.0	https://opengameart.org/content/lpc-masks				
+# facial/earring/male/gold.png		bluecarrot16	CC-BY-SA 3.0	https://opengameart.org/content/lpc-pirates				
+# feet/shoes/male/black.png		Johannes SjÃ¶lund (wulax)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites				
+# torso/jacket/iverness/male/black.png		bluecarrot16	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/lpc-gentleman				
+# hat/magic/male/moon.png		Michael Whitlock (bigbeargames), Tracy	OGA-BY 3.0	https://opengameart.org/content/lpc-celestial-wizard-hats	https://opengameart.org/content/merlins-hat			
+# Note you can find an excel in the Images\Players folder for credits
+
+def initializePlayerModel4(app):
+    #dictionary that stores sprite sheets for different directions and actions
+    app.playerModel4Directions = {
+        'forward' : None,
+        'backward' : None,
+        'right' : None,
+        'left' : None
+    }
+    
+    app.playerModel4SpriteSheet = app.loadImage("Images\Players\player4.png")
+    imageWidth, imageHeight = app.playerModel4SpriteSheet.size
+    app.playerModelHeightfactor = app.cellHeight / imageHeight
+    #max columns
+    cols = 13
+    #max rows
+    rows = 21
+    scalefactor = 23
+    app.playerModel4Counter = 0
+
+    #initializing forward sprite
+    
+    app.playerModel4forwardsprite = []
+    forwardrow = 10
+    for col in range(9):
+        forwardsprite = app.playerModel4SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*forwardrow, imageWidth/cols*(col+1) , imageHeight/rows*(forwardrow+1)))
+        forwardscaledsprite = app.scaleImage(forwardsprite, app.playerModelHeightfactor*scalefactor)
+        app.playerModel4forwardsprite.append(forwardscaledsprite)
+    app.playerModel4Directions['forward'] = app.playerModel4forwardsprite
+
+    #initializing backward sprite
+    #app.playerModel4BackwardCounter = 0
+    app.playerModel4backwardsprite = []
+    backwardrow = 8
+    for col in range(9):
+        backwardsprite = app.playerModel4SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*backwardrow, imageWidth/cols*(col+1) , imageHeight/rows*(backwardrow+1)))
+        backwardscaledsprite = app.scaleImage(backwardsprite, app.playerModelHeightfactor*scalefactor)
+        app.playerModel4backwardsprite.append(backwardscaledsprite)
+    app.playerModel4Directions['backward'] = app.playerModel4backwardsprite
+
+    #intializing left sprite
+    #app.playerModel4LeftCounter = 0
+    app.playerModel4leftsprite = []
+    leftrow = 9
+    for col in range(9):
+        leftsprite = app.playerModel4SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*leftrow, imageWidth/cols*(col+1) , imageHeight/rows*(leftrow+1)))
+        leftscaledsprite = app.scaleImage(leftsprite, app.playerModelHeightfactor*scalefactor)
+        app.playerModel4leftsprite.append(leftscaledsprite)
+    app.playerModel4Directions['left'] = app.playerModel4leftsprite
+
+    #intializing right sprite
+    #app.playerModel4RightCounter = 0
+    app.playerModel4rightsprite = []
+    rightrow = 11
+    for col in range(9):
+        rightsprite = app.playerModel4SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*rightrow, imageWidth/cols*(col+1) , imageHeight/rows*(rightrow+1)))
+        rightscaledsprite = app.scaleImage(rightsprite, app.playerModelHeightfactor*scalefactor)
+        app.playerModel4rightsprite.append(rightscaledsprite)
+    app.playerModel4Directions['right'] = app.playerModel4rightsprite
 
 
 
@@ -538,6 +684,9 @@ def moveAI(app, AiNum):
             if (player1Row, player1Col) == (app.players[AiNum].row + move[0], app.players[AiNum].col + move[1]):
                 if app.players[AiNum].bombCount > 0:
                     createBomb(app, AiNum)
+        
+    
+
 
 ##################################################################################################
 #timer functions
@@ -563,6 +712,18 @@ def playerModel2Counter(app):
     if app.playerModel2Counter >= len(app.playerModel2forwardsprite):
         app.playerModel2Counter = 0
 
+def playerModel3Counter(app):
+    #since all directional images have the same no of frames we can just compare to one of the sheets
+    app.playerModel3Counter += 1
+    if app.playerModel3Counter >= len(app.playerModel3forwardsprite):
+        app.playerModel3Counter = 0
+
+def playerModel4Counter(app):
+    #since all directional images have the same no of frames we can just compare to one of the sheets
+    app.playerModel4Counter += 1
+    if app.playerModel4Counter >= len(app.playerModel4forwardsprite):
+        app.playerModel4Counter = 0
+
 def gameMode_timerFired(app):
     app.timeElasped += app.timerDelay
     #print(app.timeElasped)
@@ -570,10 +731,12 @@ def gameMode_timerFired(app):
     timepassed = currentTime - app.startTime
     #print(timepassed)
     #https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#spritesheetsWithCropping
-    if app.timeElasped % 1000 == 0:
+    #if app.timeElasped % 1000 == 0:
         #kleeSpriteTimer(app)
-        playerModel1Counter(app)
-        playerModel2Counter(app)
+    playerModel1Counter(app)
+    playerModel2Counter(app)
+    playerModel3Counter(app)
+    playerModel4Counter(app)
         
 
     #explosionSpriteTimer(app)
@@ -582,11 +745,15 @@ def gameMode_timerFired(app):
     #if app.timeElasped % 2000 == 0:
     explodeBomb(app)
     explosionDuration(app)
-        
-    if app.timeElasped % 500 == 0:
-        AIfindpath(app, 2)
-    if app.timeElasped % 100 == 0:
+
+    if app.timeElasped % 300 == 0:
         moveAI(app, 2)
+        moveAI(app, 3)
+        moveAI(app, 4)
+        AIfindpath(app, 2)
+        AIfindpath(app, 3)
+        AIfindpath(app, 4)
+        
         
     
 
@@ -649,12 +816,12 @@ def drawKlee(app, canvas, playernum):
 def drawplayerModel1(app, canvas, playernum):
     #get where to draw the player
     x0, y0, x1, y1 = getCellBounds(app, app.players[playernum].row, app.players[playernum].col)
-    spriteimage = app.playerModel1Directions[app.players[playernum].action][app.playerModel1Counter]
+    spriteimage = app.playerModels[playernum][app.players[playernum].action][app.playerModel1Counter]
     canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
 
 def drawAIModel(app, canvas, AInum):
     x0, y0, x1, y1 = getCellBounds(app, app.players[AInum].row , app.players[AInum].col)
-    spriteimage = app.playerModel2Directions[app.players[AInum].action][app.playerModel2Counter]
+    spriteimage = app.playerModels[AInum][app.players[AInum].action][app.playerModel2Counter]
     canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
 
 
@@ -701,6 +868,8 @@ def gameMode_redrawAll(app,canvas):
     drawWeapon(app, canvas)
     drawExplosion(app, canvas)
     drawAIModel(app, canvas, 2)
+    drawAIModel(app, canvas, 3)
+    drawAIModel(app, canvas, 4)
     
     
 
