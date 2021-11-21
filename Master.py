@@ -4,7 +4,6 @@
 from cmu_112_graphics import *
 import player
 import random
-import math
 import wall
 import Maze
 import weapon
@@ -681,7 +680,7 @@ def moveAI(app, AiNum):
         #findbfspath(app, AiNum)
 
         player1Row, player1Col = app.players[1].row, app.players[1].col
-        for move in [(0,1), (1,0), (-1,0), (0, -1)]:
+        for move in [(0,1), (1,0), (-1,0), (0, -1), (0,0)]:
             if (player1Row, player1Col) == (app.players[AiNum].row + move[0], app.players[AiNum].col + move[1]):
                 if app.players[AiNum].bombCount > 0:
                     createBomb(app, AiNum)
@@ -747,7 +746,7 @@ def gameMode_timerFired(app):
     explodeBomb(app)
     explosionDuration(app)
 
-    if app.timeElasped % 300 == 0:
+    if app.timeElasped % 200 == 0:
         moveAI(app, 2)
         moveAI(app, 3)
         moveAI(app, 4)
@@ -785,7 +784,7 @@ def regenerateWalls(app):
     initializeMaze(app)
 
 def autoRegenWalls(app):
-    if len(app.MazeWalls.keys())/app.MazeWallsOriLength < 0.8:
+    if len(app.MazeWalls.keys())/app.MazeWallsOriLength < 0.85:
         regenerateWalls(app)
 
 def gameMode_mousePressed(app, event):
@@ -862,9 +861,13 @@ def drawgrid(app, canvas):
         for col in range(app.columns):
             x0, y0, x1, y1 = getCellBounds(app, row, col)
             canvas.create_rectangle(x0 , y0 , x1 , y1)
+
+def drawScoreBoard(app, canvas):
+    canvas.create_rectangle(app.margin, app.margin, app.shift - app.margin, app.height - app.margin, width = 5)
 #######################################################################################################################################
 
 def gameMode_redrawAll(app,canvas):
+    drawScoreBoard(app, canvas)
     drawgrid(app, canvas)
     #drawMaze(app, canvas)
     drawWallImage(app, canvas)
