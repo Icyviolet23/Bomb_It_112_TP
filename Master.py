@@ -77,6 +77,7 @@ def gamegraphics(app):
     initializeWeaponsImages(app)
     initializeWeaponPosition(app)
     initializeExplosionSprite(app)
+    initializeGameoversprite(app)
     
 
 def initializePlayer(app):
@@ -415,6 +416,7 @@ def initializePlayerModel4(app):
 
 
 #end of player images
+
 ###################################################################################################
 def initializeExplosionSprite(app):
     app.explosion = []
@@ -811,7 +813,7 @@ def gameMode_keyPressed(app, event):
 
     if event.key == 'b':
         createBomb(app, 1)
-
+    #for debugging
     if event.key == 'o':
         app.gameover = True
 
@@ -972,10 +974,43 @@ def gameMode_redrawAll(app,canvas):
     
 
 #########################################################
-#game over mode draw
+#game over mode 
+
+####################################################################
+#intialize gameOver sprite
+
+def initializeGameoversprite(app):
+    #https://cipater.tumblr.com/post/43655192566/super-bomberman-5-hudson-soft-super-nintendo
+    app.gameOverspriteCounter = 0
+    #https://www.pngitem.com/middle/hToJxb_preview-pixel-art-explosion-sprite-sheet-hd-png/
+    app.gameOverSpriteSheet = app.loadImage('Images\gameover\gameoversprite.png')
+    app.gameOverSpriteSheet.crop((0,444, 2000, 444))
+    imageWidth, imageHeight = app.gameOverSpriteSheet.size
+    app.gameOverHeightfactor = app.height / imageHeight
+    #app.gameOverWidthfactor = app.width / imageWidth
+    #list to store all the sprite images
+    app.gameOversprite = []
+    rows = 1
+    cols = 5
+    for row in range(rows):
+        for col in range(cols):
+            if col == 4: continue
+            sprite = app.gameOverSpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*row, imageWidth/cols*(col+1) , imageHeight/rows*(row+1)))
+            scaledsprite = app.scaleImage(sprite, app.gameOverHeightfactor)
+            app.gameOversprite.append(scaledsprite)
+
+####################################################################
+#drawing functions for gameover
+
+def drawgameOverSprite(app, canvas):
+    spriteimage = app.gameOversprite[app.gameOverspriteCounter]
+    canvas.create_image(app.width/2, app.height/2, image=ImageTk.PhotoImage(spriteimage))
 
 def gameOverMode_redrawAll(app,canvas):
-    canvas.create_rectangle(0,0,app.width, app.height, fill = 'red')
+    canvas.create_rectangle(0,0, app.width, app.height, fill = 'black')
+    drawgameOverSprite(app, canvas)
+    canvas.create_text(app.width/2, app.height - app.height/5 , text = "GAME OVER!", fill = "white", font = "Arial 50 bold")
+    canvas.create_text(app.width/2, app.height - app.height/9 , text = "PRESS R TO RESTART", fill = "white", font = "Arial 30 bold")
 
 def gameOverMode_keyPressed(app, event):
     if event.key == 'r':
@@ -985,6 +1020,11 @@ def gameOverMode_keyPressed(app, event):
         gamegraphics(app)
         initializeAI(app)
         app.mode = 'gameMode'
+
+def gameOverMode_timerFired(app):
+    app.gameOverspriteCounter += 1
+    if app.gameOverspriteCounter >= len(app.gameOversprite):
+        app.gameOverspriteCounter = 0
 
 
 #########################################################
