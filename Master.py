@@ -1,5 +1,8 @@
 #Initial Code for the term project
-
+#TO do: 21th Nov: Fix bug for overlaping bombs. When player position overlaps with AI position
+# and both place down a bomb, player bomb gets overridden which causes player to be unable
+# to place another bomb. To fix we need to store player bomb in separate dictionary
+# or we need to separate the players and AI from stacking
 
 from cmu_112_graphics import *
 import player
