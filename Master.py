@@ -603,7 +603,8 @@ def explosionEffect(app, coordinate):
                     continue
                 else:
                     if coordinate == (app.players[player].row, app.players[player].col):
-                        app.players[player].lives -= 1
+                        if app.players[player].lives > 0:
+                            app.players[player].lives -= 1
 
 
 
@@ -679,26 +680,27 @@ def AIfindpath(app, AiNum):
 
 #trigger this every 1 second
 def moveAI(app, AiNum):
-    currentRow, currentCol = app.players[AiNum].row, app.players[AiNum].col
-    path = app.playerpath[AiNum]
-    if path == None:
-        createBomb(app, AiNum)
-    else:
-        if app.players[AiNum].counter >= len(path):
-            app.players[AiNum].counter = len(path) - 1
-        drow, dcol = path[app.players[AiNum].counter][0] - currentRow, path[app.players[AiNum].counter][1] - currentCol
-        #changes ai animation action
-        editAIAction(app, drow, dcol, AiNum)
+    if app.players[AiNum].lives > 0:
+        currentRow, currentCol = app.players[AiNum].row, app.players[AiNum].col
+        path = app.playerpath[AiNum]
+        if path == None:
+            createBomb(app, AiNum)
+        else:
+            if app.players[AiNum].counter >= len(path):
+                app.players[AiNum].counter = len(path) - 1
+            drow, dcol = path[app.players[AiNum].counter][0] - currentRow, path[app.players[AiNum].counter][1] - currentCol
+            #changes ai animation action
+            editAIAction(app, drow, dcol, AiNum)
 
-        #actual moving
-        app.players[AiNum].row, app.players[AiNum].col = currentRow + drow, currentCol + dcol
-        #findbfspath(app, AiNum)
+            #actual moving
+            app.players[AiNum].row, app.players[AiNum].col = currentRow + drow, currentCol + dcol
+            #findbfspath(app, AiNum)
 
-        player1Row, player1Col = app.players[1].row, app.players[1].col
-        for move in [(0,1), (1,0), (-1,0), (0, -1), (0,0)]:
-            if (player1Row, player1Col) == (app.players[AiNum].row + move[0], app.players[AiNum].col + move[1]):
-                if app.players[AiNum].bombCount > 0:
-                    createBomb(app, AiNum)
+            player1Row, player1Col = app.players[1].row, app.players[1].col
+            for move in [(0,1), (1,0), (-1,0), (0, -1), (0,0)]:
+                if (player1Row, player1Col) == (app.players[AiNum].row + move[0], app.players[AiNum].col + move[1]):
+                    if app.players[AiNum].bombCount > 0:
+                        createBomb(app, AiNum)
         
     
 
@@ -739,13 +741,19 @@ def playerModel4Counter(app):
     if app.playerModel4Counter >= len(app.playerModel4forwardsprite):
         app.playerModel4Counter = 0
 
+def gameOverConditions(app):
+    if app.timer < 0:
+        app.gameover = True
+    if app.players[1].lives < 0:
+        app.gameover = True
+    if app.gameover:
+        app.mode = 'gameOverMode'
 
 def gameMode_timerFired(app):
     app.timeElasped += app.timerDelay
     if app.timeElasped % 1000 == 0:
         app.timer -= 1
-    if app.timer < 0:
-        app.gameover = True
+    gameOverConditions(app)
     #print(app.timeElasped)
     #currentTime = time.time()
     #timepassed = currentTime - app.startTime
@@ -763,8 +771,10 @@ def gameMode_timerFired(app):
     #bug here cause we are calling the timing wrongly for explosion
     #image displays but it is very small
     #if app.timeElasped % 2000 == 0:
-    explodeBomb(app)
-    explosionDuration(app)
+    if app.weaponPos != {}:
+        explodeBomb(app)
+    if len(app.explosion) != 0:
+        explosionDuration(app)
 
     if app.timeElasped % 200 == 0:
         moveAI(app, 2)
@@ -801,6 +811,9 @@ def gameMode_keyPressed(app, event):
 
     if event.key == 'b':
         createBomb(app, 1)
+
+    if event.key == 'o':
+        app.gameover = True
 
 def regenerateWalls(app):
     app.MazeWalls = {}
@@ -897,12 +910,17 @@ def drawScoreBoard(app, canvas):
     scoreboardpanelHeight = (app.height - 2*app.margin)/panels
     linewidth = 5
     #draw background
+    canvas.create_rectangle(scoreboardstartx, scoreboardstarty, 
+                            scoreboardWidth + scoreboardstartx, 
+                            scoreboardHeight + scoreboardstarty , 
+                            width = linewidth)
+
     for background in range(panels):
         if background == 0:
             canvas.create_rectangle(scoreboardstartx, scoreboardstarty + scoreboardpanelHeight * background,
                                     scoreboardWidth + scoreboardstartx, 
                                     scoreboardpanelHeight* (background+1),
-                                    fill = 'red')
+                                    fill = backgroundcolor)
         elif 0 < background < panels - 1:
             canvas.create_rectangle(scoreboardstartx, scoreboardpanelHeight * background,                        scoreboardWidth + scoreboardstartx, 
                         scoreboardpanelHeight* (background+1),
@@ -916,7 +934,7 @@ def drawScoreBoard(app, canvas):
     #draw timer
     canvas.create_text(scoreboardWidth//2 + scoreboardstartx, 
                         scoreboardpanelHeight//2 + scoreboardstarty, 
-                        text = f"{convert(app.timer)}", font = "Arial 50 bold", fill = "white")
+                        text = f"{convert(app.timer)}", font = "Arial 50 bold", fill = "red")
     #draw player panels                            
     for i in range(1, panels):
         canvas.create_line(app.margin, scoreboardpanelHeight * i, 
@@ -927,11 +945,13 @@ def drawScoreBoard(app, canvas):
         spriteimage = app.playerModels[image]['forward'][app.playerModel2Counter]
         canvas.create_image(scoreboardstartx + linewidth  + scoreboardWidth/8, scoreboardpanelHeight/2 +  scoreboardpanelHeight* image , image=ImageTk.PhotoImage(spriteimage))
     
+    for word in range(1, panels):
+        canvas.create_text(scoreboardstartx + scoreboardWidth/1.8, scoreboardpanelHeight/4 +  scoreboardpanelHeight* word, text = f'Player {word}', font = "Arial 25 bold", fill = "black")
+        canvas.create_text(scoreboardstartx + scoreboardWidth/1.8, scoreboardpanelHeight/1.75 +  scoreboardpanelHeight* word, text = f'Bombs: {app.players[word].bombCount}', font = "Arial 15 bold", fill = "black")
+        canvas.create_text(scoreboardstartx + scoreboardWidth/1.8, scoreboardpanelHeight/1.2 +  scoreboardpanelHeight* word, text = f'Lives: {app.players[word].lives}', font = "Arial 15 bold", fill = "red")
+        
     
-    canvas.create_rectangle(scoreboardstartx, scoreboardstarty, 
-                            scoreboardWidth + scoreboardstartx, 
-                            scoreboardHeight + scoreboardstarty , 
-                            width = linewidth)
+
 #######################################################################################################################################
 
 def gameMode_redrawAll(app,canvas):
@@ -950,6 +970,22 @@ def gameMode_redrawAll(app,canvas):
     drawAIModel(app, canvas, 4)
     
     
+
+#########################################################
+#game over mode draw
+
+def gameOverMode_redrawAll(app,canvas):
+    canvas.create_rectangle(0,0,app.width, app.height, fill = 'red')
+
+def gameOverMode_keyPressed(app, event):
+    if event.key == 'r':
+        app.gameover = False        
+        gameparams(app)
+        intializeTime(app)
+        gamegraphics(app)
+        initializeAI(app)
+        app.mode = 'gameMode'
+
 
 #########################################################
 def runGame():
