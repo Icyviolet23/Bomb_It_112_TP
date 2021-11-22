@@ -6,7 +6,7 @@ from queue import Queue
 #dfs
 #takes in the app.Mazewalls dictionary and finds the shortest path
 #takes in the player1 instance and the AI which is another player instance
-
+# dfs code is fully written by me
 
 def checkOutofBounds(graph, row, col):
     rows = graph.rows
@@ -54,7 +54,7 @@ def findPathdfs(graph, wallDict, startRow, startCol, player1Row, player1Col, pat
 
 
 ##########################################################
-# bfs pseudo code from #https://docs.google.com/presentation/d/1Jcu_qIQDZLIhK71DdDagxv9ayCZgaHVqV5AmNhvXUGU/edit#slide=id.g9fef3b5456_0_236
+# bfs pseudo code from https://docs.google.com/presentation/d/1Jcu_qIQDZLIhK71DdDagxv9ayCZgaHVqV5AmNhvXUGU/edit#slide=id.g9fef3b5456_0_236
 # Keep a set of all vertices that are visited, initially empty
 # Have a queue of unvisited neighbors (initially just the start node)
 # Extract the current node from the front of the queue
@@ -65,7 +65,7 @@ def findPathdfs(graph, wallDict, startRow, startCol, player1Row, player1Col, pat
 # Repeat 3-7 until the queue is empty
 # This is typically not done with recursion
 
-
+#bfs code is written by me
 def bfs(graph, wallDict, player1, AI):
     #print(f'{graph.rows}, {graph.cols}')
     player1Row, player1Col = player1.row, player1.col
@@ -108,7 +108,8 @@ def bfs(graph, wallDict, player1, AI):
 
             
 
-
+#idea for storing and retriving the node path is obtained from https://docs.google.com/presentation/d/1Jcu_qIQDZLIhK71DdDagxv9ayCZgaHVqV5AmNhvXUGU/edit#slide=id.g9fef3b5456_0_236
+#however, all the code below is written solely by me
 def getshortestpathbfs(graph, wallDict, player1, AI):
     Maze.resetVisitedStatusNode(graph)
     nodeMap = bfs(graph, wallDict, player1, AI)

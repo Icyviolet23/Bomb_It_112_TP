@@ -2,6 +2,9 @@ import random
 import math
 import copy
 
+
+# Note: I got inspired to create a graph class and node class after attending the graph mini TA lecture but all the code below
+# is written personally by me unless otherwise stated
 class Graph(object):
     def __init__(self, row, col):
         self.rows = row
@@ -217,33 +220,6 @@ def repr2dList(L):
 
 def print2dList(L):
     print(repr2dList(L))
-    #https://www.cs.cmu.edu/~112/notes/notes-2d-lists.html#printing
-def repr2dList(L):
-    if (L == []): return '[]'
-    output = [ ]
-    rows = len(L)
-    cols = max([len(L[row]) for row in range(rows)])
-    M = [['']*cols for row in range(rows)]
-    for row in range(rows):
-        for col in range(len(L[row])):
-            M[row][col] = repr(L[row][col])
-    colWidths = [0] * cols
-    for col in range(cols):
-        colWidths[col] = max([len(M[row][col]) for row in range(rows)])
-    output.append('[\n')
-    for row in range(rows):
-        output.append(' [ ')
-        for col in range(cols):
-            if (col > 0):
-                output.append(', ' if col < len(L[row]) else '  ')
-            output.append(M[row][col].rjust(colWidths[col]))
-        output.append((' ],' if row < rows-1 else ' ]') + '\n')
-    output.append(']')
-    return ''.join(output)
-
-def print2dList(L):
-    print(repr2dList(L))
-    
 
 
 

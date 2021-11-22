@@ -1,22 +1,41 @@
 #Initial Code for the term project
-
+#TO do: 21th Nov: Fix bug for overlaping bombs. When player position overlaps with AI position
+# and both place down a bomb, player bomb gets overridden which causes player to be unable
+# to place another bomb. To fix we need to store player bomb in separate dictionary
+# or we need to separate the players and AI from stacking
 
 from cmu_112_graphics import *
 import player
 import random
-import math
 import wall
 import Maze
 import weapon
 import time
 import AI
+
+# Python Program to Convert seconds
+# into hours, minutes and seconds
+import time
+#https://www.geeksforgeeks.org/python-program-to-convert-seconds-into-hours-minutes-and-seconds/
+def convert(seconds):
+    return time.strftime("%M:%S", time.gmtime(seconds))
+      
+
 #https://www.cs.cmu.edu/~112/schedule.html
 def almostEqual(d1, d2, epsilon=10**-7):
     # note: use math.isclose() outside 15-112 with Python version 3.5 or later
     return (abs(d2 - d1) < epsilon)
-
+#from HW3 from https://www.cs.cmu.edu/~112/schedule.html
+def rgbString(red, green, blue):
+     return f'#{red:02x}{green:02x}{blue:02x}'
 
 def appStarted(app):
+    gameparams(app)
+    intializeTime(app)
+    gamegraphics(app)
+    initializeAI(app)
+
+def gameparams(app):
     app.mode = 'gameMode'
     app.panel = app.width/5
     app.columns = 16
@@ -26,11 +45,11 @@ def appStarted(app):
     app.shift = app.panel + app.margin
     app.cellWidth = (app.width - app.panel - 2*app.margin)/app.columns
     app.cellHeight = (app.height - 2*app.margin)/app.rows
-    intializeTime(app)
-    gamegraphics(app)
-    initializeAI(app)
+    #set timer for 5mins
+    app.timer = 300
+    app.gameover = False
 
-
+    app.gamewin = False
 
 def intializeTime(app):
     app.startTime = time.time()
@@ -63,12 +82,14 @@ def gamegraphics(app):
     initializeWeaponsImages(app)
     initializeWeaponPosition(app)
     initializeExplosionSprite(app)
+    initializeGameoversprite(app)
+    initializeGamewinsprite(app)
     
 
 def initializePlayer(app):
     #player format is 
     #row, col, lives, weaponID, action
-    player1 = player.Player(0,0,10, 1, 'forward')
+    player1 = player.Player(0,0, 10, 10, 'forward')
     player2 = player.Player(0,app.columns - 1, 10, 1, 'forward')
     player3 = player.Player(app.rows - 1, 0, 10,1, 'forward')
     player4 = player.Player(app.rows - 1, app.columns -1, 10, 1, 'forward')
@@ -401,6 +422,7 @@ def initializePlayerModel4(app):
 
 
 #end of player images
+
 ###################################################################################################
 def initializeExplosionSprite(app):
     app.explosion = []
@@ -589,7 +611,8 @@ def explosionEffect(app, coordinate):
                     continue
                 else:
                     if coordinate == (app.players[player].row, app.players[player].col):
-                        app.players[player].lives -= 1
+                        if app.players[player].lives > 0:
+                            app.players[player].lives -= 1
 
 
 
@@ -665,26 +688,27 @@ def AIfindpath(app, AiNum):
 
 #trigger this every 1 second
 def moveAI(app, AiNum):
-    currentRow, currentCol = app.players[AiNum].row, app.players[AiNum].col
-    path = app.playerpath[AiNum]
-    if path == None:
-        createBomb(app, AiNum)
-    else:
-        if app.players[AiNum].counter >= len(path):
-            app.players[AiNum].counter = len(path) - 1
-        drow, dcol = path[app.players[AiNum].counter][0] - currentRow, path[app.players[AiNum].counter][1] - currentCol
-        #changes ai animation action
-        editAIAction(app, drow, dcol, AiNum)
+    if app.players[AiNum].lives > 0:
+        currentRow, currentCol = app.players[AiNum].row, app.players[AiNum].col
+        path = app.playerpath[AiNum]
+        if path == None:
+            createBomb(app, AiNum)
+        else:
+            if app.players[AiNum].counter >= len(path):
+                app.players[AiNum].counter = len(path) - 1
+            drow, dcol = path[app.players[AiNum].counter][0] - currentRow, path[app.players[AiNum].counter][1] - currentCol
+            #changes ai animation action
+            editAIAction(app, drow, dcol, AiNum)
 
-        #actual moving
-        app.players[AiNum].row, app.players[AiNum].col = currentRow + drow, currentCol + dcol
-        #findbfspath(app, AiNum)
+            #actual moving
+            app.players[AiNum].row, app.players[AiNum].col = currentRow + drow, currentCol + dcol
+            #findbfspath(app, AiNum)
 
-        player1Row, player1Col = app.players[1].row, app.players[1].col
-        for move in [(0,1), (1,0), (-1,0), (0, -1)]:
-            if (player1Row, player1Col) == (app.players[AiNum].row + move[0], app.players[AiNum].col + move[1]):
-                if app.players[AiNum].bombCount > 0:
-                    createBomb(app, AiNum)
+            player1Row, player1Col = app.players[1].row, app.players[1].col
+            for move in [(0,1), (1,0), (-1,0), (0, -1), (0,0)]:
+                if (player1Row, player1Col) == (app.players[AiNum].row + move[0], app.players[AiNum].col + move[1]):
+                    if app.players[AiNum].bombCount > 0:
+                        createBomb(app, AiNum)
         
     
 
@@ -725,11 +749,35 @@ def playerModel4Counter(app):
     if app.playerModel4Counter >= len(app.playerModel4forwardsprite):
         app.playerModel4Counter = 0
 
+def gameChangeConditions(app):
+    if app.timer < 0:
+        app.gameover = True
+    if app.players[1].lives <= 0:
+        app.gameover = True
+    if app.gameover:
+        app.mode = 'gameOverMode'
+
+    if checkEnemyLives(app):
+        app.gamewin = True
+
+    if app.gamewin:
+        app.mode = 'gameWinMode'
+
+
+def checkEnemyLives(app):
+    for i in range(2,5):
+        if app.players[i].lives > 0 :
+            return False
+    return True
+
 def gameMode_timerFired(app):
     app.timeElasped += app.timerDelay
+    if app.timeElasped % 1000 == 0:
+        app.timer -= 1
+    gameChangeConditions(app)
     #print(app.timeElasped)
-    currentTime = time.time()
-    timepassed = currentTime - app.startTime
+    #currentTime = time.time()
+    #timepassed = currentTime - app.startTime
     #print(timepassed)
     #https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#spritesheetsWithCropping
     #if app.timeElasped % 1000 == 0:
@@ -744,18 +792,21 @@ def gameMode_timerFired(app):
     #bug here cause we are calling the timing wrongly for explosion
     #image displays but it is very small
     #if app.timeElasped % 2000 == 0:
-    explodeBomb(app)
-    explosionDuration(app)
+    if app.weaponPos != {}:
+        explodeBomb(app)
+    if len(app.explosion) != 0:
+        explosionDuration(app)
 
-    if app.timeElasped % 300 == 0:
-        moveAI(app, 2)
-        moveAI(app, 3)
-        moveAI(app, 4)
-        AIfindpath(app, 2)
-        AIfindpath(app, 3)
-        AIfindpath(app, 4)
+    if app.timeElasped % 200 == 0:
+        for playernum in range(2,5):
+            if app.players[playernum].lives > 0:
+                moveAI(app, playernum)
+                AIfindpath(app, playernum)
 
     autoRegenWalls(app)
+
+
+
         
         
     
@@ -779,13 +830,20 @@ def gameMode_keyPressed(app, event):
 
     if event.key == 'b':
         createBomb(app, 1)
+    #for debugging
+    if event.key == 'o':
+        app.gameover = True
+
+    if event.key == 'l':
+        app.gamewin = True
+
 
 def regenerateWalls(app):
     app.MazeWalls = {}
     initializeMaze(app)
 
 def autoRegenWalls(app):
-    if len(app.MazeWalls.keys())/app.MazeWallsOriLength < 0.8:
+    if len(app.MazeWalls.keys())/app.MazeWallsOriLength < 0.85:
         regenerateWalls(app)
 
 def gameMode_mousePressed(app, event):
@@ -827,9 +885,10 @@ def drawplayerModel1(app, canvas, playernum):
     canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
 
 def drawAIModel(app, canvas, AInum):
-    x0, y0, x1, y1 = getCellBounds(app, app.players[AInum].row , app.players[AInum].col)
-    spriteimage = app.playerModels[AInum][app.players[AInum].action][app.playerModel2Counter]
-    canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
+    if app.players[AInum].lives > 0:
+        x0, y0, x1, y1 = getCellBounds(app, app.players[AInum].row , app.players[AInum].col)
+        spriteimage = app.playerModels[AInum][app.players[AInum].action][app.playerModel2Counter]
+        canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
 
 
 ##################################################################################
@@ -862,9 +921,64 @@ def drawgrid(app, canvas):
         for col in range(app.columns):
             x0, y0, x1, y1 = getCellBounds(app, row, col)
             canvas.create_rectangle(x0 , y0 , x1 , y1)
+
+def drawScoreBoard(app, canvas):
+    #lime green
+    backgroundcolor = rgbString(77, 237, 48)
+    panels = 5
+    scoreboardWidth = app.shift - 2*app.margin
+    scoreboardstartx = app.margin
+    scoreboardstarty = app.margin
+    scoreboardHeight = app.height - 2*app.margin
+    scoreboardpanelHeight = (app.height - 2*app.margin)/panels
+    linewidth = 5
+    #draw background
+    canvas.create_rectangle(scoreboardstartx, scoreboardstarty, 
+                            scoreboardWidth + scoreboardstartx, 
+                            scoreboardHeight + scoreboardstarty , 
+                            width = linewidth)
+
+    for background in range(panels):
+        if background == 0:
+            canvas.create_rectangle(scoreboardstartx, scoreboardstarty + scoreboardpanelHeight * background,
+                                    scoreboardWidth + scoreboardstartx, 
+                                    scoreboardpanelHeight* (background+1),
+                                    fill = backgroundcolor)
+        elif 0 < background < panels - 1:
+            canvas.create_rectangle(scoreboardstartx, scoreboardpanelHeight * background,                        scoreboardWidth + scoreboardstartx, 
+                        scoreboardpanelHeight* (background+1),
+                        fill = backgroundcolor)
+        else:
+            canvas.create_rectangle(scoreboardstartx, scoreboardpanelHeight * background,                        scoreboardWidth + scoreboardstartx, 
+                        scoreboardpanelHeight* (background+1) + scoreboardstarty,
+                        fill = backgroundcolor)
+
+
+    #draw timer
+    canvas.create_text(scoreboardWidth//2 + scoreboardstartx, 
+                        scoreboardpanelHeight//2 + scoreboardstarty, 
+                        text = f"{convert(app.timer)}", font = "Arial 50 bold", fill = "red")
+    #draw player panels                            
+    for i in range(1, panels):
+        canvas.create_line(app.margin, scoreboardpanelHeight * i, 
+                            app.shift - app.margin, scoreboardpanelHeight * i, 
+                            width = linewidth)
+    #draw character image
+    for image in range(1, panels):
+        spriteimage = app.playerModels[image]['forward'][app.playerModel2Counter]
+        canvas.create_image(scoreboardstartx + linewidth  + scoreboardWidth/8, scoreboardpanelHeight/2 +  scoreboardpanelHeight* image , image=ImageTk.PhotoImage(spriteimage))
+    
+    for word in range(1, panels):
+        canvas.create_text(scoreboardstartx + scoreboardWidth/1.8, scoreboardpanelHeight/4 +  scoreboardpanelHeight* word, text = f'Player {word}', font = "Arial 25 bold", fill = "black")
+        canvas.create_text(scoreboardstartx + scoreboardWidth/1.8, scoreboardpanelHeight/1.75 +  scoreboardpanelHeight* word, text = f'Bombs: {app.players[word].bombCount}', font = "Arial 15 bold", fill = "black")
+        canvas.create_text(scoreboardstartx + scoreboardWidth/1.8, scoreboardpanelHeight/1.2 +  scoreboardpanelHeight* word, text = f'Lives: {app.players[word].lives}', font = "Arial 15 bold", fill = "red")
+        
+    
+
 #######################################################################################################################################
 
 def gameMode_redrawAll(app,canvas):
+    drawScoreBoard(app, canvas)
     drawgrid(app, canvas)
     #drawMaze(app, canvas)
     drawWallImage(app, canvas)
@@ -881,6 +995,112 @@ def gameMode_redrawAll(app,canvas):
     
 
 #########################################################
+#game over mode 
+
+####################################################################
+#intialize gameOver sprite
+
+def initializeGameoversprite(app):
+    #https://cipater.tumblr.com/post/43655192566/super-bomberman-5-hudson-soft-super-nintendo
+    app.gameOverspriteCounter = 0
+    #https://www.pngitem.com/middle/hToJxb_preview-pixel-art-explosion-sprite-sheet-hd-png/
+    app.gameOverSpriteSheet = app.loadImage('Images\gameover\gameoversprite.png')
+    app.gameOverSpriteSheet.crop((0,444, 2000, 444))
+    imageWidth, imageHeight = app.gameOverSpriteSheet.size
+    app.gameOverHeightfactor = app.height / imageHeight
+    #app.gameOverWidthfactor = app.width / imageWidth
+    #list to store all the sprite images
+    app.gameOversprite = []
+    rows = 1
+    cols = 5
+    for row in range(rows):
+        for col in range(cols):
+            if col == 4: continue
+            sprite = app.gameOverSpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*row, imageWidth/cols*(col+1) , imageHeight/rows*(row+1)))
+            scaledsprite = app.scaleImage(sprite, app.gameOverHeightfactor)
+            app.gameOversprite.append(scaledsprite)
+
+####################################################################
+#drawing functions for gameover
+
+def drawgameOverSprite(app, canvas):
+    spriteimage = app.gameOversprite[app.gameOverspriteCounter]
+    canvas.create_image(app.width/2, app.height/2, image=ImageTk.PhotoImage(spriteimage))
+
+def gameOverMode_redrawAll(app,canvas):
+    canvas.create_rectangle(0,0, app.width, app.height, fill = 'black')
+    drawgameOverSprite(app, canvas)
+    canvas.create_text(app.width/2, app.height - app.height/5 , text = "GAME OVER!", fill = "white", font = "Arial 50 bold")
+    canvas.create_text(app.width/2, app.height - app.height/9 , text = "PRESS R TO RESTART", fill = "white", font = "Arial 30 bold")
+
+def gameOverMode_keyPressed(app, event):
+    if event.key == 'r':
+        app.gameover = False        
+        gameparams(app)
+        intializeTime(app)
+        gamegraphics(app)
+        initializeAI(app)
+        app.mode = 'gameMode'
+
+def gameOverMode_timerFired(app):
+    app.gameOverspriteCounter += 1
+    if app.gameOverspriteCounter >= len(app.gameOversprite):
+        app.gameOverspriteCounter = 0
+
+#end of gameover mode
+#########################################################
+
+
+#########################################################
+#game win mode
+
+
+def initializeGamewinsprite(app):
+    #https://wonder-doughnut.tumblr.com/post/189445852204/happy-20th-anniversary-to-the-best-bomberman-game
+    app.gameWinspriteCounter = 0
+    #https://www.pngitem.com/middle/hToJxb_preview-pixel-art-explosion-sprite-sheet-hd-png/
+    app.gameWinSpriteSheet = app.loadImage("Images\gameWin\gamewinsprite.png")
+    imageWidth, imageHeight = app.gameWinSpriteSheet.size
+    #app.gameWinHeightfactor = app.height / imageHeight
+    app.gameWinWidthfactor = app.width / imageWidth
+    #list to store all the sprite images
+    app.gameWinsprite = []
+    rows = 14
+    cols = 5
+    for row in range(rows):
+        for col in range(cols):
+            if row == 13 and (col == 4 or col == 3): continue
+            sprite = app.gameWinSpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*row, imageWidth/cols*(col+1) , imageHeight/rows*(row+1)))
+            scaledsprite = app.scaleImage(sprite, 3)
+            app.gameWinsprite.append(scaledsprite)
+
+
+####################################################################
+#drawing functions for gamewin
+def drawgameWinSprite(app, canvas):
+    canvas.create_rectangle(0,0, app.width, app.height, fill = 'black')
+    spriteimage = app.gameWinsprite[app.gameWinspriteCounter]
+    canvas.create_image(app.width/2, app.height/2, image=ImageTk.PhotoImage(spriteimage))
+    canvas.create_text(app.width/2, app.height/10 , text = "CONGRATULATIONS YOU WIN!", fill = "yellow", font = "Arial 50 bold")
+    canvas.create_text(app.width/2, app.height/6 , text = "PRESS R TO RESTART", fill = "yellow", font = "Arial 20 bold")
+
+def gameWinMode_redrawAll(app,canvas):
+    drawgameWinSprite(app, canvas)
+
+def gameWinMode_timerFired(app):
+    app.gameWinspriteCounter += 1
+    if app.gameWinspriteCounter >= len(app.gameWinsprite):
+        app.gameWinspriteCounter = 0
+
+def gameWinMode_keyPressed(app, event):
+    if event.key == 'r':
+        app.gamewin = False        
+        gameparams(app)
+        intializeTime(app)
+        gamegraphics(app)
+        initializeAI(app)
+        app.mode = 'gameMode'
+####################################################################
 def runGame():
     runApp(width= 1500, height= 800)
 
