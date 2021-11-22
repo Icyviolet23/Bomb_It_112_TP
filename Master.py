@@ -83,7 +83,7 @@ def gamegraphics(app):
 def initializePlayer(app):
     #player format is 
     #row, col, lives, weaponID, action
-    player1 = player.Player(0,0,10, 1, 'forward')
+    player1 = player.Player(0,0, 1, 10, 'forward')
     player2 = player.Player(0,app.columns - 1, 10, 1, 'forward')
     player3 = player.Player(app.rows - 1, 0, 10,1, 'forward')
     player4 = player.Player(app.rows - 1, app.columns -1, 10, 1, 'forward')
@@ -746,7 +746,7 @@ def playerModel4Counter(app):
 def gameOverConditions(app):
     if app.timer < 0:
         app.gameover = True
-    if app.players[1].lives < 0:
+    if app.players[1].lives <= 0:
         app.gameover = True
     if app.gameover:
         app.mode = 'gameOverMode'
