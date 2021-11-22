@@ -9,13 +9,30 @@ import Maze
 import weapon
 import time
 import AI
+
+# Python Program to Convert seconds
+# into hours, minutes and seconds
+import time
+#https://www.geeksforgeeks.org/python-program-to-convert-seconds-into-hours-minutes-and-seconds/
+def convert(seconds):
+    return time.strftime("%M:%S", time.gmtime(seconds))
+      
+
 #https://www.cs.cmu.edu/~112/schedule.html
 def almostEqual(d1, d2, epsilon=10**-7):
     # note: use math.isclose() outside 15-112 with Python version 3.5 or later
     return (abs(d2 - d1) < epsilon)
-
+#from HW3 from https://www.cs.cmu.edu/~112/schedule.html
+def rgbString(red, green, blue):
+     return f'#{red:02x}{green:02x}{blue:02x}'
 
 def appStarted(app):
+    gameparams(app)
+    intializeTime(app)
+    gamegraphics(app)
+    initializeAI(app)
+
+def gameparams(app):
     app.mode = 'gameMode'
     app.panel = app.width/5
     app.columns = 16
@@ -25,11 +42,9 @@ def appStarted(app):
     app.shift = app.panel + app.margin
     app.cellWidth = (app.width - app.panel - 2*app.margin)/app.columns
     app.cellHeight = (app.height - 2*app.margin)/app.rows
-    intializeTime(app)
-    gamegraphics(app)
-    initializeAI(app)
-
-
+    #set timer for 5mins
+    app.timer = 300
+    app.gameover = False
 
 def intializeTime(app):
     app.startTime = time.time()
@@ -727,9 +742,13 @@ def playerModel4Counter(app):
 
 def gameMode_timerFired(app):
     app.timeElasped += app.timerDelay
+    if app.timeElasped % 1000 == 0:
+        app.timer -= 1
+    if app.timer < 0:
+        app.gameover = True
     #print(app.timeElasped)
-    currentTime = time.time()
-    timepassed = currentTime - app.startTime
+    #currentTime = time.time()
+    #timepassed = currentTime - app.startTime
     #print(timepassed)
     #https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#spritesheetsWithCropping
     #if app.timeElasped % 1000 == 0:
@@ -756,6 +775,9 @@ def gameMode_timerFired(app):
         AIfindpath(app, 4)
 
     autoRegenWalls(app)
+
+
+
         
         
     
@@ -865,6 +887,8 @@ def drawgrid(app, canvas):
             canvas.create_rectangle(x0 , y0 , x1 , y1)
 
 def drawScoreBoard(app, canvas):
+    #lime green
+    backgroundcolor = rgbString(77, 237, 48)
     panels = 5
     scoreboardWidth = app.shift - 2*app.margin
     scoreboardstartx = app.margin
@@ -872,12 +896,34 @@ def drawScoreBoard(app, canvas):
     scoreboardHeight = app.height - 2*app.margin
     scoreboardpanelHeight = (app.height - 2*app.margin)/panels
     linewidth = 5
-    for i in range(1,5):
+    #draw background
+    for background in range(panels):
+        if background == 0:
+            canvas.create_rectangle(scoreboardstartx, scoreboardstarty + scoreboardpanelHeight * background,
+                                    scoreboardWidth + scoreboardstartx, 
+                                    scoreboardpanelHeight* (background+1),
+                                    fill = 'red')
+        elif 0 < background < panels - 1:
+            canvas.create_rectangle(scoreboardstartx, scoreboardpanelHeight * background,                        scoreboardWidth + scoreboardstartx, 
+                        scoreboardpanelHeight* (background+1),
+                        fill = backgroundcolor)
+        else:
+            canvas.create_rectangle(scoreboardstartx, scoreboardpanelHeight * background,                        scoreboardWidth + scoreboardstartx, 
+                        scoreboardpanelHeight* (background+1) + scoreboardstarty,
+                        fill = backgroundcolor)
+
+
+    #draw timer
+    canvas.create_text(scoreboardWidth//2 + scoreboardstartx, 
+                        scoreboardpanelHeight//2 + scoreboardstarty, 
+                        text = f"{convert(app.timer)}", font = "Arial 50 bold", fill = "white")
+    #draw player panels                            
+    for i in range(1, panels):
         canvas.create_line(app.margin, scoreboardpanelHeight * i, 
                             app.shift - app.margin, scoreboardpanelHeight * i, 
                             width = linewidth)
-
-    for image in range(1,5):
+    #draw character image
+    for image in range(1, panels):
         spriteimage = app.playerModels[image]['forward'][app.playerModel2Counter]
         canvas.create_image(scoreboardstartx + linewidth  + scoreboardWidth/8, scoreboardpanelHeight/2 +  scoreboardpanelHeight* image , image=ImageTk.PhotoImage(spriteimage))
     
