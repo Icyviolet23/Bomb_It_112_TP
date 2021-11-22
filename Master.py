@@ -1,8 +1,4 @@
 #Initial Code for the term project
-#TO do: 21th Nov: Fix bug for overlaping bombs. When player position overlaps with AI position
-# and both place down a bomb, player bomb gets overridden which causes player to be unable
-# to place another bomb. To fix we need to store player bomb in separate dictionary
-# or we need to separate the players and AI from stacking
 
 from cmu_112_graphics import *
 import player
@@ -479,6 +475,10 @@ def initializeWeaponPosition(app):
     #dictionary containing coordinates of bombs as keys and instance of bomb as value
     #set value to None if there is no longer any weapon there
     app.weaponPos = {}
+    for row in range(app.rows):
+        for col in range(app.columns):
+            app.weaponPos[(row,col)] = []
+    
 
 def checkplayerposition(app, coordinate):
     for player in app.players:
@@ -563,23 +563,24 @@ def movePlayer(app, drow, dcol, playernum):
 def createBomb(app, playernum):
     currentRow, currentCol = app.players[playernum].row, app.players[playernum].col
     if app.players[playernum].bombCount > 0:
-        app.weaponPos[(currentRow, currentCol)] = weapon.Bomb(app.players[playernum].bombTimer, playernum, 2)
+        app.weaponPos[(currentRow, currentCol)].append(weapon.Bomb(app.players[playernum].bombTimer, playernum, 2))
         app.players[playernum].bombCount -= 1
 
 def explodeBomb(app):
-    if app.weaponPos != {}:
-        #where the bombs are
-        for coordinate in app.weaponPos:
-            if isinstance(app.weaponPos[coordinate], weapon.Bomb):
-                if app.weaponPos[coordinate].timer > 0:
-                    app.weaponPos[coordinate].timer -= 1
-                #if bomb has exploded
-                if app.weaponPos[coordinate].timer == 0:
-                    playernum = app.weaponPos[coordinate].playernum
-                    app.players[playernum].bombCount += 1
-                    explosionRadius(app, coordinate, playernum, app.weaponPos[coordinate].bombradius)
-                    explosionEffect(app, coordinate)
-                    app.weaponPos[coordinate] = None
+    for coordinate in app.weaponPos:
+        if app.weaponPos[coordinate] != []:
+            for weaponObj in app.weaponPos[coordinate]:
+                #if the weapon is a bomb
+                if isinstance(weaponObj, weapon.Bomb):
+                    if weaponObj.timer > 0:
+                        weaponObj.timer -= 1
+                    #if bomb has exploded
+                    if weaponObj.timer == 0:
+                        playernum = weaponObj.playernum
+                        app.players[playernum].bombCount += 1
+                        explosionRadius(app, coordinate, playernum, weaponObj.bombradius)
+                        explosionEffect(app, coordinate)
+                        app.weaponPos[coordinate].remove(weaponObj)
 
 
 
@@ -864,10 +865,13 @@ def drawMaze(app, canvas):
 #draws bomb
 def drawWeapon(app, canvas):
     for coordinate in app.weaponPos:
-        if app.weaponPos[coordinate] != None:
-            weaponID = app.weaponPos[coordinate].weaponID
-            x0, y0, x1, y1 = getCellBounds(app, coordinate[0], coordinate[1])
-            canvas.create_image((x0 + x1)/2, (y0 + y1)/2, image = ImageTk.PhotoImage(app.WeaponImageDictScaled[weaponID]))
+        if app.weaponPos[coordinate] != []:
+            for bomb in app.weaponPos[coordinate]:
+                #draw the bomb
+                if isinstance(bomb, weapon.Bomb):
+                    weaponID = bomb.weaponID
+                    x0, y0, x1, y1 = getCellBounds(app, coordinate[0], coordinate[1])
+                    canvas.create_image((x0 + x1)/2, (y0 + y1)/2, image = ImageTk.PhotoImage(app.WeaponImageDictScaled[weaponID]))
 ##################################################################################
 #drawing players
 #playernum here is an int

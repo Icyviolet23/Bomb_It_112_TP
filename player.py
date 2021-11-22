@@ -13,7 +13,7 @@ class Player(object):
         self.col = col
         self.lives = lives
         self.weaponID = weaponID
-        self.bombCount = 1
+        self.bombCount = 2
         self.bombTimer = 10
         self.action = action
         #for AI use only
