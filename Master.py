@@ -46,6 +46,8 @@ def gameparams(app):
     app.timer = 300
     app.gameover = False
 
+    app.gamewin = False
+
 def intializeTime(app):
     app.startTime = time.time()
     app.timeElasped = 0
@@ -78,12 +80,13 @@ def gamegraphics(app):
     initializeWeaponPosition(app)
     initializeExplosionSprite(app)
     initializeGameoversprite(app)
+    initializeGamewinsprite(app)
     
 
 def initializePlayer(app):
     #player format is 
     #row, col, lives, weaponID, action
-    player1 = player.Player(0,0, 1, 10, 'forward')
+    player1 = player.Player(0,0, 10, 10, 'forward')
     player2 = player.Player(0,app.columns - 1, 10, 1, 'forward')
     player3 = player.Player(app.rows - 1, 0, 10,1, 'forward')
     player4 = player.Player(app.rows - 1, app.columns -1, 10, 1, 'forward')
@@ -743,7 +746,7 @@ def playerModel4Counter(app):
     if app.playerModel4Counter >= len(app.playerModel4forwardsprite):
         app.playerModel4Counter = 0
 
-def gameOverConditions(app):
+def gameChangeConditions(app):
     if app.timer < 0:
         app.gameover = True
     if app.players[1].lives <= 0:
@@ -751,11 +754,24 @@ def gameOverConditions(app):
     if app.gameover:
         app.mode = 'gameOverMode'
 
+    if checkEnemyLives(app):
+        app.gamewin = True
+
+    if app.gamewin:
+        app.mode = 'gameWinMode'
+
+
+def checkEnemyLives(app):
+    for i in range(2,5):
+        if app.players[i].lives > 0 :
+            return False
+    return True
+
 def gameMode_timerFired(app):
     app.timeElasped += app.timerDelay
     if app.timeElasped % 1000 == 0:
         app.timer -= 1
-    gameOverConditions(app)
+    gameChangeConditions(app)
     #print(app.timeElasped)
     #currentTime = time.time()
     #timepassed = currentTime - app.startTime
@@ -779,12 +795,10 @@ def gameMode_timerFired(app):
         explosionDuration(app)
 
     if app.timeElasped % 200 == 0:
-        moveAI(app, 2)
-        moveAI(app, 3)
-        moveAI(app, 4)
-        AIfindpath(app, 2)
-        AIfindpath(app, 3)
-        AIfindpath(app, 4)
+        for playernum in range(2,5):
+            if app.players[playernum].lives > 0:
+                moveAI(app, playernum)
+                AIfindpath(app, playernum)
 
     autoRegenWalls(app)
 
@@ -816,6 +830,10 @@ def gameMode_keyPressed(app, event):
     #for debugging
     if event.key == 'o':
         app.gameover = True
+
+    if event.key == 'l':
+        app.gamewin = True
+
 
 def regenerateWalls(app):
     app.MazeWalls = {}
@@ -1026,8 +1044,60 @@ def gameOverMode_timerFired(app):
     if app.gameOverspriteCounter >= len(app.gameOversprite):
         app.gameOverspriteCounter = 0
 
+#end of gameover mode
+#########################################################
+
 
 #########################################################
+#game win mode
+
+
+def initializeGamewinsprite(app):
+    #https://wonder-doughnut.tumblr.com/post/189445852204/happy-20th-anniversary-to-the-best-bomberman-game
+    app.gameWinspriteCounter = 0
+    #https://www.pngitem.com/middle/hToJxb_preview-pixel-art-explosion-sprite-sheet-hd-png/
+    app.gameWinSpriteSheet = app.loadImage("Images\gameWin\gamewinsprite.png")
+    imageWidth, imageHeight = app.gameWinSpriteSheet.size
+    #app.gameWinHeightfactor = app.height / imageHeight
+    app.gameWinWidthfactor = app.width / imageWidth
+    #list to store all the sprite images
+    app.gameWinsprite = []
+    rows = 14
+    cols = 5
+    for row in range(rows):
+        for col in range(cols):
+            if row == 13 and (col == 4 or col == 3): continue
+            sprite = app.gameWinSpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*row, imageWidth/cols*(col+1) , imageHeight/rows*(row+1)))
+            scaledsprite = app.scaleImage(sprite, 3)
+            app.gameWinsprite.append(scaledsprite)
+
+
+####################################################################
+#drawing functions for gamewin
+def drawgameWinSprite(app, canvas):
+    canvas.create_rectangle(0,0, app.width, app.height, fill = 'black')
+    spriteimage = app.gameWinsprite[app.gameWinspriteCounter]
+    canvas.create_image(app.width/2, app.height/2, image=ImageTk.PhotoImage(spriteimage))
+    canvas.create_text(app.width/2, app.height/10 , text = "CONGRATULATIONS YOU WIN!", fill = "yellow", font = "Arial 50 bold")
+    canvas.create_text(app.width/2, app.height/6 , text = "PRESS R TO RESTART", fill = "yellow", font = "Arial 20 bold")
+
+def gameWinMode_redrawAll(app,canvas):
+    drawgameWinSprite(app, canvas)
+
+def gameWinMode_timerFired(app):
+    app.gameWinspriteCounter += 1
+    if app.gameWinspriteCounter >= len(app.gameWinsprite):
+        app.gameWinspriteCounter = 0
+
+def gameWinMode_keyPressed(app, event):
+    if event.key == 'r':
+        app.gamewin = False        
+        gameparams(app)
+        intializeTime(app)
+        gamegraphics(app)
+        initializeAI(app)
+        app.mode = 'gameMode'
+####################################################################
 def runGame():
     runApp(width= 1500, height= 800)
 
