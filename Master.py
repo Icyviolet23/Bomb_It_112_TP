@@ -724,6 +724,7 @@ def playerModel4Counter(app):
     if app.playerModel4Counter >= len(app.playerModel4forwardsprite):
         app.playerModel4Counter = 0
 
+
 def gameMode_timerFired(app):
     app.timeElasped += app.timerDelay
     #print(app.timeElasped)
@@ -826,9 +827,10 @@ def drawplayerModel1(app, canvas, playernum):
     canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
 
 def drawAIModel(app, canvas, AInum):
-    x0, y0, x1, y1 = getCellBounds(app, app.players[AInum].row , app.players[AInum].col)
-    spriteimage = app.playerModels[AInum][app.players[AInum].action][app.playerModel2Counter]
-    canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
+    if app.players[AInum].lives > 0:
+        x0, y0, x1, y1 = getCellBounds(app, app.players[AInum].row , app.players[AInum].col)
+        spriteimage = app.playerModels[AInum][app.players[AInum].action][app.playerModel2Counter]
+        canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
 
 
 ##################################################################################
@@ -863,7 +865,27 @@ def drawgrid(app, canvas):
             canvas.create_rectangle(x0 , y0 , x1 , y1)
 
 def drawScoreBoard(app, canvas):
-    canvas.create_rectangle(app.margin, app.margin, app.shift - app.margin, app.height - app.margin, width = 5)
+    panels = 5
+    scoreboardWidth = app.shift - 2*app.margin
+    scoreboardstartx = app.margin
+    scoreboardstarty = app.margin
+    scoreboardHeight = app.height - 2*app.margin
+    scoreboardpanelHeight = (app.height - 2*app.margin)/panels
+    linewidth = 5
+    for i in range(1,5):
+        canvas.create_line(app.margin, scoreboardpanelHeight * i, 
+                            app.shift - app.margin, scoreboardpanelHeight * i, 
+                            width = linewidth)
+
+    for image in range(1,5):
+        spriteimage = app.playerModels[image]['forward'][app.playerModel2Counter]
+        canvas.create_image(scoreboardstartx + linewidth  + scoreboardWidth/8, scoreboardpanelHeight/2 +  scoreboardpanelHeight* image , image=ImageTk.PhotoImage(spriteimage))
+    
+    
+    canvas.create_rectangle(scoreboardstartx, scoreboardstarty, 
+                            scoreboardWidth + scoreboardstartx, 
+                            scoreboardHeight + scoreboardstarty , 
+                            width = linewidth)
 #######################################################################################################################################
 
 def gameMode_redrawAll(app,canvas):
