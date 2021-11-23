@@ -61,6 +61,16 @@ class Node(object):
             updatedEdgeList.append(new)
         result.edges = updatedEdgeList
         return result
+
+    #from https://www.cs.cmu.edu/~112/notes/notes-oop-part4.html
+    def getHashables(self):
+        return (self.row, self.col) # return a tuple of hashables
+    #from https://www.cs.cmu.edu/~112/notes/notes-oop-part4.html
+    def __hash__(self):
+        return hash(self.getHashables())
+    #from https://www.cs.cmu.edu/~112/notes/notes-oop-part4.html
+    def __eq__(self, other):
+        return (isinstance(other, Node) and (self.row == other.row) and (self.col == other.col))
     
 
 ##Recursive Backtracking Maze Generator

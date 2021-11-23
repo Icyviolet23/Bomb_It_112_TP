@@ -905,14 +905,14 @@ def drawplayerModel1(app, canvas, playernum):
     #get where to draw the player
     x0, y0, x1, y1 = getCellBounds(app, app.players[playernum].row, app.players[playernum].col)
     spriteimage = app.playerModels[playernum][app.players[playernum].action][app.playerModel1Counter]
-    #canvas.create_rectangle(x0, y0, x1 ,y1 , fill = app.playerColor[playernum])
+    canvas.create_rectangle(x0, y0, x1 ,y1 , fill = app.playerColor[playernum])
     canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
 
 def drawAIModel(app, canvas, AInum):
     if app.players[AInum].lives > 0:
         x0, y0, x1, y1 = getCellBounds(app, app.players[AInum].row , app.players[AInum].col)
         spriteimage = app.playerModels[AInum][app.players[AInum].action][app.playerModel2Counter]
-        #canvas.create_rectangle(x0, y0, x1 ,y1 , fill = app.playerColor[AInum])
+        canvas.create_rectangle(x0, y0, x1 ,y1 , fill = app.playerColor[AInum])
         canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
 
 
