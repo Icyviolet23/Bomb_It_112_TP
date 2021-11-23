@@ -138,6 +138,13 @@ def initializeAllPlayerModels(app):
         4 : app.playerModel4Directions
     }
 
+    app.playerColor = {
+        1: 'green',
+        2: 'red',
+        3: 'blue',
+        4: 'yellow'
+    }
+
 
 # Player Model 1 credits
 # body/male/human/white.png	Stephen Challener (Redshrike), Johannes SjÃ¶lund (wulax)	CC-BY-SA 3.0, GPL 3.0	https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles	https://opengameart.org/content/lpc-medieval-fantasy-character-sprites			
@@ -898,12 +905,14 @@ def drawplayerModel1(app, canvas, playernum):
     #get where to draw the player
     x0, y0, x1, y1 = getCellBounds(app, app.players[playernum].row, app.players[playernum].col)
     spriteimage = app.playerModels[playernum][app.players[playernum].action][app.playerModel1Counter]
+    #canvas.create_rectangle(x0, y0, x1 ,y1 , fill = app.playerColor[playernum])
     canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
 
 def drawAIModel(app, canvas, AInum):
     if app.players[AInum].lives > 0:
         x0, y0, x1, y1 = getCellBounds(app, app.players[AInum].row , app.players[AInum].col)
         spriteimage = app.playerModels[AInum][app.players[AInum].action][app.playerModel2Counter]
+        #canvas.create_rectangle(x0, y0, x1 ,y1 , fill = app.playerColor[AInum])
         canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
 
 
