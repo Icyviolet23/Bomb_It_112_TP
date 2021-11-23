@@ -75,6 +75,7 @@ def gamegraphics(app):
     initializeMaze(app)
     initalizeKleeForward(app)
     intializeWallImages(app)
+    initializeFloorImage(app)
     initializeWeaponsImages(app)
     initializeWeaponPosition(app)
     initializeExplosionSprite(app)
@@ -469,6 +470,17 @@ def ScaleWeaponImage(app):
         imageWidth, imageHeight = app.weaponDict[imageIndex].size
         scaleHeightFactor = app.cellHeight / imageHeight
         app.WeaponImageDictScaled[imageIndex] = app.scaleImage(app.weaponDict[imageIndex], scaleHeightFactor)
+
+#need to edit the image dimensions
+def initializeFloorImage(app):
+    #image from https://lpc.opengameart.org/static/lpc-style-guide/assets.html
+    app.grass = app.loadImage("Images\\floor\grass.png")
+    app.grasscropped = app.grass.crop((0,150,96,192))
+    imageWidth, imageHeight = app.grasscropped.size
+    scaleHeightFactor = app.cellHeight / imageHeight
+    #scaleWidthFactor = app.cellWidth / imageWidth
+    app.grassscaled = app.scaleImage(app.grasscropped, scaleHeightFactor)
+
 
 #function to hold all power ups and bombs currently on the floor
 def initializeWeaponPosition(app):
@@ -897,6 +909,10 @@ def drawAIModel(app, canvas, AInum):
 
 ##################################################################################
 
+def drawFloor(app, canvas):
+    x0, y0, x1, y1 = getCellBounds(app, app.rows/2, app.columns/2)
+    canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image=ImageTk.PhotoImage(app.grassscaled))
+
 
 def drawExplosion(app, canvas):
     for explosion in app.explosion:
@@ -982,6 +998,7 @@ def drawScoreBoard(app, canvas):
 #######################################################################################################################################
 
 def gameMode_redrawAll(app,canvas):
+    #drawFloor(app, canvas)
     drawScoreBoard(app, canvas)
     drawgrid(app, canvas)
     #drawMaze(app, canvas)
