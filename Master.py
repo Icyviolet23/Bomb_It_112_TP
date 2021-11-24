@@ -118,12 +118,12 @@ def initalizeKleeForward(app):
         if i <= 4:
             sprite = app.kleeSpriteSheet.crop((imageWidth/5*i, 0, imageWidth/5*i + imageWidth/5, imageHeight/2))
             sprite = app.scaleImage(sprite, app.KleescaleHeightFactor*1.9)
-            app.kleesprite.append(sprite)
+            app.kleesprite.append(ImageTk.PhotoImage(sprite))
         else:
             i = i % 5
             sprite = app.kleeSpriteSheet.crop((imageWidth/5*i, imageHeight/2, imageWidth/5*i + imageWidth/5, imageHeight))
             sprite = app.scaleImage(sprite, app.KleescaleHeightFactor*1.9)
-            app.kleesprite.append(sprite)
+            app.kleesprite.append(ImageTk.PhotoImage(sprite))
 
 
 def initializeAllPlayerModels(app):
@@ -180,7 +180,7 @@ def initializePlayerModel1(app):
     for col in range(9):
         forwardsprite = app.playerModel1SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*forwardrow, imageWidth/cols*(col+1) , imageHeight/rows*(forwardrow+1)))
         forwardscaledsprite = app.scaleImage(forwardsprite, app.playerModelHeightfactor*scalefactor)
-        app.playerModel1forwardsprite.append(forwardscaledsprite)
+        app.playerModel1forwardsprite.append(ImageTk.PhotoImage(forwardscaledsprite))
     app.playerModel1Directions['forward'] = app.playerModel1forwardsprite
 
     #initializing backward sprite
@@ -190,7 +190,7 @@ def initializePlayerModel1(app):
     for col in range(9):
         backwardsprite = app.playerModel1SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*backwardrow, imageWidth/cols*(col+1) , imageHeight/rows*(backwardrow+1)))
         backwardscaledsprite = app.scaleImage(backwardsprite, app.playerModelHeightfactor*scalefactor)
-        app.playerModel1backwardsprite.append(backwardscaledsprite)
+        app.playerModel1backwardsprite.append(ImageTk.PhotoImage(backwardscaledsprite))
     app.playerModel1Directions['backward'] = app.playerModel1backwardsprite
 
     #intializing left sprite
@@ -200,7 +200,7 @@ def initializePlayerModel1(app):
     for col in range(9):
         leftsprite = app.playerModel1SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*leftrow, imageWidth/cols*(col+1) , imageHeight/rows*(leftrow+1)))
         leftscaledsprite = app.scaleImage(leftsprite, app.playerModelHeightfactor*scalefactor)
-        app.playerModel1leftsprite.append(leftscaledsprite)
+        app.playerModel1leftsprite.append(ImageTk.PhotoImage(leftscaledsprite))
     app.playerModel1Directions['left'] = app.playerModel1leftsprite
 
     #intializing right sprite
@@ -210,7 +210,7 @@ def initializePlayerModel1(app):
     for col in range(9):
         rightsprite = app.playerModel1SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*rightrow, imageWidth/cols*(col+1) , imageHeight/rows*(rightrow+1)))
         rightscaledsprite = app.scaleImage(rightsprite, app.playerModelHeightfactor*scalefactor)
-        app.playerModel1rightsprite.append(rightscaledsprite)
+        app.playerModel1rightsprite.append(ImageTk.PhotoImage(rightscaledsprite))
     app.playerModel1Directions['right'] = app.playerModel1rightsprite
 
 #initalizing player2Model
@@ -251,7 +251,7 @@ def initializePlayerModel2(app):
     for col in range(9):
         forwardsprite = app.playerModel2SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*forwardrow, imageWidth/cols*(col+1) , imageHeight/rows*(forwardrow+1)))
         forwardscaledsprite = app.scaleImage(forwardsprite, app.playerModelHeightfactor*scalefactor)
-        app.playerModel2forwardsprite.append(forwardscaledsprite)
+        app.playerModel2forwardsprite.append(ImageTk.PhotoImage(forwardscaledsprite))
     app.playerModel2Directions['forward'] = app.playerModel2forwardsprite
 
     #initializing backward sprite
@@ -261,7 +261,7 @@ def initializePlayerModel2(app):
     for col in range(9):
         backwardsprite = app.playerModel2SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*backwardrow, imageWidth/cols*(col+1) , imageHeight/rows*(backwardrow+1)))
         backwardscaledsprite = app.scaleImage(backwardsprite, app.playerModelHeightfactor*scalefactor)
-        app.playerModel2backwardsprite.append(backwardscaledsprite)
+        app.playerModel2backwardsprite.append(ImageTk.PhotoImage(backwardscaledsprite))
     app.playerModel2Directions['backward'] = app.playerModel2backwardsprite
 
     #intializing left sprite
@@ -271,7 +271,7 @@ def initializePlayerModel2(app):
     for col in range(9):
         leftsprite = app.playerModel2SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*leftrow, imageWidth/cols*(col+1) , imageHeight/rows*(leftrow+1)))
         leftscaledsprite = app.scaleImage(leftsprite, app.playerModelHeightfactor*scalefactor)
-        app.playerModel2leftsprite.append(leftscaledsprite)
+        app.playerModel2leftsprite.append(ImageTk.PhotoImage(leftscaledsprite))
     app.playerModel2Directions['left'] = app.playerModel2leftsprite
 
     #intializing right sprite
@@ -281,7 +281,7 @@ def initializePlayerModel2(app):
     for col in range(9):
         rightsprite = app.playerModel2SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*rightrow, imageWidth/cols*(col+1) , imageHeight/rows*(rightrow+1)))
         rightscaledsprite = app.scaleImage(rightsprite, app.playerModelHeightfactor*scalefactor)
-        app.playerModel2rightsprite.append(rightscaledsprite)
+        app.playerModel2rightsprite.append(ImageTk.PhotoImage(rightscaledsprite))
     app.playerModel2Directions['right'] = app.playerModel2rightsprite
 
 
@@ -321,7 +321,7 @@ def initializePlayerModel3(app):
     for col in range(9):
         forwardsprite = app.playerModel3SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*forwardrow, imageWidth/cols*(col+1) , imageHeight/rows*(forwardrow+1)))
         forwardscaledsprite = app.scaleImage(forwardsprite, app.playerModelHeightfactor*scalefactor)
-        app.playerModel3forwardsprite.append(forwardscaledsprite)
+        app.playerModel3forwardsprite.append(ImageTk.PhotoImage(forwardscaledsprite))
     app.playerModel3Directions['forward'] = app.playerModel3forwardsprite
 
     #initializing backward sprite
@@ -331,7 +331,7 @@ def initializePlayerModel3(app):
     for col in range(9):
         backwardsprite = app.playerModel3SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*backwardrow, imageWidth/cols*(col+1) , imageHeight/rows*(backwardrow+1)))
         backwardscaledsprite = app.scaleImage(backwardsprite, app.playerModelHeightfactor*scalefactor)
-        app.playerModel3backwardsprite.append(backwardscaledsprite)
+        app.playerModel3backwardsprite.append(ImageTk.PhotoImage(backwardscaledsprite))
     app.playerModel3Directions['backward'] = app.playerModel3backwardsprite
 
     #intializing left sprite
@@ -341,7 +341,7 @@ def initializePlayerModel3(app):
     for col in range(9):
         leftsprite = app.playerModel3SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*leftrow, imageWidth/cols*(col+1) , imageHeight/rows*(leftrow+1)))
         leftscaledsprite = app.scaleImage(leftsprite, app.playerModelHeightfactor*scalefactor)
-        app.playerModel3leftsprite.append(leftscaledsprite)
+        app.playerModel3leftsprite.append(ImageTk.PhotoImage(leftscaledsprite))
     app.playerModel3Directions['left'] = app.playerModel3leftsprite
 
     #intializing right sprite
@@ -351,7 +351,7 @@ def initializePlayerModel3(app):
     for col in range(9):
         rightsprite = app.playerModel3SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*rightrow, imageWidth/cols*(col+1) , imageHeight/rows*(rightrow+1)))
         rightscaledsprite = app.scaleImage(rightsprite, app.playerModelHeightfactor*scalefactor)
-        app.playerModel3rightsprite.append(rightscaledsprite)
+        app.playerModel3rightsprite.append(ImageTk.PhotoImage(rightscaledsprite))
     app.playerModel3Directions['right'] = app.playerModel3rightsprite
 
 
@@ -389,7 +389,7 @@ def initializePlayerModel4(app):
     for col in range(9):
         forwardsprite = app.playerModel4SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*forwardrow, imageWidth/cols*(col+1) , imageHeight/rows*(forwardrow+1)))
         forwardscaledsprite = app.scaleImage(forwardsprite, app.playerModelHeightfactor*scalefactor)
-        app.playerModel4forwardsprite.append(forwardscaledsprite)
+        app.playerModel4forwardsprite.append(ImageTk.PhotoImage(forwardscaledsprite))
     app.playerModel4Directions['forward'] = app.playerModel4forwardsprite
 
     #initializing backward sprite
@@ -399,7 +399,7 @@ def initializePlayerModel4(app):
     for col in range(9):
         backwardsprite = app.playerModel4SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*backwardrow, imageWidth/cols*(col+1) , imageHeight/rows*(backwardrow+1)))
         backwardscaledsprite = app.scaleImage(backwardsprite, app.playerModelHeightfactor*scalefactor)
-        app.playerModel4backwardsprite.append(backwardscaledsprite)
+        app.playerModel4backwardsprite.append(ImageTk.PhotoImage(backwardscaledsprite))
     app.playerModel4Directions['backward'] = app.playerModel4backwardsprite
 
     #intializing left sprite
@@ -409,7 +409,7 @@ def initializePlayerModel4(app):
     for col in range(9):
         leftsprite = app.playerModel4SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*leftrow, imageWidth/cols*(col+1) , imageHeight/rows*(leftrow+1)))
         leftscaledsprite = app.scaleImage(leftsprite, app.playerModelHeightfactor*scalefactor)
-        app.playerModel4leftsprite.append(leftscaledsprite)
+        app.playerModel4leftsprite.append(ImageTk.PhotoImage(leftscaledsprite))
     app.playerModel4Directions['left'] = app.playerModel4leftsprite
 
     #intializing right sprite
@@ -419,7 +419,7 @@ def initializePlayerModel4(app):
     for col in range(9):
         rightsprite = app.playerModel4SpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*rightrow, imageWidth/cols*(col+1) , imageHeight/rows*(rightrow+1)))
         rightscaledsprite = app.scaleImage(rightsprite, app.playerModelHeightfactor*scalefactor)
-        app.playerModel4rightsprite.append(rightscaledsprite)
+        app.playerModel4rightsprite.append(ImageTk.PhotoImage(rightscaledsprite))
     app.playerModel4Directions['right'] = app.playerModel4rightsprite
 
 
@@ -443,7 +443,7 @@ def initializeExplosionSprite(app):
         for col in range(cols):
             sprite = app.explosionSpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*row, imageWidth/cols*(col+1) , imageHeight/rows*(row+1)))
             scaledsprite = app.scaleImage(sprite, app.explosionHeightfactor*5)
-            app.explosionsprite.append(scaledsprite)
+            app.explosionsprite.append(ImageTk.PhotoImage(scaledsprite))
 
 
 def intializeWallImages(app):
@@ -465,6 +465,7 @@ def intializeWallImages(app):
 def initializeWeaponsImages(app):
     #Bomb from https://www.google.com/url?sa=i&url=http%3A%2F%2Fclipart-library.com%2Fbomb-cliparts.html&psig=AOvVaw0MGEiKDcFcUDWUnBx5BprH&ust=1637106597396000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCOiBhtLHm_QCFQAAAAAdAAAAABAO
     app.bomb = app.loadImage('Images\\weapons\\bombnobg.png')
+    #app.bomb = ImageTk.PhotoImage(app.bomb)
     app.weaponDict = {
         0 : app.bomb
     }
@@ -476,7 +477,7 @@ def ScaleWeaponImage(app):
     for imageIndex in app.weaponDict:
         imageWidth, imageHeight = app.weaponDict[imageIndex].size
         scaleHeightFactor = app.cellHeight / imageHeight
-        app.WeaponImageDictScaled[imageIndex] = app.scaleImage(app.weaponDict[imageIndex], scaleHeightFactor)
+        app.WeaponImageDictScaled[imageIndex] = ImageTk.PhotoImage(app.scaleImage(app.weaponDict[imageIndex], scaleHeightFactor))
 
 #need to edit the image dimensions
 def initializeFloorImage(app):
@@ -486,7 +487,7 @@ def initializeFloorImage(app):
     imageWidth, imageHeight = app.grasscropped.size
     scaleHeightFactor = app.cellHeight / imageHeight
     #scaleWidthFactor = app.cellWidth / imageWidth
-    app.grassscaled = app.scaleImage(app.grasscropped, scaleHeightFactor)
+    app.grassscaled = ImageTk.PhotoImage(app.scaleImage(app.grasscropped, scaleHeightFactor))
 
 
 #function to hold all power ups and bombs currently on the floor
@@ -532,7 +533,7 @@ def ScaleWallImage(app):
         scaleHeightFactor = app.cellHeight / imageHeight
         #print(f'{imageIndex} + {scaleHeightFactor}')
         #app.treescale = app.scaleImage(app.tree1, scaleHeightFactor)
-        app.WallImageDictScaled[imageIndex] = app.scaleImage(app.WallDict[imageIndex], scaleHeightFactor)
+        app.WallImageDictScaled[imageIndex] = ImageTk.PhotoImage(app.scaleImage(app.WallDict[imageIndex], scaleHeightFactor))
     # for imageIndex in app.WallImageDictScaled:
     #     width , height = app.WallImageDictScaled[imageIndex].size
     #     print(width, height)
@@ -874,7 +875,7 @@ def drawWallImage(app, canvas):
     for wall in app.MazeWalls:
         image = app.MazeWalls[wall].imageIndex
         x0, y0, x1, y1 = getCellBounds(app, app.MazeWalls[wall].row, app.MazeWalls[wall].col)
-        canvas.create_image((x1 + x0)/2 , (y1 + y0)/2, image = ImageTk.PhotoImage(app.WallImageDictScaled[image]))
+        canvas.create_image((x1 + x0)/2 , (y1 + y0)/2, image = app.WallImageDictScaled[image])
 
 #using this for debugging
 def drawMaze(app, canvas):
@@ -890,14 +891,14 @@ def drawWeapon(app, canvas):
                 if isinstance(bomb, weapon.Bomb):
                     weaponID = bomb.weaponID
                     x0, y0, x1, y1 = getCellBounds(app, coordinate[0], coordinate[1])
-                    canvas.create_image((x0 + x1)/2, (y0 + y1)/2, image = ImageTk.PhotoImage(app.WeaponImageDictScaled[weaponID]))
+                    canvas.create_image((x0 + x1)/2, (y0 + y1)/2, image = app.WeaponImageDictScaled[weaponID])
 ##################################################################################
 #drawing players
 #playernum here is an int
 def drawKlee(app, canvas, playernum):
     x0, y0, x1, y1 = getCellBounds(app, app.players[playernum].row, app.players[playernum].col)
     spriteimage = app.kleesprite[app.KleespriteCounter]
-    canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image=ImageTk.PhotoImage(spriteimage))
+    canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image= spriteimage)
 
 #action controls which sprite sheet is being used
 #action is a string: 'forward', 'backward', 'right', 'left'
@@ -906,21 +907,21 @@ def drawplayerModel1(app, canvas, playernum):
     x0, y0, x1, y1 = getCellBounds(app, app.players[playernum].row, app.players[playernum].col)
     spriteimage = app.playerModels[playernum][app.players[playernum].action][app.playerModel1Counter]
     canvas.create_rectangle(x0, y0, x1 ,y1 , fill = app.playerColor[playernum])
-    canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
+    canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image= spriteimage)
 
 def drawAIModel(app, canvas, AInum):
     if app.players[AInum].lives > 0:
         x0, y0, x1, y1 = getCellBounds(app, app.players[AInum].row , app.players[AInum].col)
         spriteimage = app.playerModels[AInum][app.players[AInum].action][app.playerModel2Counter]
         canvas.create_rectangle(x0, y0, x1 ,y1 , fill = app.playerColor[AInum])
-        canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image=ImageTk.PhotoImage(spriteimage))
+        canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image= spriteimage)
 
 
 ##################################################################################
 
 def drawFloor(app, canvas):
     x0, y0, x1, y1 = getCellBounds(app, app.rows/2, app.columns/2)
-    canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image=ImageTk.PhotoImage(app.grassscaled))
+    canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image= app.grassscaled)
 
 
 def drawExplosion(app, canvas):
@@ -929,7 +930,7 @@ def drawExplosion(app, canvas):
             x0, y0, x1, y1 = getCellBounds(app, coordinate[0], coordinate[1])
             #hardcoding the explosion sprite for now due to lag
             spriteimage = app.explosionsprite[29]
-            canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image=ImageTk.PhotoImage(spriteimage))
+            canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image= spriteimage)
         
 #debugging for dfs
 def drawdfsPath(app, canvas, ainum):
@@ -995,7 +996,7 @@ def drawScoreBoard(app, canvas):
     #draw character image
     for image in range(1, panels):
         spriteimage = app.playerModels[image]['forward'][app.playerModel2Counter]
-        canvas.create_image(scoreboardstartx + linewidth  + scoreboardWidth/8, scoreboardpanelHeight/2 +  scoreboardpanelHeight* image , image=ImageTk.PhotoImage(spriteimage))
+        canvas.create_image(scoreboardstartx + linewidth  + scoreboardWidth/8, scoreboardpanelHeight/2 +  scoreboardpanelHeight* image , image= spriteimage)
     
     for word in range(1, panels):
         canvas.create_text(scoreboardstartx + scoreboardWidth/1.8, scoreboardpanelHeight/4 +  scoreboardpanelHeight* word, text = f'Player {word}', font = "Arial 25 bold", fill = "black")
@@ -1048,14 +1049,14 @@ def initializeGameoversprite(app):
             if col == 4: continue
             sprite = app.gameOverSpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*row, imageWidth/cols*(col+1) , imageHeight/rows*(row+1)))
             scaledsprite = app.scaleImage(sprite, app.gameOverHeightfactor)
-            app.gameOversprite.append(scaledsprite)
+            app.gameOversprite.append(ImageTk.PhotoImage(scaledsprite))
 
 ####################################################################
 #drawing functions for gameover
 
 def drawgameOverSprite(app, canvas):
     spriteimage = app.gameOversprite[app.gameOverspriteCounter]
-    canvas.create_image(app.width/2, app.height/2, image=ImageTk.PhotoImage(spriteimage))
+    canvas.create_image(app.width/2, app.height/2, image= spriteimage)
 
 def gameOverMode_redrawAll(app,canvas):
     canvas.create_rectangle(0,0, app.width, app.height, fill = 'black')
@@ -1102,7 +1103,7 @@ def initializeGamewinsprite(app):
             if row == 13 and (col == 4 or col == 3): continue
             sprite = app.gameWinSpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*row, imageWidth/cols*(col+1) , imageHeight/rows*(row+1)))
             scaledsprite = app.scaleImage(sprite, 3)
-            app.gameWinsprite.append(scaledsprite)
+            app.gameWinsprite.append(ImageTk.PhotoImage(scaledsprite))
 
 
 ####################################################################
@@ -1110,7 +1111,7 @@ def initializeGamewinsprite(app):
 def drawgameWinSprite(app, canvas):
     canvas.create_rectangle(0,0, app.width, app.height, fill = 'black')
     spriteimage = app.gameWinsprite[app.gameWinspriteCounter]
-    canvas.create_image(app.width/2, app.height/2, image=ImageTk.PhotoImage(spriteimage))
+    canvas.create_image(app.width/2, app.height/2, image= spriteimage)
     canvas.create_text(app.width/2, app.height/10 , text = "CONGRATULATIONS YOU WIN!", fill = "yellow", font = "Arial 50 bold")
     canvas.create_text(app.width/2, app.height/6 , text = "PRESS R TO RESTART", fill = "yellow", font = "Arial 20 bold")
 
