@@ -442,7 +442,7 @@ def initializeExplosionSprite(app):
     for row in range(rows):
         for col in range(cols):
             sprite = app.explosionSpriteSheet.crop((imageWidth/cols*col, imageHeight/rows*row, imageWidth/cols*(col+1) , imageHeight/rows*(row+1)))
-            scaledsprite = app.scaleImage(sprite, app.explosionHeightfactor*5)
+            scaledsprite = app.scaleImage(sprite, app.explosionHeightfactor * 5)
             app.explosionsprite.append(ImageTk.PhotoImage(scaledsprite))
 
 
@@ -465,7 +465,6 @@ def intializeWallImages(app):
 def initializeWeaponsImages(app):
     #Bomb from https://www.google.com/url?sa=i&url=http%3A%2F%2Fclipart-library.com%2Fbomb-cliparts.html&psig=AOvVaw0MGEiKDcFcUDWUnBx5BprH&ust=1637106597396000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCOiBhtLHm_QCFQAAAAAdAAAAABAO
     app.bomb = app.loadImage('Images\\weapons\\bombnobg.png')
-    #app.bomb = ImageTk.PhotoImage(app.bomb)
     app.weaponDict = {
         0 : app.bomb
     }
@@ -795,6 +794,25 @@ def gameMode_timerFired(app):
     app.timeElasped += app.timerDelay
     if app.timeElasped % 1000 == 0:
         app.timer -= 1
+
+    #controls move speed of AI
+    if app.timeElasped % 150 == 0:
+        for playernum in range(2,5):
+            if app.players[playernum].lives > 0:
+                moveAI(app, playernum)
+                AIfindpath(app, playernum)
+
+
+        
+        autoRegenWalls(app)
+    #explode bomb with 3 second countdown
+    if app.timeElasped % 1000 == 0:
+        
+        explodeBomb(app)
+
+    if app.timeElasped % 200 == 0:
+        explosionDuration(app)
+    
     gameChangeConditions(app)
     #print(app.timeElasped)
     #currentTime = time.time()
@@ -807,24 +825,11 @@ def gameMode_timerFired(app):
     playerModel2Counter(app)
     playerModel3Counter(app)
     playerModel4Counter(app)
+    explosionSpriteTimer(app)
         
 
-    #explosionSpriteTimer(app)
-    #bug here cause we are calling the timing wrongly for explosion
-    #image displays but it is very small
-    #if app.timeElasped % 2000 == 0:
-    if app.weaponPos != {}:
-        explodeBomb(app)
-    if len(app.explosion) != 0:
-        explosionDuration(app)
 
-    if app.timeElasped % 200 == 0:
-        for playernum in range(2,5):
-            if app.players[playernum].lives > 0:
-                moveAI(app, playernum)
-                AIfindpath(app, playernum)
 
-    autoRegenWalls(app)
 
 
 
@@ -929,7 +934,7 @@ def drawExplosion(app, canvas):
         for coordinate in explosion.radius:
             x0, y0, x1, y1 = getCellBounds(app, coordinate[0], coordinate[1])
             #hardcoding the explosion sprite for now due to lag
-            spriteimage = app.explosionsprite[29]
+            spriteimage = app.explosionsprite[25]
             canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image= spriteimage)
         
 #debugging for dfs
@@ -996,12 +1001,20 @@ def drawScoreBoard(app, canvas):
     #draw character image
     for image in range(1, panels):
         spriteimage = app.playerModels[image]['forward'][app.playerModel2Counter]
-        canvas.create_image(scoreboardstartx + linewidth  + scoreboardWidth/8, scoreboardpanelHeight/2 +  scoreboardpanelHeight* image , image= spriteimage)
+        canvas.create_image(scoreboardstartx + linewidth  + scoreboardWidth/8, 
+                            scoreboardpanelHeight/2 +  
+                            scoreboardpanelHeight* image , image= spriteimage)
     
     for word in range(1, panels):
         canvas.create_text(scoreboardstartx + scoreboardWidth/1.8, scoreboardpanelHeight/4 +  scoreboardpanelHeight* word, text = f'Player {word}', font = "Arial 25 bold", fill = "black")
-        canvas.create_text(scoreboardstartx + scoreboardWidth/1.8, scoreboardpanelHeight/1.75 +  scoreboardpanelHeight* word, text = f'Bombs: {app.players[word].bombCount}', font = "Arial 15 bold", fill = "black")
-        canvas.create_text(scoreboardstartx + scoreboardWidth/1.8, scoreboardpanelHeight/1.2 +  scoreboardpanelHeight* word, text = f'Lives: {app.players[word].lives}', font = "Arial 15 bold", fill = "red")
+        canvas.create_text(scoreboardstartx + scoreboardWidth/1.8, 
+                            scoreboardpanelHeight/1.75 +  scoreboardpanelHeight* word, 
+                            text = f'Lives: {app.players[word].lives}', 
+                            font = "Arial 18 bold", fill = "black")
+        canvas.create_text(scoreboardstartx + scoreboardWidth/1.8, 
+                            scoreboardpanelHeight/1.2 +  scoreboardpanelHeight* word, 
+                            text = f'Bombs: {app.players[word].bombCount}', 
+                            font = "Arial 15 bold", fill = "red")
         
     
 
