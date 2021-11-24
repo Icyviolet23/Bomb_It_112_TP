@@ -1008,6 +1008,10 @@ def drawScoreBoard(app, canvas):
 #######################################################################################################################################
 
 def gameMode_redrawAll(app,canvas):
+    drawplayerModel1(app, canvas, 1)
+    drawAIModel(app, canvas, 2)
+    drawAIModel(app, canvas, 3)
+    drawAIModel(app, canvas, 4)
     #drawFloor(app, canvas)
     drawScoreBoard(app, canvas)
     drawgrid(app, canvas)
@@ -1016,12 +1020,9 @@ def gameMode_redrawAll(app,canvas):
     #drawdfsPath(app, canvas, 2)
     #drawbfsPath(app, canvas, 2)
     #drawKlee(app, canvas, 1)
-    drawplayerModel1(app, canvas, 1)
     drawWeapon(app, canvas)
     drawExplosion(app, canvas)
-    drawAIModel(app, canvas, 2)
-    drawAIModel(app, canvas, 3)
-    drawAIModel(app, canvas, 4)
+
     
     
 
