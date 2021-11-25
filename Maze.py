@@ -82,6 +82,7 @@ def recursiveBacktrackingMaze(row, col):
     startCol = 0
     createMazeRecursively(graph, startRow, startCol)
     #print(graph.nodes)
+    convertX(graph,2)
     return graph
     
 def checkVisitedallNodes(graph):
@@ -230,6 +231,142 @@ def repr2dList(L):
 
 def print2dList(L):
     print(repr2dList(L))
+
+
+
+
+def checkParent(node):
+    if node.edges == []:
+        #return parent
+        return node
+    #recursive case
+    else:
+        return checkParent(node.edges[0])
+
+
+
+#inspired from https://www.geeksforgeeks.org/union-find/
+#inspired from https://weblog.jamisbuck.org/2011/1/3/maze-generation-kruskal-s-algorithm
+#code is written by myself. Algorithm idea was inspired by above
+#a little wonky for now need to edit
+def kruskalMazeGeneration(row, col):
+    sorted = 0
+    #we want to stop when sorted = nxm -1
+    graph = Graph(row, col)
+    #we initialize the graph with nodes using an 8x8 matrix
+    #we only want to connect the nodes within a cross distance to ensure no funny wall combinations
+    possibleMoves = [(0,1), (1,0), (-1,0), (0, -1)]
+    #print(graph.nodes.keys())
+
+    while sorted < graph.rows* graph.cols - 1:
+        randRow1 = random.randint(0,graph.rows-1)
+        randCol1 = random.randint(0,graph.cols-1)
+        #random.shuffle(possibleMoves)
+        #we bind the move within the cross
+        randchoice = random.randint(0,3)
+        move = possibleMoves[randchoice]
+        randRow2 = randRow1 + move[0]
+        randCol2 = randRow2 + move[1]
+        #check if the 2nd row and col is within bounds of the graph
+        if checkOutofBounds(graph, randRow2, randCol2):
+            if (randRow1, randCol1) == (randRow2,randCol2):
+                continue
+
+            parent1 = checkParent(graph.nodes[(randRow1, randCol1)])
+            #print(parent1.row, parent1.col)
+            parent2 = checkParent(graph.nodes[(randRow2, randCol2)])
+            #if the parents are the same we know that the edges are connected so we skip
+            if parent1 == parent2:
+                continue
+            else:
+                graph.addEdge(randRow1, randCol1, graph.nodes[(randRow2, randCol2)])
+                sorted += 1
+
+    convertX(graph,2)
+    return graph
+
+        
+def testKruskal():
+    graph = kruskalMazeGeneration(2,2)
+    convertX(graph,2)
+    board = [[1]*graph.rows for _ in range(graph.cols)]
+    for row in range(graph.rows):
+        for col in range(graph.cols):
+            if len(graph.nodes[(row,col)].edges) >= 1:
+                board[row][col] = 0
+
+    print2dList(board)
+
+
+#testKruskal()
+
+#pseudo code from 
+# https://hurna.io/academy/algorithms/maze_generator/prim_s.html
+# Choose a starting cell in the field and add it to the path set.
+# While there is cell to be handled in the set:
+# 1. Randomly connect to one of the already connected neighbor.
+# 2. Add all unconnected neighbors to the set
+
+#abit buggy cause no solution
+def PrimMazeGeneration(row, col):
+    graph = Graph(row, col)
+    possibleMoves = [(0,1), (1,0), (-1,0), (0, -1)]
+    startset = [(0,0)]
+
+    #contains all the vertexes
+
+    while len(startset) != 0:
+        #randomchoice = random.randint(0, len(startset) - 1)
+        chosenVertex = startset.pop()
+        #print(chosenVertex)
+        #mark as visited
+        graph.nodes[chosenVertex].visited = True
+        neighbours = []
+        #finding neighbours
+        for move in possibleMoves:
+            newRow, newCol = chosenVertex[0] + move[0], chosenVertex[1] + move[1]
+
+            if checkOutofBounds(graph, newRow, newCol) and graph.nodes[(newRow, newCol)].visited != True:
+
+                neighbours.append((newRow, newCol))
+        
+
+        if neighbours != []:
+            randomNeighbourChoice = random.randint(0, len(neighbours) - 1)
+            randomNeighbour = neighbours[randomNeighbourChoice]
+            #form the connections
+            graph.addEdge(chosenVertex[0], chosenVertex[1], graph.nodes[(randomNeighbour)])
+
+            for coordinate in neighbours:
+                startset.append(coordinate)
+
+        else:
+            continue
+    
+    convertX(graph,2)
+    return graph
+
+
+
+def testPrim():
+    graph = PrimMazeGeneration(8,8)
+    convertX(graph,2)
+    board = [[1]*graph.rows for _ in range(graph.cols)]
+    for row in range(graph.rows):
+        for col in range(graph.cols):
+            if len(graph.nodes[(row,col)].edges) >= 1:
+                board[row][col] = 0
+
+    print2dList(board)
+
+
+#testPrim()
+
+
+        
+
+
+
 
 
 

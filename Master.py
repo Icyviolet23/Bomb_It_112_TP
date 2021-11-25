@@ -72,12 +72,13 @@ def gamegraphics(app):
 
     # dictionary containing all the paths of the images of the walls
     initializePlayer(app)
+    initializeWeaponPosition(app)
     initializeMaze(app)
     initalizeKleeForward(app)
     intializeWallImages(app)
     initializeFloorImage(app)
     initializeWeaponsImages(app)
-    initializeWeaponPosition(app)
+    
     initializeExplosionSprite(app)
     initializeGameoversprite(app)
     initializeGamewinsprite(app)
@@ -506,22 +507,42 @@ def checkplayerposition(app, coordinate):
     return True
 
 def initializeMaze(app):
+    #intializeMazeRecursively(app)
+    initalizeMazePrim(app)
+
+def initalizeMazePrim(app):
     app.MazeWalls = {}
-    graph = Maze.recursiveBacktrackingMaze(app.rows//2, app.columns//2)
+    graph = Maze.PrimMazeGeneration(app.rows//2, app.columns//2)
     forbiddenCoordinates = set([(0,0), (0, app.rows-1), (app.columns-1, 0), (app.rows-1, app.columns-1)])
-    #doubles the dimensions and connects all the odd nodes
-    Maze.convertX(graph,2)
     for coordinate in graph.nodes:
-        #nodes with no edges are converted to walls
         if len(graph.nodes[coordinate].edges) == 0:
-            if coordinate not in forbiddenCoordinates and checkplayerposition(app, coordinate):
+            if ((coordinate not in forbiddenCoordinates) and 
+                (checkplayerposition(app, coordinate))
+                and (app.weaponPos[coordinate] == [])):
                 #boolean for whether wall is destructible or not
                 newWall = wall.Wall(coordinate[0], coordinate[1], True)
                 app.MazeWalls[coordinate] = newWall
 
     app.graph = graph
     app.MazeWallsOriLength = len(app.MazeWalls.keys())
-    #print(app.MazeWalls.keys())
+
+def intializeMazeRecursively(app):
+    app.MazeWalls = {}
+    graph = Maze.recursiveBacktrackingMaze(app.rows//2, app.columns//2)
+    forbiddenCoordinates = set([(0,0), (0, app.rows-1), (app.columns-1, 0), (app.rows-1, app.columns-1)])
+    #doubles the dimensions and connects all the odd nodes
+    for coordinate in graph.nodes:
+        #nodes with no edges are converted to walls
+        if len(graph.nodes[coordinate].edges) == 0:
+            if ((coordinate not in forbiddenCoordinates) and 
+                (checkplayerposition(app, coordinate))
+                and (app.weaponPos[coordinate] == [])):
+                #boolean for whether wall is destructible or not
+                newWall = wall.Wall(coordinate[0], coordinate[1], True)
+                app.MazeWalls[coordinate] = newWall
+
+    app.graph = graph
+    app.MazeWallsOriLength = len(app.MazeWalls.keys())
 
 
 def ScaleWallImage(app):
