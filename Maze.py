@@ -287,8 +287,8 @@ def kruskalMazeGeneration(row, col):
 
         
 def testKruskal():
-    graph = kruskalMazeGeneration(2,2)
-    convertX(graph,2)
+    graph = kruskalMazeGeneration(5,5)
+    #convertX(graph,2)
     board = [[1]*graph.rows for _ in range(graph.cols)]
     for row in range(graph.rows):
         for col in range(graph.cols):
@@ -298,7 +298,7 @@ def testKruskal():
     print2dList(board)
 
 
-#testKruskal()
+testKruskal()
 
 #pseudo code from 
 # https://hurna.io/academy/algorithms/maze_generator/prim_s.html
