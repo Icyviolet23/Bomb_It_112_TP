@@ -235,21 +235,122 @@ def print2dList(L):
 
 
 
-def checkParent(node):
-    if node.edges == []:
-        #return parent
-        return node
-    #recursive case
-    else:
-        return checkParent(node.edges[0])
-
 
 
 #inspired from https://www.geeksforgeeks.org/union-find/
 #inspired from https://weblog.jamisbuck.org/2011/1/3/maze-generation-kruskal-s-algorithm
 #code is written by myself. Algorithm idea was inspired by above
 #a little wonky for now need to edit
+
+#note that this bag contains the borders which we do not use
+
+#check if edge is on the border
+def checkBorder(graph, node1, node2):
+    row1, col1 = node1[0], node1[1]
+    row2, col2 = node2[0], node2[1]
+    if (row1 == 0 and row2 == 0) or (col1 == 0 and col2 == 0):
+        return False
+    if (row1 == graph.rows and row2 == graph.rows) or (col1 == graph.cols and col2 == graph.cols):
+        return False
+    return True
+
+def createBagofEdges(graph):
+    possibleMoves = [(0,1), (1,0), (-1,0), (0, -1)]
+    #we represent the edges in form [(x0,y0), (x1,y1)]
+    #need to check if the reverse is inside
+    bagofEdges = []
+    for row in range(graph.rows + 1):
+        for col in range(graph.cols + 1):
+            for move in possibleMoves:
+                drow, dcol = move[0], move[1]
+                newRow, newCol = drow + row, dcol + col
+                if checkOutofBounds(graph, newRow, newCol):
+                    node1 = (row,col)
+                    node2 = (newRow, newCol)
+                    if checkBorder(graph, node1, node2):
+                        edge = [node1, node2]
+                        reversededge = [node2, node1]
+                        #avoid double counting
+                        if reversededge not in bagofEdges:
+                            bagofEdges.append(edge)
+
+    return bagofEdges
+
+#get the 2 nodes blocked by this edge
+def get2Nodes(edge):
+    row1, col1 = edge[0][0], edge[0][1]
+    row2, col2 = edge[1][0], edge[1][1]
+    minRow, minCol = min(row1, row2), min(col1, col2)
+    maxRow, maxCol = max(row1, row2), max(col1, col2)
+    #we flip to add
+    dcol, drow = minRow - maxRow, minCol - maxCol
+    finalrow, finalcol = minRow + drow, minCol + dcol
+    return (minRow, minCol), (finalrow, finalcol)
+
+
+def initalizeParent(graph):
+    parent = {}
+    for row in range(graph.rows):
+        for col in range(graph.cols):
+            if (row, col) not in parent:
+                parent[(row, col)] = (row,col)
+    return parent
+
+#check if have the same parent
+#return True if they have different parents so we can merge
+def checkParent(graph, parent, node1, node2):
+    parent1 = returnParent(graph, parent, node1)
+    parent2 = returnParent(graph, parent, node2)
+    if parent1 == parent2:
+        return False
+    return True
+
+def returnParent(graph, parent, node):
+    row, col = node.row, node.col
+    #if parent is itself
+    if parent[(row,col)] == (row,col):
+        #return parent
+        return node
+    #recursive case
+    else:
+        return returnParent(graph, parent, graph.nodes[parent[(row,col)]])
+
 def kruskalMazeGeneration(row, col):
+    graph = Graph(row,col)
+    bagofEdges = createBagofEdges(graph)
+    print(bagofEdges)
+    #creating parent array
+    parent = initalizeParent(graph)
+    while len(bagofEdges) > 0:
+        randomChoice = random.randint(0, len(bagofEdges) - 1)
+        randomEdge = bagofEdges.pop(randomChoice)
+        coordinate1, coordinate2 = get2Nodes(randomEdge)
+        node1, node2 = graph.nodes[coordinate1], graph.nodes[coordinate2]
+        #print(f'{len(node1.edges)}, {len(node2.edges)}, {node2.edges[0].row, node2.edges[0].col}')
+        if checkParent(graph, parent, node1, node2):
+            parent1 = returnParent(graph, parent, node1)
+            parent2 = returnParent(graph, parent, node2)
+            graph.addEdge(parent1.row, parent1.col, parent2)
+            parent[(parent2.row, parent2.col)] = (parent1.row, parent1.col)
+        else:
+            continue
+    convertX(graph,2)
+    return graph
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '''
     sorted = 0
     #we want to stop when sorted = nxm -1
     graph = Graph(row, col)
@@ -284,7 +385,7 @@ def kruskalMazeGeneration(row, col):
 
     convertX(graph,2)
     return graph
-
+    '''
         
 def testKruskal():
     graph = kruskalMazeGeneration(5,5)
