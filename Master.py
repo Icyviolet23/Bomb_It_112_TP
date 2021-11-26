@@ -507,7 +507,7 @@ def checkplayerposition(app, coordinate):
     return True
 
 def initializeMaze(app):
-    choice = random.randint(1,3)
+    choice = random.randint(2,2)
     app.MazeWalls = {}
     if choice == 1:
         graph = Maze.PrimMazeGeneration(app.rows//2, app.columns//2)

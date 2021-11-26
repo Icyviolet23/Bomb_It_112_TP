@@ -71,7 +71,7 @@ class Node(object):
     #from https://www.cs.cmu.edu/~112/notes/notes-oop-part4.html
     def __eq__(self, other):
         return (isinstance(other, Node) and (self.row == other.row) and (self.col == other.col))
-    
+
 
 ##Recursive Backtracking Maze Generator
 #Generates half of the graph dimensions
@@ -285,19 +285,34 @@ def get2Nodes(edge):
     #we flip to add
     dcol, drow = minRow - maxRow, minCol - maxCol
     finalrow, finalcol = minRow + drow, minCol + dcol
-    return (minRow, minCol), (finalrow, finalcol)
+    return ((minRow, minCol), (finalrow, finalcol))
 
+
+def testingget2Nodes():
+    print(get2Nodes([(2,1),(3,1)]))
+    print(get2Nodes([(3,1), (2,1)]))
+    print(get2Nodes([(2,2), (2,3)]))
+    pass
+
+#testingget2Nodes()
+#we want to define a bijection from [graph.cols] \right arrow {all vertexs in the graph}
+#this function converts a coordinate into a natural number
+def getIndex(graph, node):
+    #number of rows
+    width = graph.rows
+    row, col = node.row, node.col
+    return (row * width + col)
 
 def initalizeParent(graph):
-    parent = {}
+    parent = []
     for row in range(graph.rows):
         for col in range(graph.cols):
-            #if (row, col) not in parent:
-            parent[(row, col)] = (row,col)
+            parent.append((row,col))
     return parent
 
 #check if have the same parent
 #return True if they have different parents so we can merge
+
 def checkParent(graph, parent, node1, node2):
     parent1 = returnParent(graph, parent, node1)
     parent2 = returnParent(graph, parent, node2)
@@ -306,34 +321,42 @@ def checkParent(graph, parent, node1, node2):
     return True
 
 def returnParent(graph, parent, node):
-    row, col = node.row, node.col
+    parentNode = parent[getIndex(graph, node)]
     #if parent is itself
-    if parent[(row,col)] == (row,col):
+    if parentNode == (node.row, node.col):
         #return parent
         return node
     #recursive case
     else:
-        return returnParent(graph, parent, graph.nodes[parent[(row,col)]])
+        return returnParent(graph, parent, graph.nodes[parentNode])
 
 def kruskalMazeGeneration(row, col):
     graph = Graph(row,col)
     bagofEdges = createBagofEdges(graph)
     #print(bagofEdges)
+    # for edge in bagofEdges:
+    #     check = list(reversed(edge))
+    #     if check in bagofEdges:
+    #         print('error')
     #creating parent array
     parent = initalizeParent(graph)
     while len(bagofEdges) > 0:
         randomChoice = random.randint(0, len(bagofEdges) - 1)
         randomEdge = bagofEdges.pop(randomChoice)
-        coordinate1, coordinate2 = get2Nodes(randomEdge)
+        coordinate1, coordinate2 = get2Nodes(randomEdge)[0], get2Nodes(randomEdge)[1]
         node1, node2 = graph.nodes[coordinate1], graph.nodes[coordinate2]
         #print(f'{len(node1.edges)}, {len(node2.edges)}, {node2.edges[0].row, node2.edges[0].col}')
         if checkParent(graph, parent, node1, node2):
+            #if they have different parents
+            #we want to merge the parents together
             parent1 = returnParent(graph, parent, node1)
             parent2 = returnParent(graph, parent, node2)
             graph.addEdge(parent1.row, parent1.col, parent2)
-            parent[(parent1.row, parent1.col)] = (parent2.row, parent2.col)
+            parent[getIndex(graph, parent1)] = (parent2.row, parent2.col)
         else:
             continue
+
+    #print(set(parent))
     convertX(graph,2)
     return graph
 
@@ -375,7 +398,7 @@ def kruskalMazeGeneration(row, col):
     '''
         
 def testKruskal():
-    graph = kruskalMazeGeneration(5,5)
+    graph = kruskalMazeGeneration(8,8)
     #convertX(graph,2)
     board = [[1]*graph.rows for _ in range(graph.cols)]
     for row in range(graph.rows):
