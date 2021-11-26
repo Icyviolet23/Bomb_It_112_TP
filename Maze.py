@@ -292,8 +292,8 @@ def initalizeParent(graph):
     parent = {}
     for row in range(graph.rows):
         for col in range(graph.cols):
-            if (row, col) not in parent:
-                parent[(row, col)] = (row,col)
+            #if (row, col) not in parent:
+            parent[(row, col)] = (row,col)
     return parent
 
 #check if have the same parent
@@ -318,7 +318,7 @@ def returnParent(graph, parent, node):
 def kruskalMazeGeneration(row, col):
     graph = Graph(row,col)
     bagofEdges = createBagofEdges(graph)
-    print(bagofEdges)
+    #print(bagofEdges)
     #creating parent array
     parent = initalizeParent(graph)
     while len(bagofEdges) > 0:
@@ -331,24 +331,11 @@ def kruskalMazeGeneration(row, col):
             parent1 = returnParent(graph, parent, node1)
             parent2 = returnParent(graph, parent, node2)
             graph.addEdge(parent1.row, parent1.col, parent2)
-            parent[(parent2.row, parent2.col)] = (parent1.row, parent1.col)
+            parent[(parent1.row, parent1.col)] = (parent2.row, parent2.col)
         else:
             continue
     convertX(graph,2)
     return graph
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     '''
     sorted = 0
@@ -399,7 +386,7 @@ def testKruskal():
     print2dList(board)
 
 
-testKruskal()
+#testKruskal()
 
 #pseudo code from 
 # https://hurna.io/academy/algorithms/maze_generator/prim_s.html
