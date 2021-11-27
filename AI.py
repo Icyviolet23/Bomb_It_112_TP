@@ -165,6 +165,8 @@ def initializeGraphforAstar(graph, Mazewalls):
             graph.nodes[coordinate].distance = 1
     return graph
 
+
+#this is where i implement the Astar searching
 def pickshortestDistance(graph, dict, targetplayerRow, targetplayerCol):
     shortestDist = 10**15
     bestCoordinate = None
