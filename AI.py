@@ -128,5 +128,132 @@ def getshortestpathbfs(graph, wallDict, player1, AI):
     else:
         return None
 
+
+
+
+
+
+# https://docs.google.com/presentation/d/1Jcu_qIQDZLIhK71DdDagxv9ayCZgaHVqV5AmNhvXUGU/edit#slide=id.g9fef3b5456_0_247
+# Have a set of unvisited nodes (all nodes)
+# Have a dictionary mapping each node to its distance from the start node (0 for the start node, ∞ for everything else)
+# Repeat the following until the current node is the target node:
+# Pick the unvisited node with the minimum distance
+# Remove it from the unvisited nodes
+# For each neighbor of the current node, if its distance is greater than the current node + the weight of the edge connecting them, update the distance
+# Use the same idea as from BFS/DFS to reconstruct the path
+# code is written by me but algorithm design is inspired from the mini ta lecture slides
+
+
+
+#Astar
+#use this euclidean distance for the heuristic
+def distance(x0 ,y0 ,x1, y1):
+    return ((x1-x0)**2 + (y1-y0)**2)**0.5
+
+#we need to prepare the graph for use for Astar
+#we need to reset all nodes.visited to False
+#we need to update the distance to 3 for walls
+#mazewalls is a dictionary mapping coordinate to wall instance
+def initializeGraphforAstar(graph, Mazewalls):
+    Maze.resetVisitedStatusNode(graph)
+    for coordinate in graph.nodes:
+        #wall set to 3
+        if coordinate in Mazewalls:
+            graph.nodes[coordinate].distance = 3
+        #no wall set to 1
+        else:
+            graph.nodes[coordinate].distance = 1
+    return graph
+
+def pickshortestDistance(graph, dict, targetplayerRow, targetplayerCol):
+    shortestDist = 10**15
+    bestCoordinate = None
+    for coordinate in dict:
+        row, col = coordinate[0], coordinate[1]
+        AstarDist = dict[coordinate] + distance(row, col, targetplayerRow, targetplayerCol)
+
+
+        if AstarDist < shortestDist and graph.nodes[coordinate].visited != True:
+            shortestDist = dict[coordinate]
+            bestCoordinate = coordinate
+        else:
+            continue
+
+    return bestCoordinate
+
+    
+
+#graph, wall dict, start instance of player, target instance of player
+def Astar(app, graph, Mazewalls, startplayernum, targetplayernum):
+    startplayer = app.players[startplayernum]
+    targetplayer = app.players[targetplayernum]
+    startRow, startCol = startplayer.row, startplayer.col
+    targetRow, targetCol = targetplayer.row, targetplayer.col
+
+    graph = initializeGraphforAstar(graph, Mazewalls)
+    #initalizing the distance dictionary
+    distanceDict = {}
+
+    possibleMoves = [(0,1), (1,0), (-1,0), (0, -1)]
+    
+    for coordinate in graph.nodes:
+        if coordinate == (startRow, startCol):
+            distanceDict[coordinate] = 0
+        else:
+            #set to huge ass number
+            distanceDict[coordinate] = 10**6
+
+
+    previousDict = {}
+    for coordinate in graph.nodes:
+        #set all to None first
+        previousDict[coordinate] = None
+
+    while previousDict[(targetRow, targetCol)] == None:
+        #Pick the unvisited node with the minimum distance
+        bestcoordinate = pickshortestDistance(graph, distanceDict, targetRow, targetCol)
+        currentRow, currentCol = bestcoordinate[0], bestcoordinate[1]
+        #we set the visited attribute to True
+        graph.nodes[(currentRow, currentCol)].visited = True
+
+        for move in possibleMoves:
+            drow, dcol = move[0], move[1]
+            newRow, newCol = currentRow + drow, currentCol + dcol
+            if checkOutofBounds(graph, newRow, newCol):
+                neighbourDist = distanceDict[(newRow, newCol)]
+                compDist = distanceDict[(currentRow, currentCol)]  + graph.nodes[(newRow, newCol)].distance
+                #update the distance
+                if neighbourDist > compDist:
+                    distanceDict[(newRow, newCol)] = compDist
+                    previousDict[(newRow, newCol)] = (currentRow, currentCol)
+                else:
+                    continue
+
+    return previousDict
+
+
+def getshortestpathAstar(app, graph, Mazewalls, startplayernum, targetplayernum):
+    pathDict = Astar(app, graph, Mazewalls, startplayernum, targetplayernum)
+    targetplayer = app.players[targetplayernum]
+    targetRow, targetCol = targetplayer.row, targetplayer.col
+    path = []
+
+    currentRow, currentCol = targetRow, targetCol
+
+    while pathDict[(currentRow, currentCol)] != None:
+        path.insert(0, (currentRow, currentCol))
+        coordinate = pathDict[(currentRow, currentCol)]
+        currentRow, currentCol = coordinate[0], coordinate[1]
+    return path
+
+
+
+    
+
+                
+
+
+
+
     
     

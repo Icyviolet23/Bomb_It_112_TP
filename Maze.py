@@ -39,6 +39,8 @@ class Node(object):
         self.visited = False
         #List containing all points that this node is connected to
         self.edges = []
+        #this will be the weight used for Astar
+        self.distance = 1
 
     def updateRow(self, num):
         self.row = self.row * num

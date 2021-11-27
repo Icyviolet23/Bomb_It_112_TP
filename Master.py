@@ -507,7 +507,7 @@ def checkplayerposition(app, coordinate):
     return True
 
 def initializeMaze(app):
-    choice = random.randint(2,2)
+    choice = random.randint(1,1)
     app.MazeWalls = {}
     if choice == 1:
         graph = Maze.PrimMazeGeneration(app.rows//2, app.columns//2)
@@ -736,8 +736,10 @@ def moveAI(app, AiNum):
                     if app.players[AiNum].bombCount > 0:
                         createBomb(app, AiNum)
         
-    
 
+def AstarPath(app, startplayernum, targetplayernum):
+    path = AI.getshortestpathAstar(app, app.graph, app.MazeWalls, startplayernum, targetplayernum)
+    return path
 
 ##################################################################################################
 #timer functions
@@ -957,6 +959,21 @@ def drawbfsPath(app, canvas, ainum):
             x0, y0, x1, y1 = getCellBounds(app, row, col)
             canvas.create_rectangle(x0, y0, x1, y1, fill = 'green')
 
+
+
+def drawAstarPath(app, canvas,  startnum, targetnum):
+    path = AstarPath(app, startnum, targetnum)
+    for coordinate in path:
+        row, col = coordinate[0], coordinate[1]
+        x0, y0, x1, y1 = getCellBounds(app, row, col)
+        canvas.create_rectangle(x0, y0, x1, y1, fill = 'red')
+
+
+
+
+
+
+
 def drawgrid(app, canvas):
     for row in range(app.rows):
         for col in range(app.columns):
@@ -1027,10 +1044,18 @@ def drawScoreBoard(app, canvas):
 #######################################################################################################################################
 
 def gameMode_redrawAll(app,canvas):
+
+    #drawAstarPath(app, canvas,  3, 1)
     drawplayerModel1(app, canvas, 1)
     drawAIModel(app, canvas, 2)
     drawAIModel(app, canvas, 3)
     drawAIModel(app, canvas, 4)
+
+
+
+
+
+
     #drawFloor(app, canvas)
     drawScoreBoard(app, canvas)
     drawgrid(app, canvas)
@@ -1041,6 +1066,9 @@ def gameMode_redrawAll(app,canvas):
     #drawKlee(app, canvas, 1)
     drawWeapon(app, canvas)
     drawExplosion(app, canvas)
+
+
+    
 
     
     
