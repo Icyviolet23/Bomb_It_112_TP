@@ -708,9 +708,15 @@ def finitestateAI(app, AiNum):
     if path == None:
         createBomb(app, AiNum)
 
+
+
 def AIfindpath(app, AiNum):
     findbfspath(app, AiNum)
     app.players[AiNum].counter = 0
+
+def AstarPath(app, startplayernum, targetplayernum):
+    path = AI.getshortestpathAstar(app, app.graph, app.MazeWalls, startplayernum, targetplayernum)
+    return path
 
 #trigger this every 1 second
 def moveAI(app, AiNum):
@@ -731,15 +737,15 @@ def moveAI(app, AiNum):
             #findbfspath(app, AiNum)
 
             player1Row, player1Col = app.players[1].row, app.players[1].col
+
+            #creating a bomb if within 1 cross radius
             for move in [(0,1), (1,0), (-1,0), (0, -1), (0,0)]:
                 if (player1Row, player1Col) == (app.players[AiNum].row + move[0], app.players[AiNum].col + move[1]):
                     if app.players[AiNum].bombCount > 0:
                         createBomb(app, AiNum)
         
 
-def AstarPath(app, startplayernum, targetplayernum):
-    path = AI.getshortestpathAstar(app, app.graph, app.MazeWalls, startplayernum, targetplayernum)
-    return path
+
 
 ##################################################################################################
 #timer functions
@@ -880,8 +886,7 @@ def autoRegenWalls(app):
     if len(app.MazeWalls.keys())/app.MazeWallsOriLength < 0.85:
         regenerateWalls(app)
 
-def gameMode_mousePressed(app, event):
-    pass
+
 #######################################################################################################################################
 #Drawing Functions
 def drawWallImage(app, canvas):
@@ -1046,6 +1051,8 @@ def drawScoreBoard(app, canvas):
 def gameMode_redrawAll(app,canvas):
 
     #drawAstarPath(app, canvas,  3, 1)
+    #drawAstarPath(app, canvas,  2, 1)
+    #drawAstarPath(app, canvas,  4, 1)
     drawplayerModel1(app, canvas, 1)
     drawAIModel(app, canvas, 2)
     drawAIModel(app, canvas, 3)

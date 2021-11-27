@@ -159,8 +159,7 @@ def initializeGraphforAstar(graph, Mazewalls):
     for coordinate in graph.nodes:
         #wall set to 3
         if coordinate in Mazewalls:
-            graph.nodes[coordinate].distance = 3
-        #no wall set to 1
+            graph.nodes[coordinate].distance = 5
         else:
             graph.nodes[coordinate].distance = 1
     return graph
