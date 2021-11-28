@@ -32,6 +32,7 @@ def appStarted(app):
     initializeAI(app)
 
 def gameparams(app):
+    #fixed params for the game
     app.mode = 'gameMode'
     app.panel = app.width/5
     app.columns = 16
@@ -46,6 +47,8 @@ def gameparams(app):
     app.gameover = False
 
     app.gamewin = False
+
+    
 
 def intializeTime(app):
     app.startTime = time.time()
@@ -66,7 +69,8 @@ def getCellBounds(app, row, col):
 
 def gamegraphics(app):
     #########################################################
-
+    #for heart powerup
+    intializeHeart(app)
    
     #modified from https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html
 
@@ -78,16 +82,21 @@ def gamegraphics(app):
     intializeWallImages(app)
     initializeFloorImage(app)
     initializeWeaponsImages(app)
-    
     initializeExplosionSprite(app)
+
+    
+
+    #other modes
     initializeGameoversprite(app)
     initializeGamewinsprite(app)
+    
+    
     
 
 def initializePlayer(app):
     #player format is 
-    #row, col, lives, weaponID, action
-    player1 = player.Player(0,0, 10, 10, 'forward')
+    #row, col, lives, weaponD, action
+    player1 = player.Player(0, 0, 10, 1, 'forward')
     player2 = player.Player(0,app.columns - 1, 10, 1, 'forward')
     player3 = player.Player(app.rows - 1, 0, 10,1, 'forward')
     player4 = player.Player(app.rows - 1, app.columns -1, 10, 1, 'forward')
@@ -429,6 +438,52 @@ def initializePlayerModel4(app):
 #end of player images
 
 ###################################################################################################
+#POWERUPS
+def intializeHeart(app):
+    app.heart = set([])
+    intializeHeartSprite(app)
+
+
+
+def intializeHeartSprite(app):
+    #image from https://www.newgrounds.com/art/view/thediamondfinderyt/free-spinning-heart-sprite
+    app.heartsprite = []
+    app.heartspriteCounter = 0
+    app.heartspritesheet = app.loadImage('Images\powerup\heart2.png')
+    imageWidth, imageHeight = app.heartspritesheet.size
+    app.heartHeightfactor = app.cellHeight / imageHeight
+    rows = 2
+    cols = 5
+    for row in range(rows):
+        for col in range(cols):
+            sprite = app.heartspritesheet.crop((imageWidth/cols*col, imageHeight/rows*row, imageWidth/cols*(col+1) , imageHeight/rows*(row+1)))
+            scaledsprite = app.scaleImage(sprite, app.heartHeightfactor*1.3)
+            app.heartsprite.append(ImageTk.PhotoImage(scaledsprite))
+
+def createHeart(app, coordinate):
+    app.heart.add(coordinate)
+
+def removeHeart(app, coordinate):
+    app.heart.remove(coordinate)
+
+#absorb the heart and gain a life
+def absorbHeart(app, player):
+    playerRow, playerCol = player.row, player.col
+    if (playerRow, playerCol) in app.heart:
+        player.lives += 1
+        removeHeart(app, (playerRow, playerCol))
+
+
+def randomlycreateHeart(app, coordinate):
+    #we create a heart where when we destroy the wall
+    #the probability of a heart appearing is only 5%
+    rngheart = random.randint(1,10)
+    if rngheart == 1:   
+        createHeart(app, coordinate)
+
+
+#####################################################################################
+
 def initializeExplosionSprite(app):
     app.explosion = []
     app.explosionspriteCounter = 0
@@ -499,13 +554,15 @@ def initializeWeaponPosition(app):
         for col in range(app.columns):
             app.weaponPos[(row,col)] = []
     
-
+#used to make sure no wall is created at the position of any player
 def checkplayerposition(app, coordinate):
     for player in app.players:
         if coordinate == (app.players[player].row,app.players[player].col):
             return False
     return True
 
+
+#generate the maze walls
 def initializeMaze(app):
     choice = random.randint(1,3)
     app.MazeWalls = {}
@@ -521,7 +578,8 @@ def initializeMaze(app):
         if len(graph.nodes[coordinate].edges) == 0:
             if ((coordinate not in forbiddenCoordinates) and 
                 (checkplayerposition(app, coordinate))
-                and (app.weaponPos[coordinate] == [])):
+                and (app.weaponPos[coordinate] == [])
+                and (coordinate not in app.heart)):
                 #boolean for whether wall is destructible or not
                 newWall = wall.Wall(coordinate[0], coordinate[1], True)
                 app.MazeWalls[coordinate] = newWall
@@ -543,6 +601,13 @@ def ScaleWallImage(app):
     #     width , height = app.WallImageDictScaled[imageIndex].size
     #     print(width, height)
 
+
+
+
+
+
+
+
 #end of initialization functions
 #################################################################
 #check if any move is out of bounds
@@ -558,6 +623,7 @@ def checkCollison(app, row, col):
         if (row, col) == wall:
             return False
     return True
+
 
 
 def movePlayer(app, drow, dcol, playernum):
@@ -578,6 +644,7 @@ def movePlayer(app, drow, dcol, playernum):
     if checkCollison(app, newRow, newCol) and checkBounds(app, newRow, newCol):
         app.players[playernum].row = newRow
         app.players[playernum].col = newCol
+        absorbHeart(app, app.players[playernum])
         #testing for player 2
         #finddfspath(app, 2)
         #findbfspath(app, 2)
@@ -623,6 +690,7 @@ def explosionRadius(app, coordinate, playernum, bombradius):
 
 
 
+
 #performs the effect of the explosion which destroys the walls
 #need to add in harming the player effect as well
 def explosionEffect(app, coordinate):
@@ -631,6 +699,10 @@ def explosionEffect(app, coordinate):
         for coordinate in explosion.radius:
             if coordinate in app.MazeWalls and app.MazeWalls[coordinate].destructible == True:
                 app.MazeWalls.pop(coordinate)
+            
+                #create the heart
+                randomlycreateHeart(app, coordinate)
+
             for player in range(1,5):
                 #player cannot be harmed by their own explosions
                 if player == explosion.playernum:
@@ -741,6 +813,9 @@ def moveAI(app, AiNum):
 
             #actual moving
             app.players[AiNum].row, app.players[AiNum].col = currentRow + drow, currentCol + dcol
+            
+            #absorb the heart
+            absorbHeart(app, app.players[AiNum])
             #findbfspath(app, AiNum)
 
             targetRow, targetCol = app.players[app.AiTarget[AiNum]].row, app.players[app.AiTarget[AiNum]].col
@@ -805,6 +880,11 @@ def playerModel4Counter(app):
     if app.playerModel4Counter >= len(app.playerModel4forwardsprite):
         app.playerModel4Counter = 0
 
+def heartCounter(app):
+    app.heartspriteCounter += 1
+    if app.heartspriteCounter >= len(app.heartsprite):
+        app.heartspriteCounter = 0
+
 def gameChangeConditions(app):
     if app.timer < 0:
         app.gameover = True
@@ -864,6 +944,7 @@ def gameMode_timerFired(app):
     playerModel3Counter(app)
     playerModel4Counter(app)
     explosionSpriteTimer(app)
+    heartCounter(app)
         
 
 
@@ -955,7 +1036,7 @@ def drawAIModel(app, canvas, AInum):
     if app.players[AInum].lives > 0:
         x0, y0, x1, y1 = getCellBounds(app, app.players[AInum].row , app.players[AInum].col)
         spriteimage = app.playerModels[AInum][app.players[AInum].action][app.playerModel2Counter]
-        #canvas.create_rectangle(x0, y0, x1 ,y1 , fill = app.playerColor[AInum])
+        canvas.create_rectangle(x0, y0, x1 ,y1 , fill = app.playerColor[AInum])
         canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image= spriteimage)
 
 
@@ -996,12 +1077,6 @@ def drawAstarPath(app, canvas,  startnum, targetnum):
         row, col = coordinate[0], coordinate[1]
         x0, y0, x1, y1 = getCellBounds(app, row, col)
         canvas.create_rectangle(x0, y0, x1, y1, fill = 'red')
-
-
-
-
-
-
 
 def drawgrid(app, canvas):
     for row in range(app.rows):
@@ -1070,10 +1145,19 @@ def drawScoreBoard(app, canvas):
         
 
 
+def drawHeart(app, canvas):
+    if len(app.heart) != 0:
+        for coordinate in app.heart:
+            x0, y0, x1, y1 = getCellBounds(app, coordinate[0], coordinate[1])
+            spriteimage = app.heartsprite[app.heartspriteCounter]
+            canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image= spriteimage)
+
+
+
 #######################################################################################################################################
 
 def gameMode_redrawAll(app,canvas):
-
+    drawHeart(app, canvas)
     #drawAstarPath(app, canvas,  3, 1)
     #drawAstarPath(app, canvas,  2, 1)
     #drawAstarPath(app, canvas,  4, 1)
@@ -1097,6 +1181,7 @@ def gameMode_redrawAll(app,canvas):
     #drawKlee(app, canvas, 1)
     drawWeapon(app, canvas)
     drawExplosion(app, canvas)
+    
 
 
     
