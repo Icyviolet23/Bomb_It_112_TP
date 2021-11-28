@@ -681,12 +681,13 @@ def initializeplayerpath(app):
         4 : None
     }
 
-    app.AiPosition = {
-        1 : None,
-        2 : None,
-        3 : None,
-        4 : None
+    app.AiTarget = {
+        2 : 4,
+        3 : 1,
+        4 : 2,
     }
+
+
 
 def finddfspath(app, AiNum):
     path  = AI.dfs(app.graph, app.MazeWalls, app.players[1], app.players[AiNum])
@@ -701,19 +702,20 @@ def findbfspath(app, AiNum):
     if path != None:
         app.playerpath[AiNum] = path
 
-#controls the actions of the AI
-def finitestateAI(app, AiNum):
-    path = app.playerpath[AiNum]
-    #if path is None we want to drop a bomb
-    if path == None:
-        createBomb(app, AiNum)
 
+def findAstarpath(app, AiNum, targetNum):
+    path = AstarPath(app, AiNum, targetNum)
+    if path != None:
+        app.playerpath[AiNum] = path
 
-
-def AIfindpath(app, AiNum):
-    findbfspath(app, AiNum)
+def AIfindpath(app, AiNum, targetNum):
+    #findbfspath(app, AiNum)
+    findAstarpath(app, AiNum, targetNum)
+    #controlling AI
     app.players[AiNum].counter = 0
 
+
+#this function will never return a None path
 def AstarPath(app, startplayernum, targetplayernum):
     path = AI.getshortestpathAstar(app, app.graph, app.MazeWalls, startplayernum, targetplayernum)
     return path
@@ -723,11 +725,16 @@ def moveAI(app, AiNum):
     if app.players[AiNum].lives > 0:
         currentRow, currentCol = app.players[AiNum].row, app.players[AiNum].col
         path = app.playerpath[AiNum]
-        if path == None:
+        #print(path)
+        #if we reach the end of the path we just stay there
+        if app.players[AiNum].counter >= len(path):
+            app.players[AiNum].counter = len(path) - 1
+        #print(path)
+        #if there is a bomb right in front
+        if path[0] in app.MazeWalls:
             createBomb(app, AiNum)
+            app.players[AiNum].counter = app.players[AiNum].counter
         else:
-            if app.players[AiNum].counter >= len(path):
-                app.players[AiNum].counter = len(path) - 1
             drow, dcol = path[app.players[AiNum].counter][0] - currentRow, path[app.players[AiNum].counter][1] - currentCol
             #changes ai animation action
             editAIAction(app, drow, dcol, AiNum)
@@ -736,13 +743,28 @@ def moveAI(app, AiNum):
             app.players[AiNum].row, app.players[AiNum].col = currentRow + drow, currentCol + dcol
             #findbfspath(app, AiNum)
 
-            player1Row, player1Col = app.players[1].row, app.players[1].col
+            targetRow, targetCol = app.players[app.AiTarget[AiNum]].row, app.players[app.AiTarget[AiNum]].col
+            #player1Row, player1Col = app.players[1].row, app.players[1].col
 
+            #change target once bomb is placed
             #creating a bomb if within 1 cross radius
             for move in [(0,1), (1,0), (-1,0), (0, -1), (0,0)]:
-                if (player1Row, player1Col) == (app.players[AiNum].row + move[0], app.players[AiNum].col + move[1]):
+                if (targetRow, targetCol) == (app.players[AiNum].row + move[0], app.players[AiNum].col + move[1]):
                     if app.players[AiNum].bombCount > 0:
                         createBomb(app, AiNum)
+
+                        if app.players[AiNum].targetSwitch > 0:
+                            app.players[AiNum].targetSwitch -= 1
+                        
+
+                        #we switch target after placing down 2 bombs
+                        if app.players[AiNum].targetSwitch <= 0:
+                            app.players[AiNum].targetSwitch = 2
+                            newTarget = random.randint(1,4)
+                            #new target cannot be itself or the previous target
+                            while newTarget == AiNum or newTarget == app.AiTarget[AiNum]:
+                                newTarget = random.randint(1,4)
+                            app.AiTarget[AiNum] = newTarget
         
 
 
@@ -813,8 +835,10 @@ def gameMode_timerFired(app):
     if app.timeElasped % 150 == 0:
         for playernum in range(2,5):
             if app.players[playernum].lives > 0:
+                #set the target to 1 now we need to change this target later
+                AIfindpath(app, playernum, app.AiTarget[playernum])
                 moveAI(app, playernum)
-                AIfindpath(app, playernum)
+                
 
 
         
@@ -931,7 +955,7 @@ def drawAIModel(app, canvas, AInum):
     if app.players[AInum].lives > 0:
         x0, y0, x1, y1 = getCellBounds(app, app.players[AInum].row , app.players[AInum].col)
         spriteimage = app.playerModels[AInum][app.players[AInum].action][app.playerModel2Counter]
-        canvas.create_rectangle(x0, y0, x1 ,y1 , fill = app.playerColor[AInum])
+        #canvas.create_rectangle(x0, y0, x1 ,y1 , fill = app.playerColor[AInum])
         canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image= spriteimage)
 
 
@@ -1044,7 +1068,7 @@ def drawScoreBoard(app, canvas):
                             text = f'Bombs: {app.players[word].bombCount}', 
                             font = "Arial 15 bold", fill = "red")
         
-    
+
 
 #######################################################################################################################################
 

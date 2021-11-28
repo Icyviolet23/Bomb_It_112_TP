@@ -213,6 +213,13 @@ def Astar(app, graph, Mazewalls, startplayernum, targetplayernum):
     while previousDict[(targetRow, targetCol)] == None:
         #Pick the unvisited node with the minimum distance
         bestcoordinate = pickshortestDistance(graph, distanceDict, targetRow, targetCol)
+        
+
+        #account for overlapping of character
+        if bestcoordinate == None:
+            return previousDict
+
+        
         currentRow, currentCol = bestcoordinate[0], bestcoordinate[1]
         #we set the visited attribute to True
         graph.nodes[(currentRow, currentCol)].visited = True
@@ -245,6 +252,10 @@ def getshortestpathAstar(app, graph, Mazewalls, startplayernum, targetplayernum)
         path.insert(0, (currentRow, currentCol))
         coordinate = pathDict[(currentRow, currentCol)]
         currentRow, currentCol = coordinate[0], coordinate[1]
+    
+    #only happens it overlap
+    if path == []:
+        return [(targetRow, targetCol)]
     return path
 
 

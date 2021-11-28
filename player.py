@@ -18,3 +18,6 @@ class Player(object):
         self.action = action
         #for AI use only
         self.counter = 0
+
+        #only used for AIs
+        self.targetSwitch = 2
