@@ -21,3 +21,5 @@ class Player(object):
 
         #only used for AIs
         self.targetSwitch = 2
+        #True when the AI is targeting a heart False otherwise
+        self.targetHeart = False

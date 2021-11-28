@@ -258,7 +258,7 @@ def getshortestpathAstar(app, graph, Mazewalls, startplayernum, targetplayernum)
         return [(targetRow, targetCol)]
     return path
 
-#tracks powerups coordinate
+#tracks path to specific coordinate instead of a player
 def AstarCoordinate(app, graph, Mazewalls, startplayernum, targetcoordinate):
     startplayer = app.players[startplayernum]
     startRow, startCol = startplayer.row, startplayer.col

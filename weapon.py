@@ -1,7 +1,7 @@
 class Bomb(object):
     def __init__(self, timer, playernum, bombradius):
         self.timer = timer
-        #records down down by player
+        #records down number by player
         self.playernum = playernum
         self.bombradius = bombradius
         self.weaponID = 0

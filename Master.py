@@ -151,7 +151,7 @@ def initializeAllPlayerModels(app):
     app.playerColor = {
         1: 'green',
         2: 'red',
-        3: 'blue',
+        3: 'orange',
         4: 'yellow'
     }
 
@@ -472,6 +472,7 @@ def absorbHeart(app, player):
     if (playerRow, playerCol) in app.heart:
         player.lives += 1
         removeHeart(app, (playerRow, playerCol))
+        
 
 
 def randomlycreateHeart(app, coordinate):
@@ -481,6 +482,22 @@ def randomlycreateHeart(app, coordinate):
     if rngheart == 1:   
         createHeart(app, coordinate)
 
+#trigger this once every second
+def insertHeartatRandomCoordinate(app):
+    #20 % trigger rate
+    availablePositions = []
+    randomActivation = random.randint(1,5)
+    if randomActivation == 5:
+        for row in range(app.rows):
+            for col in range(app.columns):
+                if ((row,col) not in app.MazeWalls) and (app.weaponPos[(row,col)] == []):
+                    availablePositions.append((row,col))
+        #print(availablePositions)
+        randomChoice = random.randint(0, len(availablePositions) - 1)
+        coordinate = availablePositions[randomChoice]
+        createHeart(app, coordinate)
+    else:
+        pass
 
 #####################################################################################
 
@@ -799,14 +816,16 @@ def calculateDistancetoHeart(app, AiNum):
             bestCoord = coordinate
     return bestCoord
 
-
+#finite state AI
 def AIfindpath(app, AiNum, targetNum):
-    #finding path to heart
+    #finding path to heart if there is a heart present
     if len(app.heart) != 0:
         targetCoord = calculateDistancetoHeart(app, AiNum)
         path = AI.getAstarCoordinatePath(app, app.graph, app.MazeWalls, AiNum, targetCoord)
         app.playerpath[AiNum] = path
         app.players[AiNum].counter = 0
+        app.players[AiNum].targetHeart = True
+
     else:
         #findbfspath(app, AiNum)
         findAstarpath(app, AiNum, targetNum)
@@ -825,8 +844,9 @@ def moveAI(app, AiNum):
         #if we reach the end of the path we just stay there
         if app.players[AiNum].counter >= len(path):
             app.players[AiNum].counter = len(path) - 1
-        #print(path)
-        #if there is a bomb right in front
+
+
+        #if there is a bomb right in front we want to create a bomb
         if path[0] in app.MazeWalls:
             createBomb(app, AiNum)
             app.players[AiNum].counter = app.players[AiNum].counter
@@ -933,13 +953,15 @@ def checkEnemyLives(app):
 def gameMode_timerFired(app):
     app.timeElasped += app.timerDelay
     if app.timeElasped % 1000 == 0:
+        explodeBomb(app)
         app.timer -= 1
+        insertHeartatRandomCoordinate(app)
+        
 
     #controls move speed of AI
-    if app.timeElasped % 200 == 0:
+    if app.timeElasped % 150 == 0:
         for playernum in range(2,5):
             if app.players[playernum].lives > 0:
-                #set the target to 1 now we need to change this target later
                 AIfindpath(app, playernum, app.AiTarget[playernum])
                 moveAI(app, playernum)
                 
@@ -947,10 +969,7 @@ def gameMode_timerFired(app):
 
         
         autoRegenWalls(app)
-    #explode bomb with 3 second countdown
-    if app.timeElasped % 1000 == 0:
         
-        explodeBomb(app)
 
     if app.timeElasped % 200 == 0:
         explosionDuration(app)
@@ -1038,6 +1057,7 @@ def drawWeapon(app, canvas):
                 if isinstance(bomb, weapon.Bomb):
                     weaponID = bomb.weaponID
                     x0, y0, x1, y1 = getCellBounds(app, coordinate[0], coordinate[1])
+                    canvas.create_rectangle(x0, y0, x1, y1, fill = app.playerColor[bomb.playernum])
                     canvas.create_image((x0 + x1)/2, (y0 + y1)/2, image = app.WeaponImageDictScaled[weaponID])
 ##################################################################################
 #drawing players
@@ -1126,18 +1146,21 @@ def drawScoreBoard(app, canvas):
 
     for background in range(panels):
         if background == 0:
+            #timer
             canvas.create_rectangle(scoreboardstartx, scoreboardstarty + scoreboardpanelHeight * background,
                                     scoreboardWidth + scoreboardstartx, 
                                     scoreboardpanelHeight* (background+1),
                                     fill = backgroundcolor)
+        #players 1 2 3
         elif 0 < background < panels - 1:
             canvas.create_rectangle(scoreboardstartx, scoreboardpanelHeight * background,                        scoreboardWidth + scoreboardstartx, 
                         scoreboardpanelHeight* (background+1),
-                        fill = backgroundcolor)
+                        fill = app.playerColor[background])
+        #player 4
         else:
             canvas.create_rectangle(scoreboardstartx, scoreboardpanelHeight * background,                        scoreboardWidth + scoreboardstartx, 
                         scoreboardpanelHeight* (background+1) + scoreboardstarty,
-                        fill = backgroundcolor)
+                        fill = app.playerColor[background])
 
 
     #draw timer
@@ -1165,7 +1188,7 @@ def drawScoreBoard(app, canvas):
         canvas.create_text(scoreboardstartx + scoreboardWidth/1.8, 
                             scoreboardpanelHeight/1.2 +  scoreboardpanelHeight* word, 
                             text = f'Bombs: {app.players[word].bombCount}', 
-                            font = "Arial 15 bold", fill = "red")
+                            font = "Arial 15 bold", fill = "black")
         
 
 
