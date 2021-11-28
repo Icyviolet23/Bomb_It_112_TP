@@ -83,8 +83,7 @@ def gamegraphics(app):
     initializeFloorImage(app)
     initializeWeaponsImages(app)
     initializeExplosionSprite(app)
-
-    
+    intializeTraps(app)
 
     #other modes
     initializeGameoversprite(app)
@@ -500,6 +499,35 @@ def insertHeartatRandomCoordinate(app):
         pass
 
 #####################################################################################
+#Traps
+#key set to int so can randomly generate later
+def intializeTraps(app):
+    app.trapImages = {}
+    loadLavaTrap(app)
+
+
+
+def loadLavaTrap(app):
+    #image from https://lpc.opengameart.org/static/lpc-style-guide/assets.html
+    lavaTrap = app.loadImage('Images\\traps\lava.png')
+    lavaTrapCropped = lavaTrap.crop((8, 69, 90, 150))
+    imageWidth, imageHeight = lavaTrapCropped.size
+    Heightfactor = app.cellHeight / imageHeight
+    scaledLava = app.scaleImage(lavaTrapCropped, app.heartHeightfactor*10)
+    app.trapImages[0] = ImageTk.PhotoImage(scaledLava)
+
+def generateTraps(app):
+    forbiddenCoordinates = set([(0,0), (0, app.rows-1), (app.columns-1, 0), (app.rows-1, app.columns-1)])
+    app.graph.traps = set([])
+    for row in range(app.graph.rows):
+        for col in range(app.graph.cols):
+            if (row,col) not in app.MazeWalls and (row,col) not in forbiddenCoordinates:
+                #10 % chance to generate a trap
+                rngTrap = random.randint(1,10)
+                if rngTrap == 1:
+                    app.graph.traps.add((row,col))
+
+#####################################################################################
 
 def initializeExplosionSprite(app):
     app.explosion = []
@@ -579,6 +607,8 @@ def checkplayerposition(app, coordinate):
     return True
 
 
+
+
 #generate the maze walls
 def initializeMaze(app):
     choice = random.randint(1,3)
@@ -602,6 +632,8 @@ def initializeMaze(app):
                 app.MazeWalls[coordinate] = newWall
 
     app.graph = graph
+    generateTraps(app)
+
     app.MazeWallsOriLength = len(app.MazeWalls.keys())
         
 
@@ -879,11 +911,16 @@ def moveAI(app, AiNum):
                         #we switch target after placing down 2 bombs
                         if app.players[AiNum].targetSwitch <= 0:
                             app.players[AiNum].targetSwitch = 2
-                            newTarget = random.randint(1,4)
-                            #new target cannot be itself or the previous target
-                            while newTarget == AiNum or newTarget == app.AiTarget[AiNum]:
+                            targetplayer = random.randint(0,2)
+                            #33% to target the player to add bias so that the game is more challenging
+                            if targetplayer == 0:
+                                app.AiTarget[AiNum] = 1
+                            else:
                                 newTarget = random.randint(1,4)
-                            app.AiTarget[AiNum] = newTarget
+                                #new target cannot be itself or the previous target
+                                while newTarget == AiNum or newTarget == app.AiTarget[AiNum]:
+                                    newTarget = random.randint(1,4)
+                                app.AiTarget[AiNum] = newTarget
         
 
 
@@ -1057,7 +1094,7 @@ def drawWeapon(app, canvas):
                 if isinstance(bomb, weapon.Bomb):
                     weaponID = bomb.weaponID
                     x0, y0, x1, y1 = getCellBounds(app, coordinate[0], coordinate[1])
-                    canvas.create_rectangle(x0, y0, x1, y1, fill = app.playerColor[bomb.playernum])
+                    #canvas.create_rectangle(x0, y0, x1, y1, fill = app.playerColor[bomb.playernum])
                     canvas.create_image((x0 + x1)/2, (y0 + y1)/2, image = app.WeaponImageDictScaled[weaponID])
 ##################################################################################
 #drawing players
@@ -1200,18 +1237,23 @@ def drawHeart(app, canvas):
             canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image= spriteimage)
 
 
-
+def drawTrap(app ,canvas):
+    for trapcoordinate in app.graph.traps:
+        trapchoice = random.randint(0,0)
+        x0, y0, x1, y1 = getCellBounds(app, trapcoordinate[0], trapcoordinate[1])
+        canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image = app.trapImages[trapchoice])
 #######################################################################################################################################
 
 def gameMode_redrawAll(app,canvas):
     drawHeart(app, canvas)
+    drawTrap(app ,canvas)
+    drawWeapon(app, canvas)
     #drawAstarPath(app, canvas,  3, 1)
     #drawAstarPath(app, canvas,  2, 1)
     #drawAstarPath(app, canvas,  4, 1)
     drawplayerModel1(app, canvas, 1)
-    drawAIModel(app, canvas, 2)
-    drawAIModel(app, canvas, 3)
-    drawAIModel(app, canvas, 4)
+    for i in range(2,5):
+        drawAIModel(app, canvas, i)
     #drawFloor(app, canvas)
     drawScoreBoard(app, canvas)
     drawgrid(app, canvas)
@@ -1220,7 +1262,7 @@ def gameMode_redrawAll(app,canvas):
     #drawdfsPath(app, canvas, 2)
     #drawbfsPath(app, canvas, 2)
     #drawKlee(app, canvas, 1)
-    drawWeapon(app, canvas)
+    
     drawExplosion(app, canvas)
     
 

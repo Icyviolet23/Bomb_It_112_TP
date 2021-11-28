@@ -13,6 +13,9 @@ class Graph(object):
         #format is instance Node(x,y) : {set containing all nodes connected to this node}
         self.nodes = {}
         self.generateNodes()
+
+        #place the traps here
+        self.traps = set([])
                                                                     
     #initializing node dictionary where there are initially no edges
     def generateNodes(self):
@@ -163,8 +166,8 @@ def convertX(graph, num):
     fillinEdges(newDict)
 
     #updating dimensions of the graph
-    graph.rows = 2*graph.rows
-    graph.cols = 2*graph.cols
+    graph.rows = num*graph.rows
+    graph.cols = num*graph.cols
     graph.nodes = newDict
     #reset the visited status for all the nodes in the graph
     resetVisitedStatusNode(graph)

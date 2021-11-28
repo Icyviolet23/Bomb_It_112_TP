@@ -157,9 +157,12 @@ def distance(x0 ,y0 ,x1, y1):
 def initializeGraphforAstar(graph, Mazewalls):
     Maze.resetVisitedStatusNode(graph)
     for coordinate in graph.nodes:
-        #wall set to 3
+        #wall set to 5
         if coordinate in Mazewalls:
             graph.nodes[coordinate].distance = 5
+        elif coordinate in graph.traps:
+            #we want the AI to avoid traps as much as possible
+            graph.nodes[coordinate].distance = 10**9
         else:
             graph.nodes[coordinate].distance = 1
     return graph
