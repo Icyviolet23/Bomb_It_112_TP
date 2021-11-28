@@ -507,7 +507,7 @@ def checkplayerposition(app, coordinate):
     return True
 
 def initializeMaze(app):
-    choice = random.randint(1,1)
+    choice = random.randint(1,3)
     app.MazeWalls = {}
     if choice == 1:
         graph = Maze.PrimMazeGeneration(app.rows//2, app.columns//2)
@@ -832,7 +832,7 @@ def gameMode_timerFired(app):
         app.timer -= 1
 
     #controls move speed of AI
-    if app.timeElasped % 150 == 0:
+    if app.timeElasped % 200 == 0:
         for playernum in range(2,5):
             if app.players[playernum].lives > 0:
                 #set the target to 1 now we need to change this target later
