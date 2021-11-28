@@ -183,7 +183,7 @@ def pickshortestDistance(graph, dict, targetplayerRow, targetplayerCol):
     return bestCoordinate
 
     
-
+#tracks players only
 #graph, wall dict, start instance of player, target instance of player
 def Astar(app, graph, Mazewalls, startplayernum, targetplayernum):
     startplayer = app.players[startplayernum]
@@ -244,6 +244,79 @@ def getshortestpathAstar(app, graph, Mazewalls, startplayernum, targetplayernum)
     pathDict = Astar(app, graph, Mazewalls, startplayernum, targetplayernum)
     targetplayer = app.players[targetplayernum]
     targetRow, targetCol = targetplayer.row, targetplayer.col
+    path = []
+
+    currentRow, currentCol = targetRow, targetCol
+
+    while pathDict[(currentRow, currentCol)] != None:
+        path.insert(0, (currentRow, currentCol))
+        coordinate = pathDict[(currentRow, currentCol)]
+        currentRow, currentCol = coordinate[0], coordinate[1]
+    
+    #only happens it overlap
+    if path == []:
+        return [(targetRow, targetCol)]
+    return path
+
+#tracks powerups coordinate
+def AstarCoordinate(app, graph, Mazewalls, startplayernum, targetcoordinate):
+    startplayer = app.players[startplayernum]
+    startRow, startCol = startplayer.row, startplayer.col
+    targetRow, targetCol = targetcoordinate[0], targetcoordinate[1]
+
+    graph = initializeGraphforAstar(graph, Mazewalls)
+    #initalizing the distance dictionary
+    distanceDict = {}
+
+    possibleMoves = [(0,1), (1,0), (-1,0), (0, -1)]
+    
+    for coordinate in graph.nodes:
+        if coordinate == (startRow, startCol):
+            distanceDict[coordinate] = 0
+        else:
+            #set to huge ass number
+            distanceDict[coordinate] = 10**6
+
+
+    previousDict = {}
+    for coordinate in graph.nodes:
+        #set all to None first
+        previousDict[coordinate] = None
+
+    while previousDict[(targetRow, targetCol)] == None:
+        #Pick the unvisited node with the minimum distance
+        bestcoordinate = pickshortestDistance(graph, distanceDict, targetRow, targetCol)
+        
+
+        #account for overlapping of character
+        if bestcoordinate == None:
+            return previousDict
+
+        
+        currentRow, currentCol = bestcoordinate[0], bestcoordinate[1]
+        #we set the visited attribute to True
+        graph.nodes[(currentRow, currentCol)].visited = True
+
+        for move in possibleMoves:
+            drow, dcol = move[0], move[1]
+            newRow, newCol = currentRow + drow, currentCol + dcol
+            if checkOutofBounds(graph, newRow, newCol):
+                neighbourDist = distanceDict[(newRow, newCol)]
+                compDist = distanceDict[(currentRow, currentCol)]  + graph.nodes[(newRow, newCol)].distance
+                #update the distance
+                if neighbourDist > compDist:
+                    distanceDict[(newRow, newCol)] = compDist
+                    previousDict[(newRow, newCol)] = (currentRow, currentCol)
+                else:
+                    continue
+
+    return previousDict
+
+
+#gets path to a specific coordinate instead of a player
+def getAstarCoordinatePath(app, graph, Mazewalls, startplayernum, targetcoordinate):
+    pathDict = AstarCoordinate(app, graph, Mazewalls, startplayernum, targetcoordinate)
+    targetRow, targetCol = targetcoordinate[0], targetcoordinate[1]
     path = []
 
     currentRow, currentCol = targetRow, targetCol

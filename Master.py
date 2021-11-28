@@ -476,8 +476,8 @@ def absorbHeart(app, player):
 
 def randomlycreateHeart(app, coordinate):
     #we create a heart where when we destroy the wall
-    #the probability of a heart appearing is only 5%
-    rngheart = random.randint(1,10)
+    #the probability of a heart appearing is only 20%
+    rngheart = random.randint(1,5)
     if rngheart == 1:   
         createHeart(app, coordinate)
 
@@ -774,23 +774,47 @@ def findbfspath(app, AiNum):
     if path != None:
         app.playerpath[AiNum] = path
 
+def distance(x0 ,y0 ,x1, y1):
+    return ((x1-x0)**2 + (y1-y0)**2)**0.5
+
+#this function will never return a None path
+def AstarPath(app, startplayernum, targetplayernum):
+    path = AI.getshortestpathAstar(app, app.graph, app.MazeWalls, startplayernum, targetplayernum)
+    return path
 
 def findAstarpath(app, AiNum, targetNum):
     path = AstarPath(app, AiNum, targetNum)
     if path != None:
         app.playerpath[AiNum] = path
 
+# find the shortest distance from a heart to the AI
+def calculateDistancetoHeart(app, AiNum):
+    AiRow, AiCol = app.players[AiNum].row, app.players[AiNum].col
+    bestDist = 1000000
+    bestCoord = None
+    for coordinate in app.heart:
+        compdist = distance(coordinate[0], coordinate[1], AiRow, AiCol)
+        if compdist < bestDist:
+            bestDist = compdist
+            bestCoord = coordinate
+    return bestCoord
+
+
 def AIfindpath(app, AiNum, targetNum):
-    #findbfspath(app, AiNum)
-    findAstarpath(app, AiNum, targetNum)
-    #controlling AI
-    app.players[AiNum].counter = 0
+    #finding path to heart
+    if len(app.heart) != 0:
+        targetCoord = calculateDistancetoHeart(app, AiNum)
+        path = AI.getAstarCoordinatePath(app, app.graph, app.MazeWalls, AiNum, targetCoord)
+        app.playerpath[AiNum] = path
+        app.players[AiNum].counter = 0
+    else:
+        #findbfspath(app, AiNum)
+        findAstarpath(app, AiNum, targetNum)
+        #controlling AI
+        app.players[AiNum].counter = 0
 
 
-#this function will never return a None path
-def AstarPath(app, startplayernum, targetplayernum):
-    path = AI.getshortestpathAstar(app, app.graph, app.MazeWalls, startplayernum, targetplayernum)
-    return path
+
 
 #trigger this every 1 second
 def moveAI(app, AiNum):
@@ -1165,12 +1189,6 @@ def gameMode_redrawAll(app,canvas):
     drawAIModel(app, canvas, 2)
     drawAIModel(app, canvas, 3)
     drawAIModel(app, canvas, 4)
-
-
-
-
-
-
     #drawFloor(app, canvas)
     drawScoreBoard(app, canvas)
     drawgrid(app, canvas)

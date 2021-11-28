@@ -420,7 +420,6 @@ def testKruskal():
 # 1. Randomly connect to one of the already connected neighbor.
 # 2. Add all unconnected neighbors to the set
 
-#abit buggy cause no solution
 def PrimMazeGeneration(row, col):
     graph = Graph(row, col)
     possibleMoves = [(0,1), (1,0), (-1,0), (0, -1)]
