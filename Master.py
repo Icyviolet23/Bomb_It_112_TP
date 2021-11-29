@@ -1490,8 +1490,6 @@ def charSelect_redrawAll(app, canvas):
     canvas.create_text(app.width/2, app.height/1.3, text = 'Press h to return to the home page', font = 'Arial 25 bold', fill = 'white')
 
 def charSelect_keyPressed(app, event):
-    if event.key == 'Space':
-        app.mode = 'homePage'
 
     if event.key == 'd':
         if app.select < 4:
