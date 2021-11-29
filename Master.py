@@ -8,6 +8,8 @@ import Maze
 import weapon
 import time
 import AI
+#import pygame
+#import gamemusic
 
 # Python Program to Convert seconds
 # into hours, minutes and seconds
@@ -30,6 +32,16 @@ def appStarted(app):
     intializeTime(app)
     gamegraphics(app)
     initializeAI(app)
+    #soundparams(app)
+
+def soundparams(app):
+    #https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#playingSounds
+    #pygame.mixer.init()
+    #app.sound = gamemusic.Sound("Music\Bomberman (NES) Music - Stage Theme.mp3")
+    #loop forever
+    #app.sound(-1)
+    pass
+        
 
 def gameparams(app):
     #fixed params for the game

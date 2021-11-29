@@ -1,8 +1,13 @@
 #music from https://www.youtube.com/watch?v=eNB8V1NPYc0
 #code from https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#playingSounds
-
-
 import pygame
+
+soundDict = {
+    'gameMode' : "Music\Bomberman (NES) Music - Stage Theme.mp3"
+}
+
+
+
 
 class Sound(object):
     def __init__(self, path):
