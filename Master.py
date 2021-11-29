@@ -155,6 +155,8 @@ def initializeAllPlayerModels(app):
     initializePlayerModel3(app)
     initializePlayerModel4(app)
     app.playerModels = {
+        #this sets the player to the player model can change the player model
+        #here to change the character model
         1 : app.playerModel1Directions,
         2 : app.playerModel2Directions,
         3 : app.playerModel3Directions,
@@ -1316,6 +1318,7 @@ def gameMode_redrawAll(app,canvas):
 def homepageParams(app):
     initializehomePage(app)
     initializeRulesPage(app)
+    intializeCharselectbackground(app)
 
 
 def initializehomePage(app):
@@ -1341,7 +1344,7 @@ def homePage_keyPressed(app, event):
         intializeTime(app)
         gamegraphics(app)
         initializeAI(app)
-        app.mode = 'gameMode'
+        app.mode = 'charSelect'
 
     if event.key == 'h':
         app.mode = 'rulesPage'
@@ -1393,6 +1396,30 @@ def initializeGameoversprite(app):
             scaledsprite = app.scaleImage(sprite, app.gameOverHeightfactor)
             app.gameOversprite.append(ImageTk.PhotoImage(scaledsprite))
 
+
+####################################################################
+#character selection mode
+
+def intializeCharselectbackground(app):
+    #https://external-preview.redd.it/qAwbx-Dh0j7_teu0sKGYBIZhmIyMSKElwiqtfvdE7Uo.jpg?width=640&crop=smart&auto=webp&s=1be43c07a61169e0a4ea9d617bd47fff6d9c3fba
+    charselect = app.loadImage("Images\characterselection\charselectbg.jpg")
+    imageWidth, imageHeight = charselect.size
+    scaleHeight = app.height / imageHeight
+    scaleWidth = app.width / imageWidth
+    charbgscaled = app.scaleImage(charselect, scaleWidth*0.9, scaleHeight*0.9)
+    app.charbg = ImageTk.PhotoImage(charbgscaled)
+
+
+def charSelect_redrawAll(app, canvas):
+    canvas.create_rectangle(0,0,app.width,app.height, fill = 'black')
+    canvas.create_image(app.width/2, app.height/2, image= app.charbg)
+    canvas.create_text(app.width/2, app.height/8, text = 'Press Enter to select your character', font = 'Arial 40 bold', fill = 'white')
+
+def charSelect_keyPressed(app, event):
+    if event.key == 'Space':
+        app.mode = 'homePage'
+
+
 ####################################################################
 #drawing functions for gameover
 
@@ -1423,6 +1450,9 @@ def gameOverMode_timerFired(app):
 
 #end of gameover mode
 #########################################################
+
+
+
 
 
 #########################################################
