@@ -589,13 +589,14 @@ def ScaleWeaponImage(app):
 def initializeFloorImage(app):
     #image from https://lpc.opengameart.org/static/lpc-style-guide/assets.html
     app.grass = app.loadImage("Images\\floor\grass.png")
-    grasscropped = app.grass.crop((35,160,35 + 30, 160 + 30))
-    scalegrass = app.scaleImage(grasscropped, 10)
-    grasscroppedFit = scalegrass.crop((0,0, app.cellWidth, app.cellHeight))
-    #imageWidth, imageHeight = app.grasscropped.size
-    #scaleHeightFactor = app.cellHeight / imageHeight
+    grasscropped = app.grass.crop((8, 69, 90, 150))
+    #grasscropped = app.grass.crop((35,160,35 + 30, 160 + 30))
+    #scalegrass = app.scaleImage(grasscropped, 10)
+    #grasscroppedFit = scalegrass.crop((0,0, app.cellWidth, app.cellHeight))
+    imageWidth, imageHeight = grasscropped.size
+    scaleHeightFactor = app.cellHeight / imageHeight
     #scaleWidthFactor = app.cellWidth / imageWidth
-    app.grassscaled = ImageTk.PhotoImage(grasscroppedFit)
+    app.grassscaled = ImageTk.PhotoImage(app.scaleImage(grasscropped, scaleHeightFactor))
 
 
 #function to hold all power ups and bombs currently on the floor
@@ -1256,17 +1257,17 @@ def drawTrap(app ,canvas):
 #######################################################################################################################################
 
 def gameMode_redrawAll(app,canvas):
-    drawFloor(app, canvas)
+    #drawFloor(app, canvas)
     drawHeart(app, canvas)
     drawTrap(app ,canvas)
-    drawWeapon(app, canvas)
+    
     #drawAstarPath(app, canvas,  3, 1)
     #drawAstarPath(app, canvas,  2, 1)
     #drawAstarPath(app, canvas,  4, 1)
     drawplayerModel1(app, canvas, 1)
     for i in range(2,5):
         drawAIModel(app, canvas, i)
-    
+    drawWeapon(app, canvas)
     drawScoreBoard(app, canvas)
     drawgrid(app, canvas)
     #drawMaze(app, canvas)
