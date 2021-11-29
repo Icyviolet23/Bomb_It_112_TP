@@ -522,8 +522,8 @@ def generateTraps(app):
     for row in range(app.graph.rows):
         for col in range(app.graph.cols):
             if (row,col) not in app.MazeWalls and (row,col) not in forbiddenCoordinates:
-                #10 % chance to generate a trap
-                rngTrap = random.randint(1,10)
+                #20 % chance to generate a trap
+                rngTrap = random.randint(1,5)
                 if rngTrap == 1:
                     app.graph.traps.add((row,col))
 
@@ -1105,7 +1105,7 @@ def drawWeapon(app, canvas):
                     weaponID = bomb.weaponID
                     x0, y0, x1, y1 = getCellBounds(app, coordinate[0], coordinate[1])
                     #canvas.create_rectangle(x0, y0, x1, y1, fill = app.playerColor[bomb.playernum])
-                    canvas.create_image((x0 + x1)/2, (y0 + y1)/2, image = app.WeaponImageDictScaled[weaponID])
+                    canvas.create_image((x0 + x1)/2 + 5, (y0 + y1)/2, image = app.WeaponImageDictScaled[weaponID])
 ##################################################################################
 #drawing players
 #playernum here is an int
@@ -1263,7 +1263,7 @@ def gameMode_redrawAll(app,canvas):
     
     #drawAstarPath(app, canvas,  3, 1)
     #drawAstarPath(app, canvas,  2, 1)
-    #drawAstarPath(app, canvas,  4, 1)
+    #BombdrawAstarPath(app, canvas,  4, 1)
     drawplayerModel1(app, canvas, 1)
     for i in range(2,5):
         drawAIModel(app, canvas, i)

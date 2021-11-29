@@ -14,7 +14,7 @@ class Player(object):
         self.lives = lives
         self.weaponID = weaponID
         self.bombCount = 2
-        self.bombTimer = 3
+        self.bombTimer = 2
         self.action = action
         #for AI use only
         self.counter = 0
