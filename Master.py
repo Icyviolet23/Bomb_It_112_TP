@@ -1371,7 +1371,11 @@ def rulesPage_redrawAll(app, canvas):
     canvas.create_image(app.width/2, app.height/2, image= app.rulespage)
     canvas.create_text(app.width/2 + app.width/3.3, app.height/1.2, text = 'Press Enter to go back!', font = 'Arial 25 bold', fill = 'black')
 
-
+def drawplayerSelect(app, canvas, playernum):
+    #get where to draw the player
+    x0, y0, x1, y1 = getCellBounds(app, app.players[playernum].row, app.players[playernum].col)
+    spriteimage = app.playerModels[playernum][app.players[playernum].action][app.playerModel1Counter]
+    canvas.create_image((x1 + x0)/2, (y1 + y0)/2 - 5, image= spriteimage)
 #########################################################
 #game over mode 
 #intialize gameOver sprite
@@ -1409,17 +1413,112 @@ def intializeCharselectbackground(app):
     charbgscaled = app.scaleImage(charselect, scaleWidth*0.9, scaleHeight*0.9)
     app.charbg = ImageTk.PhotoImage(charbgscaled)
 
+    initializeCharselect(app)
+    #index
+    app.select = 1
+
+def initializeCharselect(app):
+    #use this to draw the boxes
+    #top left coordinate of the box
+    shift = app.width/17
+    app.charselectboxCoordinate = {
+        1 : (app.width/10 + shift, app.height/2.5),
+        2 : (app.width/10*3 + shift, app.height/2.5),
+        3 : (app.width/10*5 + shift, app.height/2.5),
+        4 : (app.width/10*7 + shift, app.height/2.5)
+    }
+    '''
+    app.playerModels = {
+        #this sets the player to the player model can change the player model
+        #here to change the character model
+        1 : app.playerModel1Directions,
+        2 : app.playerModel2Directions,
+        3 : app.playerModel3Directions,
+        4 : app.playerModel4Directions
+    }
+    '''
+
+def resetplayerModels(app):
+    app.playerModels = {
+        #this sets the player to the player model can change the player model
+        #here to change the character model
+        1 : app.playerModel1Directions,
+        2 : app.playerModel2Directions,
+        3 : app.playerModel3Directions,
+        4 : app.playerModel4Directions
+    }
+    choseList = [app.playerModel1Directions, app.playerModel2Directions, 
+                app.playerModel3Directions, app.playerModel4Directions]
+    
+    
+    choosenmodel = choseList.pop(app.select - 1)
+
+    app.playerModels[1] = choosenmodel
+
+    for i in range(2,5):
+        randomchoice = random.randint(0,len(choseList) - 1)
+        choose = choseList.pop(randomchoice)
+        app.playerModels[i] = choose
+    
+    
+
 
 def charSelect_redrawAll(app, canvas):
+    
+    width = app.height / 5
+    selecttopleft, selecttopright = app.charselectboxCoordinate[app.select][0], app.charselectboxCoordinate[app.select][1]
+    selectbotleft, selectbotright = selecttopleft + width, selecttopright + width
+    
+
     canvas.create_rectangle(0,0,app.width,app.height, fill = 'black')
     canvas.create_image(app.width/2, app.height/2, image= app.charbg)
     canvas.create_text(app.width/2, app.height/8, text = 'Press Enter to select your character', font = 'Arial 40 bold', fill = 'white')
+    
+    for key in app.charselectboxCoordinate:
+        topleftx, toplefty = app.charselectboxCoordinate[key][0], app.charselectboxCoordinate[key][1]
+        botrightx, botrighty = topleftx + width, toplefty + width
+        canvas.create_rectangle(topleftx, toplefty, botrightx, botrighty, fill = app.playerColor[key])
+    
+    canvas.create_rectangle(selecttopleft, selecttopright, selectbotleft, selectbotright, fill = 'blue')
+    
+    for key in app.charselectboxCoordinate:
+        topleftx, toplefty = app.charselectboxCoordinate[key][0], app.charselectboxCoordinate[key][1]
+        botrightx, botrighty = topleftx + width, toplefty + width    
+        drawModelsforChar(app, canvas, topleftx, toplefty, botrightx, botrighty, key)
+
+    canvas.create_text(app.width/2, app.height/1.1, text = 'Press s to scroll left. Press d to scroll right', font = 'Arial 25 bold', fill = 'white')
+    canvas.create_text(app.width/2, app.height/1.3, text = 'Press h to return to the home page', font = 'Arial 25 bold', fill = 'white')
 
 def charSelect_keyPressed(app, event):
     if event.key == 'Space':
         app.mode = 'homePage'
 
+    if event.key == 'd':
+        if app.select < 4:
+            app.select += 1
 
+    if event.key == 'a':
+        if app.select > 1:
+            app.select -= 1
+    
+    if event.key == 'Enter':
+        resetplayerModels(app)
+        app.mode = 'gameMode'
+
+    if event.key == 'h':
+        app.mode = 'homePage'
+        
+def drawModelsforChar(app, canvas, topleftx, toplefty, botrightx, botrighty, key):
+    midx = (topleftx + botrightx)/ 2
+    midy = (toplefty + botrighty) / 2
+    spriteimage = app.playerModels[key]['forward'][app.playerModel2Counter]
+    canvas.create_image(midx , midy, image= spriteimage)
+
+def charSelect_timerFired(app):
+    playerModel1Counter(app)
+    playerModel2Counter(app)
+    playerModel3Counter(app)
+    playerModel4Counter(app)
 ####################################################################
 #drawing functions for gameover
 
@@ -1441,7 +1540,7 @@ def gameOverMode_keyPressed(app, event):
         intializeTime(app)
         gamegraphics(app)
         initializeAI(app)
-        app.mode = 'gameMode'
+        app.mode = 'charSelect'
 
 def gameOverMode_timerFired(app):
     app.gameOverspriteCounter += 1
@@ -1504,7 +1603,7 @@ def gameWinMode_keyPressed(app, event):
         intializeTime(app)
         gamegraphics(app)
         initializeAI(app)
-        app.mode = 'gameMode'
+        app.mode = 'charSelect'
 ####################################################################
 def runGame():
     runApp(width= WIDTH, height= HEIGHT)
