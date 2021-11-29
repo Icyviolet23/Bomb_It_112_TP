@@ -1315,6 +1315,7 @@ def gameMode_redrawAll(app,canvas):
 
 def homepageParams(app):
     initializehomePage(app)
+    initializeRulesPage(app)
 
 
 def initializehomePage(app):
@@ -1329,7 +1330,10 @@ def initializehomePage(app):
 def homePage_redrawAll(app,canvas):
     canvas.create_rectangle(0,0,app.width,app.height, fill = 'black')
     canvas.create_image(app.width/2, app.height/2, image= app.homepage)
-    
+    canvas.create_text(app.width/3, app.height/2, text = 'Press Enter to start!', font = 'Arial 40 bold', fill = 'white')
+    canvas.create_text(app.width/3, app.height/1.5, text = 'Press h for the rules!', font = 'Arial 25 bold', fill = 'white')
+
+
 def homePage_keyPressed(app, event):
     if event.key == 'Enter':
         homepageParams(app)      
@@ -1339,11 +1343,34 @@ def homePage_keyPressed(app, event):
         initializeAI(app)
         app.mode = 'gameMode'
 
+    if event.key == 'h':
+        app.mode = 'rulesPage'
+#########################################################
+#rules Page
+
+
+def initializeRulesPage(app):
+    #created by me via pptx
+    rulespage = app.loadImage("Images\\rules\Rules.png")
+    imageWidth, imageHeight = rulespage.size
+    scaleHeight = app.height / imageHeight
+    scaleWidth = app.width / imageWidth
+    rulesscaled = app.scaleImage(rulespage, scaleWidth*0.9, scaleHeight*0.9)
+    app.rulespage = ImageTk.PhotoImage(rulesscaled)
+
+
+def rulesPage_keyPressed(app, event):
+    if event.key == 'Enter':
+        app.mode = 'homePage'
+
+def rulesPage_redrawAll(app, canvas):
+    canvas.create_rectangle(0,0,app.width,app.height, fill = 'black')
+    canvas.create_image(app.width/2, app.height/2, image= app.rulespage)
+    canvas.create_text(app.width/2 + app.width/3.3, app.height/1.2, text = 'Press Enter to go back!', font = 'Arial 25 bold', fill = 'black')
+
 
 #########################################################
 #game over mode 
-
-####################################################################
 #intialize gameOver sprite
 
 def initializeGameoversprite(app):
