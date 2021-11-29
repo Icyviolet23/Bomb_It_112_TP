@@ -1056,15 +1056,6 @@ def gameMode_timerFired(app):
     heartCounter(app)
         
 
-
-
-
-
-
-        
-        
-    
-
 def gameMode_keyPressed(app, event):
     #press r to reset the maze
     if event.key == 'r':
