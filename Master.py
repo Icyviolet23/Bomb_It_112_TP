@@ -689,6 +689,9 @@ def checkCollison(app, row, col):
     for wall in app.MazeWalls:
         if (row, col) == wall:
             return False
+
+    if len(app.weaponPos[(row, col)]) > 0:
+        return False
     return True
 
 
@@ -749,9 +752,18 @@ def explosionRadius(app, coordinate, playernum, bombradius):
     #center row, center col, playernumer, explosion radius
     explosion = weapon.Explosion(coordinate[0], coordinate[1], playernum, bombradius)
     explosion.createBombchangeRowCol()
+    #prevents explosion from leaking beyond walls
+    forbidden = set([])
     for drow, dcol in explosion.bombdcoordinate:
         newRow, newCol = coordinate[0] + drow, coordinate[1] + dcol
         if checkBounds(app, newRow, newCol):
+            if  (newRow, newCol) in app.MazeWalls:
+                forbiddenRow, forbiddenCol = newRow + drow, newCol + dcol
+                forbidden.add((forbiddenRow, forbiddenCol))
+
+    for drow, dcol in explosion.bombdcoordinate:
+        newRow, newCol = coordinate[0] + drow, coordinate[1] + dcol
+        if checkBounds(app, newRow, newCol) and (newRow, newCol) not in forbidden:
             explosion.radius.append((newRow, newCol))
     #contains list of instances for explosion class        
     app.explosion.append(explosion)  
@@ -875,8 +887,6 @@ def AIfindpath(app, AiNum, targetNum):
         path = AI.getAstarCoordinatePath(app, app.graph, app.MazeWalls, AiNum, targetCoord)
         app.playerpath[AiNum] = path
         app.players[AiNum].counter = 0
-        app.players[AiNum].targetHeart = True
-
     else:
         #findbfspath(app, AiNum)
         findAstarpath(app, AiNum, targetNum)
@@ -1072,7 +1082,7 @@ def gameMode_keyPressed(app, event):
     if event.key == 's':
         movePlayer(app, 1, 0, 1)
 
-    if event.key == 'b':
+    if event.key == 'Enter':
         createBomb(app, 1)
     #for debugging
     if event.key == 'o':
@@ -1087,7 +1097,7 @@ def regenerateWalls(app):
     initializeMaze(app)
 
 def autoRegenWalls(app):
-    if len(app.MazeWalls.keys())/app.MazeWallsOriLength < 0.85:
+    if len(app.MazeWalls.keys())/app.MazeWallsOriLength < 0.8:
         regenerateWalls(app)
 
 

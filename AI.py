@@ -150,19 +150,27 @@ def getshortestpathbfs(graph, wallDict, player1, AI):
 def distance(x0 ,y0 ,x1, y1):
     return ((x1-x0)**2 + (y1-y0)**2)**0.5
 
+def resetalldist(graph):
+    for coordinate in graph.nodes:
+        graph.nodes[coordinate].distance = 1
+
 #we need to prepare the graph for use for Astar
 #we need to reset all nodes.visited to False
 #we need to update the distance to 3 for walls
 #mazewalls is a dictionary mapping coordinate to wall instance
-def initializeGraphforAstar(graph, Mazewalls):
+def initializeGraphforAstar(app, graph, Mazewalls):
     Maze.resetVisitedStatusNode(graph)
+    resetalldist(graph)
     for coordinate in graph.nodes:
         #wall set to 5
         if coordinate in Mazewalls:
             graph.nodes[coordinate].distance = 5
         elif coordinate in graph.traps:
-            #we want the AI to avoid traps as much as possible
-            graph.nodes[coordinate].distance = 10**9
+        #we want the AI to avoid traps as much as possible
+            graph.nodes[coordinate].distance = 10**3
+        #we want the AI to avoid bombs as much as possible
+        elif len(app.weaponPos[coordinate]) > 0:
+            graph.nodes[coordinate].distance = 10**3
         else:
             graph.nodes[coordinate].distance = 1
     return graph
@@ -194,7 +202,7 @@ def Astar(app, graph, Mazewalls, startplayernum, targetplayernum):
     startRow, startCol = startplayer.row, startplayer.col
     targetRow, targetCol = targetplayer.row, targetplayer.col
 
-    graph = initializeGraphforAstar(graph, Mazewalls)
+    graph = initializeGraphforAstar(app, graph, Mazewalls)
     #initalizing the distance dictionary
     distanceDict = {}
 
@@ -205,7 +213,7 @@ def Astar(app, graph, Mazewalls, startplayernum, targetplayernum):
             distanceDict[coordinate] = 0
         else:
             #set to huge ass number
-            distanceDict[coordinate] = 10**6
+            distanceDict[coordinate] = 10**9
 
 
     previousDict = {}
@@ -267,7 +275,7 @@ def AstarCoordinate(app, graph, Mazewalls, startplayernum, targetcoordinate):
     startRow, startCol = startplayer.row, startplayer.col
     targetRow, targetCol = targetcoordinate[0], targetcoordinate[1]
 
-    graph = initializeGraphforAstar(graph, Mazewalls)
+    graph = initializeGraphforAstar(app, graph, Mazewalls)
     #initalizing the distance dictionary
     distanceDict = {}
 
@@ -328,10 +336,6 @@ def getAstarCoordinatePath(app, graph, Mazewalls, startplayernum, targetcoordina
         path.insert(0, (currentRow, currentCol))
         coordinate = pathDict[(currentRow, currentCol)]
         currentRow, currentCol = coordinate[0], coordinate[1]
-    
-    #only happens it overlap
-    if path == []:
-        return [(targetRow, targetCol)]
     return path
 
 
