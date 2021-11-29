@@ -587,17 +587,26 @@ def ScaleWeaponImage(app):
 
 #need to edit the image dimensions
 def initializeFloorImage(app):
-    #image from https://lpc.opengameart.org/static/lpc-style-guide/assets.html
+    #images from https://lpc.opengameart.org/static/lpc-style-guide/assets.html
+    #grass
     app.grass = app.loadImage("Images\\floor\grass.png")
-    grasscropped = app.grass.crop((8, 69, 90, 150))
-    #grasscropped = app.grass.crop((35,160,35 + 30, 160 + 30))
+    #grasscropped = app.grass.crop((8, 69, 90, 150))
+    grasscropped = app.grass.crop((35,160,35 + 30, 160 + 30))
     #scalegrass = app.scaleImage(grasscropped, 10)
     #grasscroppedFit = scalegrass.crop((0,0, app.cellWidth, app.cellHeight))
     imageWidth, imageHeight = grasscropped.size
     scaleHeightFactor = app.cellHeight / imageHeight
-    #scaleWidthFactor = app.cellWidth / imageWidth
-    app.grassscaled = ImageTk.PhotoImage(app.scaleImage(grasscropped, scaleHeightFactor))
+    scaleWidthFactor = app.cellWidth / imageWidth
+    app.grassscaled = ImageTk.PhotoImage(app.scaleImage(grasscropped, scaleWidthFactor, scaleHeightFactor))
 
+    #images from https://lpc.opengameart.org/static/lpc-style-guide/assets.html
+    #dirt
+    app.dirt = app.loadImage("Images\\floor\dirt.png")
+    dirtcropped = app.dirt.crop((35,160,35 + 30, 160 + 30))
+    imageWidth, imageHeight = dirtcropped.size
+    scaleHeightFactor = app.cellHeight / imageHeight
+    scaleWidthFactor = app.cellWidth / imageWidth
+    app.dirtscaled = ImageTk.PhotoImage(app.scaleImage(dirtcropped, scaleWidthFactor, scaleHeightFactor))
 
 #function to hold all power ups and bombs currently on the floor
 def initializeWeaponPosition(app):
@@ -1137,7 +1146,9 @@ def drawFloor(app, canvas):
     for row in range(app.graph.rows):
         for col in range(app.graph.cols):
             x0, y0, x1, y1 = getCellBounds(app, row, col)
-            canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image= app.grassscaled)
+            #if (row,col) in app.MazeWalls:
+                #canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image= app.grassscaled)
+            canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image= app.dirtscaled)
 
 
 def drawExplosion(app, canvas):
@@ -1257,7 +1268,7 @@ def drawTrap(app ,canvas):
 #######################################################################################################################################
 
 def gameMode_redrawAll(app,canvas):
-    #drawFloor(app, canvas)
+    drawFloor(app, canvas)
     drawHeart(app, canvas)
     drawTrap(app ,canvas)
     

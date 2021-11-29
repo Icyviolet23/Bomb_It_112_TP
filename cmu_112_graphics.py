@@ -308,11 +308,14 @@ class App(object):
             image = Image.open(path)
         return image
 
-    def scaleImage(app, image, scale, antialias=False):
+    def scaleImage(app, image, scale, scaleheight = -1, antialias=False):
         # antialiasing is higher-quality but slower
         resample = Image.ANTIALIAS if antialias else Image.NEAREST
-        return image.resize((round(image.width*scale), round(image.height*scale)), resample=resample)
-
+        if scaleheight == -1:
+            return image.resize((round(image.width*scale), round(image.height*scale)), resample=resample)
+        else:
+            return image.resize((round(image.width*scale), round(image.height*scaleheight)), resample=resample)
+    
     def getSnapshot(app):
         app._showRootWindow()
         x0 = app._root.winfo_rootx() + app._canvas.winfo_x()
