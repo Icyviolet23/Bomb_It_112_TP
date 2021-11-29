@@ -1,5 +1,6 @@
 #Initial Code for the term project
-
+WIDTH = 1500
+HEIGHT = 800
 from cmu_112_graphics import *
 import player
 import random
@@ -8,8 +9,8 @@ import Maze
 import weapon
 import time
 import AI
-#import pygame
-#import gamemusic
+import pygame
+import gamemusic
 
 # Python Program to Convert seconds
 # into hours, minutes and seconds
@@ -28,6 +29,8 @@ def rgbString(red, green, blue):
      return f'#{red:02x}{green:02x}{blue:02x}'
 
 def appStarted(app):
+    app.mode = 'homePage'
+    homepageParams(app)
     gameparams(app)
     intializeTime(app)
     gamegraphics(app)
@@ -36,16 +39,15 @@ def appStarted(app):
 
 def soundparams(app):
     #https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#playingSounds
-    #pygame.mixer.init()
-    #app.sound = gamemusic.Sound("Music\Bomberman (NES) Music - Stage Theme.mp3")
+    pygame.mixer.init()
+    app.sound = gamemusic.Sound("Music\Bomberman (NES) Music - Stage Theme.mp3")
     #loop forever
-    #app.sound(-1)
+    app.sound.start()
     pass
         
 
 def gameparams(app):
     #fixed params for the game
-    app.mode = 'gameMode'
     app.panel = app.width/5
     app.columns = 16
     app.rows = 16
@@ -702,7 +704,7 @@ def checkCollison(app, row, col):
         if (row, col) == wall:
             return False
 
-    if len(app.weaponPos[(row, col)]) > 0:
+    if app.weaponPos[(row, col)] != []:
         return False
     return True
 
@@ -723,7 +725,8 @@ def movePlayer(app, drow, dcol, playernum):
         app.players[playernum].action = 'left'
 
     newRow, newCol = app.players[playernum].row + drow, app.players[playernum].col + dcol
-    if checkCollison(app, newRow, newCol) and checkBounds(app, newRow, newCol):
+    #check out of bounds first to short circuit
+    if checkBounds(app, newRow, newCol) and checkCollison(app, newRow, newCol):
         app.players[playernum].row = newRow
         app.players[playernum].col = newCol
         absorbHeart(app, app.players[playernum])
@@ -1094,6 +1097,9 @@ def gameMode_keyPressed(app, event):
     if event.key == 'l':
         app.gamewin = True
 
+    if event.key == 'h':
+        app.mode = 'homePage'
+
 
 def regenerateWalls(app):
     app.MazeWalls = {}
@@ -1304,10 +1310,35 @@ def gameMode_redrawAll(app,canvas):
     
 
 
-    
+##############################################################
+# homepage mode
 
+def homepageParams(app):
+    initializehomePage(app)
+
+
+def initializehomePage(app):
+    #https://image.api.playstation.com/cdn/UP0101/CUSA10667_00/ZD4cvjR66BlVgYK0XOkeSWoJu3q32nsE.jpg
+    homepage = app.loadImage("Images\home\Bomberman.jpg")
+    imageWidth, imageHeight = homepage.size
+    scaleHeight = app.height / imageHeight
+    scaleWidth = app.width / imageWidth
+    homepagescaled = app.scaleImage(homepage, scaleWidth/10*9, scaleHeight*0.9)
+    app.homepage = ImageTk.PhotoImage(homepagescaled)
+
+def homePage_redrawAll(app,canvas):
+    canvas.create_rectangle(0,0,app.width,app.height, fill = 'black')
+    canvas.create_image(app.width/2, app.height/2, image= app.homepage)
     
-    
+def homePage_keyPressed(app, event):
+    if event.key == 'Enter':
+        homepageParams(app)      
+        gameparams(app)
+        intializeTime(app)
+        gamegraphics(app)
+        initializeAI(app)
+        app.mode = 'gameMode'
+
 
 #########################################################
 #game over mode 
@@ -1350,7 +1381,8 @@ def gameOverMode_redrawAll(app,canvas):
 
 def gameOverMode_keyPressed(app, event):
     if event.key == 'r':
-        app.gameover = False        
+        app.gameover = False
+        homepageParams(app)      
         gameparams(app)
         intializeTime(app)
         gamegraphics(app)
@@ -1409,7 +1441,8 @@ def gameWinMode_timerFired(app):
 
 def gameWinMode_keyPressed(app, event):
     if event.key == 'r':
-        app.gamewin = False        
+        app.gamewin = False
+        homepageParams(app)        
         gameparams(app)
         intializeTime(app)
         gamegraphics(app)
@@ -1417,7 +1450,7 @@ def gameWinMode_keyPressed(app, event):
         app.mode = 'gameMode'
 ####################################################################
 def runGame():
-    runApp(width= 1500, height= 800)
+    runApp(width= WIDTH, height= HEIGHT)
 
 
 runGame()
