@@ -12,10 +12,11 @@ Destroyed terrain reveals powerups which can provide powerful abilities.
 
 Players will start off with 10 lives and the goal is to deplete the lives of the opponents. 
 
-Moving over lava traps will remove one player life.
+Moving over lava traps will decrease player life by 1.
 
 Collecting randomly generated hearts will increase player life by one.
 
+Use "WASD" to move. Use "Enter" to place a bomb. More instructions provided in the game.
 
 # How to run the project. For example, which file the user should run in an editor. If your project uses data/source files, also describe how the user should set those up.
 
