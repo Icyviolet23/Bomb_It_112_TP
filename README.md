@@ -29,3 +29,15 @@ Be sure to download all the images!
 # Which libraries you're using that need to be installed, if any. If you can include the library in the submission, that is preferred.
 
 pygame
+
+# A list of any shortcut commands that exist
+
+While in game mode: Mode where u see the grid and obstacles
+
+Press 'o' to skip to game over screen
+
+Press 'l' to skip to game win screen
+
+Press 'h' to return to home screen
+
+DO THIS AT YOUR OWN PERIL as it will reset the current game
