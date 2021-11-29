@@ -513,7 +513,7 @@ def loadLavaTrap(app):
     lavaTrapCropped = lavaTrap.crop((8, 69, 90, 150))
     imageWidth, imageHeight = lavaTrapCropped.size
     Heightfactor = app.cellHeight / imageHeight
-    scaledLava = app.scaleImage(lavaTrapCropped, app.heartHeightfactor*10)
+    scaledLava = app.scaleImage(lavaTrapCropped, Heightfactor)
     app.trapImages[0] = ImageTk.PhotoImage(scaledLava)
 
 def generateTraps(app):
@@ -526,6 +526,12 @@ def generateTraps(app):
                 rngTrap = random.randint(1,10)
                 if rngTrap == 1:
                     app.graph.traps.add((row,col))
+
+
+def trapEffect(app, playernum):
+    playerRow, playerCol = app.players[playernum].row, app.players[playernum].col
+    if (playerRow, playerCol) in app.graph.traps:
+        app.players[playernum].lives -= 1
 
 #####################################################################################
 
@@ -583,11 +589,13 @@ def ScaleWeaponImage(app):
 def initializeFloorImage(app):
     #image from https://lpc.opengameart.org/static/lpc-style-guide/assets.html
     app.grass = app.loadImage("Images\\floor\grass.png")
-    app.grasscropped = app.grass.crop((0,150,96,192))
-    imageWidth, imageHeight = app.grasscropped.size
-    scaleHeightFactor = app.cellHeight / imageHeight
+    grasscropped = app.grass.crop((35,160,35 + 30, 160 + 30))
+    scalegrass = app.scaleImage(grasscropped, 10)
+    grasscroppedFit = scalegrass.crop((0,0, app.cellWidth, app.cellHeight))
+    #imageWidth, imageHeight = app.grasscropped.size
+    #scaleHeightFactor = app.cellHeight / imageHeight
     #scaleWidthFactor = app.cellWidth / imageWidth
-    app.grassscaled = ImageTk.PhotoImage(app.scaleImage(app.grasscropped, scaleHeightFactor))
+    app.grassscaled = ImageTk.PhotoImage(grasscroppedFit)
 
 
 #function to hold all power ups and bombs currently on the floor
@@ -694,6 +702,7 @@ def movePlayer(app, drow, dcol, playernum):
         app.players[playernum].row = newRow
         app.players[playernum].col = newCol
         absorbHeart(app, app.players[playernum])
+        trapEffect(app, playernum)
         #testing for player 2
         #finddfspath(app, 2)
         #findbfspath(app, 2)
@@ -889,7 +898,7 @@ def moveAI(app, AiNum):
 
             #actual moving
             app.players[AiNum].row, app.players[AiNum].col = currentRow + drow, currentCol + dcol
-            
+            trapEffect(app, AiNum)
             #absorb the heart
             absorbHeart(app, app.players[AiNum])
             #findbfspath(app, AiNum)
@@ -1124,8 +1133,10 @@ def drawAIModel(app, canvas, AInum):
 ##################################################################################
 
 def drawFloor(app, canvas):
-    x0, y0, x1, y1 = getCellBounds(app, app.rows/2, app.columns/2)
-    canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image= app.grassscaled)
+    for row in range(app.graph.rows):
+        for col in range(app.graph.cols):
+            x0, y0, x1, y1 = getCellBounds(app, row, col)
+            canvas.create_image((x1 + x0)/2, (y1 + y0)/2, image= app.grassscaled)
 
 
 def drawExplosion(app, canvas):
@@ -1245,6 +1256,7 @@ def drawTrap(app ,canvas):
 #######################################################################################################################################
 
 def gameMode_redrawAll(app,canvas):
+    drawFloor(app, canvas)
     drawHeart(app, canvas)
     drawTrap(app ,canvas)
     drawWeapon(app, canvas)
@@ -1254,7 +1266,7 @@ def gameMode_redrawAll(app,canvas):
     drawplayerModel1(app, canvas, 1)
     for i in range(2,5):
         drawAIModel(app, canvas, i)
-    #drawFloor(app, canvas)
+    
     drawScoreBoard(app, canvas)
     drawgrid(app, canvas)
     #drawMaze(app, canvas)
