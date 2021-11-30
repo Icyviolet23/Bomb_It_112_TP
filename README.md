@@ -32,6 +32,8 @@ pygame
 
 # A list of any shortcut commands that exist
 
+Press 'm' to stop the music
+
 While in game mode: Mode where u see the grid and obstacles
 
 Press 'o' to skip to game over screen
