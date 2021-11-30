@@ -1104,6 +1104,12 @@ def gameMode_keyPressed(app, event):
     if event.key == 'h':
         app.mode = 'homePage'
 
+    if event.key == 'm':
+        if app.sound.isPlaying():
+            app.sound.stop()
+        else:
+            app.sound.start(-1)
+
 
 
 def regenerateWalls(app):
@@ -1351,6 +1357,12 @@ def homePage_keyPressed(app, event):
 
     if event.key == 'h':
         app.mode = 'rulesPage'
+
+    if event.key == 'm':
+        if app.sound.isPlaying():
+            app.sound.stop()
+        else:
+            app.sound.start(-1)
 #########################################################
 #rules Page
 
@@ -1368,6 +1380,12 @@ def initializeRulesPage(app):
 def rulesPage_keyPressed(app, event):
     if event.key == 'Enter':
         app.mode = 'homePage'
+
+    if event.key == 'm':
+        if app.sound.isPlaying():
+            app.sound.stop()
+        else:
+            app.sound.start(-1)
 
 def rulesPage_redrawAll(app, canvas):
     canvas.create_rectangle(0,0,app.width,app.height, fill = 'black')
@@ -1508,6 +1526,12 @@ def charSelect_keyPressed(app, event):
 
     if event.key == 'h':
         app.mode = 'homePage'
+
+    if event.key == 'm':
+        if app.sound.isPlaying():
+            app.sound.stop()
+        else:
+            app.sound.start(-1)
         
 def drawModelsforChar(app, canvas, topleftx, toplefty, botrightx, botrighty, key):
     midx = (topleftx + botrightx)/ 2
@@ -1542,6 +1566,12 @@ def gameOverMode_keyPressed(app, event):
         gamegraphics(app)
         initializeAI(app)
         app.mode = 'charSelect'
+
+    if event.key == 'm':
+        if app.sound.isPlaying():
+            app.sound.stop()
+        else:
+            app.sound.start(-1)
 
 def gameOverMode_timerFired(app):
     app.gameOverspriteCounter += 1
@@ -1605,6 +1635,12 @@ def gameWinMode_keyPressed(app, event):
         gamegraphics(app)
         initializeAI(app)
         app.mode = 'charSelect'
+
+    if event.key == 'm':
+        if app.sound.isPlaying():
+            app.sound.stop()
+        else:
+            app.sound.start(-1)
 ####################################################################
 def runGame():
     runApp(width= WIDTH, height= HEIGHT)
