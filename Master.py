@@ -924,9 +924,10 @@ def moveAI(app, AiNum):
         if app.players[AiNum].counter >= len(path):
             app.players[AiNum].counter = len(path) - 1
 
-
+        if path == []:
+            createBomb(app, AiNum)
         #if there is a bomb right in front we want to create a bomb
-        if path[0] in app.MazeWalls:
+        elif path[0] in app.MazeWalls:
             createBomb(app, AiNum)
             app.players[AiNum].counter = app.players[AiNum].counter
         else:
@@ -1104,6 +1105,7 @@ def gameMode_keyPressed(app, event):
         app.mode = 'homePage'
 
 
+
 def regenerateWalls(app):
     app.MazeWalls = {}
     initializeMaze(app)
@@ -1135,7 +1137,7 @@ def drawWeapon(app, canvas):
                 if isinstance(bomb, weapon.Bomb):
                     weaponID = bomb.weaponID
                     x0, y0, x1, y1 = getCellBounds(app, coordinate[0], coordinate[1])
-                    canvas.create_rectangle(x0, y0, x1, y1, fill = app.playerColor[bomb.playernum])
+                    #canvas.create_rectangle(x0, y0, x1, y1, fill = app.playerColor[bomb.playernum])
                     canvas.create_image((x0 + x1)/2 + 5, (y0 + y1)/2, image = app.WeaponImageDictScaled[weaponID])
 ##################################################################################
 #drawing players
@@ -1487,7 +1489,7 @@ def charSelect_redrawAll(app, canvas):
         botrightx, botrighty = topleftx + width, toplefty + width    
         drawModelsforChar(app, canvas, topleftx, toplefty, botrightx, botrighty, key)
 
-    canvas.create_text(app.width/2, app.height/1.1, text = 'Press s to scroll left. Press d to scroll right', font = 'Arial 25 bold', fill = 'white')
+    canvas.create_text(app.width/2, app.height/1.1, text = 'Press a to scroll left. Press d to scroll right', font = 'Arial 25 bold', fill = 'white')
     canvas.create_text(app.width/2, app.height/1.3, text = 'Press h to return to the home page', font = 'Arial 25 bold', fill = 'white')
 
 def charSelect_keyPressed(app, event):
