@@ -30,6 +30,7 @@ def rgbString(red, green, blue):
 
 def appStarted(app):
     app.mode = 'homePage'
+    pygame.mixer.init()
     homepageParams(app)
     gameparams(app)
     intializeTime(app)
@@ -39,11 +40,11 @@ def appStarted(app):
 
 def soundparams(app):
     #https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#playingSounds
-    pygame.mixer.init()
-    app.sound = gamemusic.Sound("Music\Bomberman (NES) Music - Stage Theme.mp3")
+    #music from https://www.youtube.com/watch?v=eNB8V1NPYc0
+    app.sound = gamemusic.Sound(gamemusic.soundDict[1])
     #loop forever
-    app.sound.start()
-    pass
+    app.sound.start(-1)
+    
         
 
 def gameparams(app):
