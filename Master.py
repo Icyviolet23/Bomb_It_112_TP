@@ -36,7 +36,7 @@ def appStarted(app):
     intializeTime(app)
     gamegraphics(app)
     initializeAI(app)
-    #soundparams(app)
+    soundparams(app)
 
 def soundparams(app):
     #https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#playingSounds

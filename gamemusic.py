@@ -2,7 +2,7 @@
 #code from https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#playingSounds
 import pygame
 soundDict = {
-    1 : "Music\Bomberman (NES) Music - Stage Theme.mp3"
+    1 : "Music\Bomberman (NES) Music - Stage Theme 2.wav"
 }
 
 
