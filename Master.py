@@ -1,4 +1,4 @@
-#Initial Code for the term project
+#Code for the term project
 WIDTH = 1500
 HEIGHT = 800
 from cmu_112_graphics import *
@@ -1135,7 +1135,7 @@ def drawWeapon(app, canvas):
                 if isinstance(bomb, weapon.Bomb):
                     weaponID = bomb.weaponID
                     x0, y0, x1, y1 = getCellBounds(app, coordinate[0], coordinate[1])
-                    #canvas.create_rectangle(x0, y0, x1, y1, fill = app.playerColor[bomb.playernum])
+                    canvas.create_rectangle(x0, y0, x1, y1, fill = app.playerColor[bomb.playernum])
                     canvas.create_image((x0 + x1)/2 + 5, (y0 + y1)/2, image = app.WeaponImageDictScaled[weaponID])
 ##################################################################################
 #drawing players

@@ -1,3 +1,5 @@
+#wall class
+
 import random
 class Wall(object):
     def __init__(self, row, col, destructible):

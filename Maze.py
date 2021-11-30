@@ -1,3 +1,5 @@
+#code for maze generation
+
 import random
 import math
 import copy

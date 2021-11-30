@@ -1,3 +1,5 @@
+#player class
+
 import random
 import math
 import weapon

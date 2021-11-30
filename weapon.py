@@ -1,3 +1,4 @@
+#weapon class
 class Bomb(object):
     def __init__(self, timer, playernum, bombradius):
         self.timer = timer
