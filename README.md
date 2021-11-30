@@ -40,4 +40,6 @@ Press 'l' to skip to game win screen
 
 Press 'h' to return to home screen
 
+Press 'r' to reset the walls of the maze
+
 DO THIS AT YOUR OWN PERIL as it will reset the current game
