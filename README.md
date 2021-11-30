@@ -2,7 +2,7 @@
 https://www.youtube.com/watch?v=6F3a4sm5Csw
 
 
-# A short description of the project's name and what it does. 
+# A short description of the project's name and what it does
 
 Bomb it 112 will be a 16x16 grid-based game where players will place bombs that explode in a fixed cross. 
 
@@ -18,7 +18,7 @@ Collecting randomly generated hearts will increase player life by one.
 
 Use "WASD" to move. Use "Enter" to place a bomb. More instructions provided in the game.
 
-# How to run the project. For example, which file the user should run in an editor. If your project uses data/source files, also describe how the user should set those up.
+# How to run the project
 
 run Master.py
 
@@ -26,7 +26,7 @@ Be sure to download all the images!
 
 
 
-# Which libraries you're using that need to be installed, if any. If you can include the library in the submission, that is preferred.
+# Which libraries you're using that need to be installed, if any.
 
 pygame
 
