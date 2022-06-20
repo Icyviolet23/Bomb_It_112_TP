@@ -2,7 +2,7 @@
 https://www.youtube.com/watch?v=6F3a4sm5Csw
 
 
-# A short description of the project's name and what it does
+# A short description of the project's name
 
 Bomb it 112 will be a 16x16 grid-based game where players will place bombs that explode in a fixed cross. 
 
